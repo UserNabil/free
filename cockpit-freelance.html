@@ -54,6 +54,8 @@
   --ok:#61D404; --warn:#FFC02E; --bad:#FF6B6B;
   --shadow:0 2px 0 var(--line);
 }
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) select{background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 8"><path d="M1 1.5l5 5 5-5" fill="none" stroke="%23B4C7D0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>')}}
+:root[data-theme="dark"] select{background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 8"><path d="M1 1.5l5 5 5-5" fill="none" stroke="%23B4C7D0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>')}
 *{box-sizing:border-box}
 body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:14.5px;font-weight:600;line-height:1.45;-webkit-font-smoothing:antialiased}
 h1,h2,h3{margin:0;text-wrap:balance;font-family:var(--display);font-weight:700;letter-spacing:0}
@@ -140,6 +142,8 @@ main{flex:1;padding:18px 16px 40px;max-width:1180px;width:100%;margin:0 auto}
 .pill.warn{background:var(--gold-soft);color:var(--warn);border-color:var(--gold)}
 .pill.bad{background:var(--red-soft);color:var(--bad);border-color:var(--red)}
 .pill.acc{background:var(--blue-soft);color:var(--blue-d);border-color:var(--blue)}
+.pill.violet{background:var(--purple-soft);color:var(--purple-d);border-color:var(--purple)}
+.pill.neutre{background:var(--surface-3);color:var(--ink-2);border-color:var(--line-strong)}
 .empty{padding:26px 14px;text-align:center;color:var(--ink-3);font-size:13.5px}
 table{width:100%;border-collapse:collapse}
 th{text-align:left;font-family:var(--display);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700;padding:9px 11px;border-bottom:2px solid var(--line);white-space:nowrap}
@@ -151,9 +155,56 @@ input[type=text],input[type=number],input[type=date],input[type=month],select,te
 input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
 input[type=number],input[type=date],input[type=month]{font-variant-numeric:tabular-nums}
 textarea{resize:vertical;min-height:66px;font-family:inherit}
-label.f{display:flex;flex-direction:column;gap:4px}
-label.f>span{font-family:var(--display);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700}
-.hint{font-size:12px;color:var(--ink-3);line-height:1.35;font-weight:600}
+label.f{display:flex;flex-direction:column;gap:5px}
+.f-lab{display:flex;align-items:center;gap:7px;font-family:var(--display);font-size:11.5px;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700}
+.hint{font-family:var(--sans);font-size:12px;color:var(--ink-3);line-height:1.4;font-weight:600;
+  text-transform:none;letter-spacing:0}
+
+/* case à cocher aux couleurs du site */
+input[type=checkbox]{appearance:none;-webkit-appearance:none;width:24px;height:24px;margin:0;flex:none;
+  border:3px solid var(--line-strong);border-radius:8px;background:var(--surface);cursor:pointer;
+  display:inline-grid;place-items:center;transition:background .12s,border-color .12s}
+input[type=checkbox]:hover{border-color:var(--green)}
+input[type=checkbox]:checked{background:var(--green);border-color:var(--green-d)}
+input[type=checkbox]:checked::after{content:"\2713";color:#FFFFFF;font-family:var(--display);font-weight:800;
+  font-size:15px;line-height:1}
+label.row.small{cursor:pointer;font-weight:700;font-size:13.5px;color:var(--ink);text-transform:none;letter-spacing:0}
+
+/* liste déroulante : chevron maison, le natif jure avec le reste */
+select{appearance:none;-webkit-appearance:none;padding-right:34px;background-repeat:no-repeat;
+  background-position:right 12px center;background-size:12px 8px;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 8"><path d="M1 1.5l5 5 5-5" fill="none" stroke="%23777777" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>')}
+
+/* liste déroulante maison : les <option> natifs sont dessinés par le système
+   d'exploitation et ne peuvent pas être mis aux couleurs du site. */
+.sel{position:relative}
+.sel-btn{width:100%;display:flex;align-items:center;gap:9px;padding:9px 12px;border:2px solid var(--line-strong);
+  background:var(--surface);border-radius:12px;font-family:var(--sans);font-size:14px;font-weight:600;
+  color:var(--ink);cursor:pointer;text-align:left}
+.sel-btn:hover{border-color:var(--green)}
+.sel-btn[aria-expanded="true"]{border-color:var(--blue)}
+.sel-val{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sel-chev{color:var(--ink-3);font-size:10px;flex:none;transition:transform .15s}
+.sel-btn[aria-expanded="true"] .sel-chev{transform:rotate(180deg);color:var(--blue)}
+.sel-list{position:absolute;z-index:80;top:calc(100% + 6px);left:0;right:0;background:var(--surface);
+  border:2px solid var(--line-strong);border-radius:14px;padding:5px;max-height:264px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:3px;box-shadow:0 6px 0 var(--line),0 12px 26px rgba(0,0,0,.16)}
+.sel-opt{display:block;width:100%;text-align:left;padding:9px 12px;border:0;background:none;border-radius:9px;
+  font-family:var(--sans);font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer}
+.sel-opt:hover{background:var(--surface-2)}
+.sel-opt.on{background:var(--green);color:#FFFFFF}
+
+/* bouton d'explication « i » */
+.info-btn{width:18px;height:18px;flex:none;padding:0;border-radius:50%;border:2px solid var(--line-strong);
+  background:var(--surface);color:var(--ink-3);font-family:var(--display);font-weight:800;font-size:11px;
+  line-height:1;cursor:pointer;display:inline-grid;place-items:center}
+.info-btn:hover{border-color:var(--blue);color:var(--blue-d);background:var(--blue-soft)}
+.info-btn[aria-expanded="true"]{border-color:var(--blue);color:#FFFFFF;background:var(--blue)}
+.info-txt{display:none;font-family:var(--sans);font-size:12.5px;line-height:1.5;font-weight:600;
+  text-transform:none;letter-spacing:0;border-left:4px solid var(--blue);background:var(--blue-soft);
+  color:var(--blue-d);border-radius:0 10px 10px 0;padding:9px 12px}
+.info-txt.on{display:block}
 .note{border-left:4px solid var(--line-strong);border-radius:0 8px 8px 0;background:var(--surface-2);padding:9px 12px;font-size:12.5px;color:var(--ink-2);line-height:1.45}
 .note.warn{border-color:var(--gold);background:var(--gold-soft);color:var(--warn)}
 .note.acc{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-d)}
@@ -376,6 +427,15 @@ details[open]>summary .chev{transform:rotate(90deg)}
 .apercu .ap-meta{font-size:12px;color:#7A8794}
 .apercu .ap-item{margin-bottom:13px}
 .apercu p{font-size:13px;line-height:1.55;margin:4px 0 0}
+.photo-champ{display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.photo-vue{width:74px;height:74px;border-radius:50%;object-fit:cover;border:3px solid var(--line);
+  background:var(--surface-2);flex:none}
+.apercu .ap-head{display:flex;align-items:center;gap:18px}
+.apercu .ap-head-t{flex:1;min-width:0}
+.apercu .ap-photo{width:92px;height:92px;border-radius:50%;object-fit:cover;flex:none;border:3px solid #E8EDE3}
+.apercu ul{margin:5px 0 0;padding-left:19px}
+.apercu li{font-size:13px;line-height:1.5;margin:2px 0}
+.apercu ul ul{margin:2px 0 0;padding-left:17px;list-style:circle}
 .apercu .ap-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
 .apercu .ap-tag{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;background:#EEF5E6;color:#3E7A12}
 
@@ -1799,10 +1859,10 @@ VIEWS.simulateur = function (S) {
     + field("partDividendes", "Part versée en dividendes", "number", S.partDividendes, "% du disponible — EURL et SASU")
     + field("capitalSocial", "Capital social", "number", S.capitalSocial, "EURL : seuil de cotisation des dividendes")
     + field("fraisGestionPortage", "Frais de gestion portage", "number", S.fraisGestionPortage, "part du CA HT — fourchette " + pct(P.portage.fraisGestionMin, 0) + " à " + pct(P.portage.fraisGestionMax, 0), 0.005)
-    + '<label class="f"><span>Options micro</span>'
-    + '<label class="row small"><input type="checkbox" data-sfield="acrePremiereAnnee"' + (S.acrePremiereAnnee ? " checked" : "") + '> ACRE (1re année)</label>'
-    + '<label class="row small"><input type="checkbox" data-sfield="versementLiberatoire"' + (S.versementLiberatoire ? " checked" : "") + '> Versement libératoire</label>'
-    + "</label>"
+    + champ("Options micro",
+      '<label class="row small"><input type="checkbox" data-sfield="acrePremiereAnnee"' + (S.acrePremiereAnnee ? " checked" : "") + "> ACRE (1re année)</label>"
+      + '<label class="row small"><input type="checkbox" data-sfield="versementLiberatoire"' + (S.versementLiberatoire ? " checked" : "") + "> Versement libératoire</label>",
+      "", "L'ACRE réduit vos cotisations la première année. Le versement libératoire remplace l'impôt sur le revenu par un prélèvement fixe de 2,2 % du chiffre d'affaires, payé en même temps que les cotisations — intéressant seulement si votre foyer est imposable.")
     + "</div></details>"
     + '<details class="fold"><summary>Aides et projection pluriannuelle</summary><div class="fold-b">'
     + field("salaireBrutAnnuel", "Salaire brut annuel actuel", "number", S.salaireBrutAnnuel, "sert uniquement à estimer l'ARE tant que le relevé n'est pas saisi")
@@ -2139,11 +2199,40 @@ function blocAides(S) {
     + "</div></details>";
 }
 
-function field(name, label, type, value, hint, step) {
-  return '<label class="f"><span>' + esc(label) + "</span>"
-    + '<input type="' + type + '" data-sfield="' + name + '" value="' + esc(value) + '"'
-    + (step ? ' step="' + step + '"' : "") + ">"
-    + (hint ? '<span class="hint">' + hint + "</span>" : "") + "</label>";
+/** Liste déroulante maison. Un champ caché porte le `name` et la valeur, si bien
+ *  que tout le code qui lisait un <select> continue de fonctionner à l'identique. */
+function selectHTML(name, options, valeur) {
+  const courant = options.find((o) => String(o.v) === String(valeur)) || options[0] || { v: "", l: "—" };
+  return '<span class="sel">'
+    + '<input type="hidden" name="' + esc(name) + '" value="' + esc(courant.v) + '">'
+    + '<button type="button" class="sel-btn" data-act="sel-open" aria-haspopup="listbox" aria-expanded="false">'
+    + '<span class="sel-val">' + esc(courant.l) + '</span><span class="sel-chev">&#9660;</span></button>'
+    + '<span class="sel-list" role="listbox" hidden>'
+    + options.map((o) => '<button type="button" class="sel-opt' + (String(o.v) === String(courant.v) ? " on" : "")
+      + '" role="option" data-act="sel-opt" data-v="' + esc(o.v) + '">' + esc(o.l) + "</button>").join("")
+    + "</span></span>";
+}
+
+/* Fabrique commune à tous les champs : étiquette, contrôle, aide, et le
+   bouton « i » qui déplie une explication en clair. */
+let infoSeq = 0;
+function champ(label, ctrl, hint, info) {
+  const id = info ? "inf" + (++infoSeq) : null;
+  return '<label class="f">'
+    + '<span class="f-lab">' + esc(label)
+    + (id ? '<button type="button" class="info-btn" data-act="info" data-for="' + id
+      + '" aria-expanded="false" aria-label="Explication : ' + esc(label) + '">i</button>' : "")
+    + "</span>"
+    + ctrl
+    + (hint ? '<span class="hint">' + hint + "</span>" : "")
+    + (id ? '<span class="info-txt" id="' + id + '">' + esc(info) + "</span>" : "")
+    + "</label>";
+}
+
+function field(name, label, type, value, hint, step, info) {
+  return champ(label,
+    '<input type="' + type + '" data-sfield="' + name + '" value="' + esc(value) + '"'
+    + (step ? ' step="' + step + '"' : "") + ">", hint, info);
 }
 
 /* ---------------------------------------------------------------- 3. DÉMARCHES */
@@ -2193,6 +2282,8 @@ VIEWS.demarches = function (S) {
                 + (reste === null ? "en attente" : retard ? "retour en retard de " + (-reste) + " j"
                   : reste === 0 ? "retour attendu aujourd&#39;hui" : "retour attendu J−" + reste) + "</span>"
               : "")
+            + (i.onglet ? '<button class="btn sm primary" data-act="go-tab" data-tab="' + esc(i.onglet) + '">'
+              + esc((TABS.find((t) => t.id === i.onglet) || {}).nom || "Ouvrir") + "</button>" : "")
             + (i.lien ? '<a class="xs" href="' + esc(i.lien) + '" target="_blank" rel="noopener">' + esc(i.organisme || "Site officiel") + "</a>"
               : i.organisme ? '<span class="xs dim">' + esc(i.organisme) + "</span>" : "")
             + (i.echeance ? '<span class="pill num' + (daysDiff(t, i.echeance) > 0 && e !== "fait" ? " bad" : "") + '">échéance ' + fmtDate(i.echeance) + "</span>" : "")
@@ -2488,13 +2579,15 @@ VIEWS.echeances = function (S) {
 };
 
 /* ---------------------------------------------------------------- 6. VITRINE */
+/* Une couleur par type : la liste se lit d'un coup d'œil. */
 const TYPES_CV = [
-  { v: "experience", l: "Expérience" },
-  { v: "projet", l: "Projet" },
-  { v: "formation", l: "Formation" },
-  { v: "competence", l: "Compétences" },
-  { v: "texte", l: "Texte libre" }
+  { v: "experience", l: "Expérience", c: "ok" },
+  { v: "projet", l: "Projet", c: "acc" },
+  { v: "formation", l: "Formation", c: "violet" },
+  { v: "competence", l: "Compétences", c: "warn" },
+  { v: "texte", l: "Texte libre", c: "neutre" }
 ];
+const couleurType = (liste, v) => ((liste.find((t) => t.v === v) || {}).c) || "neutre";
 const TYPES_SITE = [
   { v: "hero", l: "Bandeau d'accroche" },
   { v: "apropos", l: "À propos" },
@@ -2511,6 +2604,47 @@ const SECTIONS_VITRINE = [
 
 const parOrdre = (a, b) => nz(a.ordre) - nz(b.ordre);
 const libelleType = (liste, v) => (liste.find((t) => t.v === v) || {}).l || v;
+
+const moisLong = (m) => {
+  const d = new Date(String(m) + "-01T00:00:00");
+  if (isNaN(d)) return String(m || "");
+  const s = d.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+/** « Mai 2024 – Aujourd'hui » : une fin vide signifie que le poste est en cours. */
+function periodeCV(b) {
+  if (b.debut || b.fin) {
+    const d = b.debut ? moisLong(b.debut) : "";
+    const f = b.fin ? moisLong(b.fin) : "Aujourd'hui";
+    return d ? d + " – " + f : f;
+  }
+  return b.periode || "";
+}
+
+/** Transforme un texte libre en puces : une ligne commençant par « - » devient
+ *  une puce, deux espaces avant le tiret la transforment en sous-puce. */
+function descHTML(texte) {
+  const lignes = String(texte || "").split("\n");
+  const html = [];
+  let niveau = 0;
+  const fermer = (jusqua) => { while (niveau > jusqua) { html.push("</ul>"); niveau--; } };
+  for (const brute of lignes) {
+    const m = brute.match(/^([ \t]*)[-*•–]\s+(.+)$/);
+    if (!m) {
+      fermer(0);
+      if (brute.trim()) html.push("<p>" + esc(brute.trim()) + "</p>");
+      continue;
+    }
+    const indent = m[1].replace(/\t/g, "  ").length;
+    const vise = Math.min(3, Math.floor(indent / 2) + 1);
+    fermer(vise);
+    while (niveau < vise) { html.push("<ul>"); niveau++; }
+    html.push("<li>" + esc(m[2].trim()) + "</li>");
+  }
+  fermer(0);
+  return html.join("");
+}
 
 VIEWS.vitrine = function (S) {
   const sec = S.vitrineSection || "projets";
@@ -2561,9 +2695,9 @@ function vueCV(S) {
         '<div class="srow" data-id="' + b.id + '" draggable="true">'
         + '<span class="grip" aria-hidden="true">⠿</span>'
         + '<span class="srow-b">'
-        + '<span class="row wrap" style="gap:6px"><span class="pill acc">' + esc(libelleType(TYPES_CV, b.type)) + "</span>"
+        + '<span class="row wrap" style="gap:6px"><span class="pill ' + couleurType(TYPES_CV, b.type) + '">' + esc(libelleType(TYPES_CV, b.type)) + "</span>"
         + '<span class="srow-t">' + esc(b.titre) + "</span></span>"
-        + (b.sousTitre || b.periode ? '<span class="srow-d">' + esc([b.sousTitre, b.periode].filter(Boolean).join(" · ")) + "</span>" : "")
+        + (b.sousTitre || periodeCV(b) ? '<span class="srow-d">' + esc([b.sousTitre, periodeCV(b)].filter(Boolean).join(" · ")) + "</span>" : "")
         + (b.description ? '<span class="srow-d dim">' + esc(String(b.description).slice(0, 130)) + (String(b.description).length > 130 ? "…" : "") + "</span>" : "")
         + "</span>"
         + '<button class="btn sm ghost" data-act="cv-edit" data-id="' + b.id + '">Modifier</button>'
@@ -2587,9 +2721,13 @@ function rendreCV(S, blocs) {
   if (!e.nom && !blocs.length) {
     return '<p style="color:#7A8794;font-size:13px">Renseignez l\'en-tête et ajoutez des blocs : l\'aperçu se construit ici.</p>';
   }
-  let html = "<h1>" + esc(e.nom || "Votre nom") + "</h1>"
+  let html = '<div class="ap-head"><div class="ap-head-t">'
+    + "<h1>" + esc(e.nom || "Votre nom") + "</h1>"
     + '<div class="ap-sub">' + esc(e.titre || "Développeur full-stack freelance") + "</div>"
-    + (contact ? '<div class="ap-meta">' + esc(contact) + "</div>" : "");
+    + (contact ? '<div class="ap-meta">' + esc(contact) + "</div>" : "")
+    + "</div>"
+    + (e.photo ? '<img class="ap-photo" src="' + esc(e.photo) + '" alt="">' : "")
+    + "</div>";
   const groupes = [];
   blocs.forEach((b) => {
     const dernier = groupes[groupes.length - 1];
@@ -2604,9 +2742,10 @@ function rendreCV(S, blocs) {
         .map((t) => '<span class="ap-tag">' + esc(t) + "</span>").join("") + "</div>";
     } else {
       g.items.forEach((b) => {
+        const per = periodeCV(b);
         html += '<div class="ap-item"><h3>' + esc(b.titre) + "</h3>"
-          + (b.sousTitre || b.periode ? '<div class="ap-meta">' + esc([b.sousTitre, b.periode].filter(Boolean).join(" · ")) + "</div>" : "")
-          + (b.description ? "<p>" + esc(b.description).replace(/\n/g, "<br>") + "</p>" : "")
+          + (b.sousTitre || per ? '<div class="ap-meta">' + esc([b.sousTitre, per].filter(Boolean).join(" · ")) + "</div>" : "")
+          + (b.description ? descHTML(b.description) : "")
           + "</div>";
       });
     }
@@ -2660,7 +2799,7 @@ function rendreSite(S, blocs) {
       html += "<h2>" + esc(b.titre || "Projets") + "</h2>";
       html += projets.length ? projets.map((p) => '<div class="ap-item"><h3>' + esc(p.titre) + "</h3>"
         + (p.annee ? '<div class="ap-meta">' + esc(p.annee) + "</div>" : "")
-        + (p.resume ? "<p>" + esc(p.resume) + "</p>" : "")
+        + (p.resume ? descHTML(p.resume) : "")
         + (p.techs ? '<div class="ap-tags">' + String(p.techs).split(/[,;]/).map((t) => t.trim()).filter(Boolean)
           .map((t) => '<span class="ap-tag">' + esc(t) + "</span>").join("") + "</div>" : "")
         + "</div>").join("")
@@ -2671,7 +2810,7 @@ function rendreSite(S, blocs) {
           .map((t) => '<span class="ap-tag">' + esc(t) + "</span>").join("") + "</div>";
     } else {
       html += "<h2>" + esc(b.titre || libelleType(TYPES_SITE, b.type)) + "</h2>"
-        + "<p>" + esc(b.contenu || "").replace(/\n/g, "<br>") + "</p>";
+        + descHTML(b.contenu);
     }
   });
   return html;
@@ -2687,6 +2826,10 @@ const CSS_EXPORT = "*{box-sizing:border-box}body{margin:0;background:#F7F9F4;col
   + "h3{font-family:'Baloo 2',ui-rounded,system-ui,sans-serif;font-size:17px;font-weight:700;margin:0}"
   + ".sub{font-size:17px;color:#5A6672;margin-bottom:8px}.meta{font-size:13px;color:#7A8794}"
   + ".item{margin-bottom:18px}p{font-size:14.5px;margin:5px 0 0}"
+  + ".head{display:flex;align-items:center;gap:22px}.head-t{flex:1;min-width:0}"
+  + ".photo{width:112px;height:112px;border-radius:50%;object-fit:cover;flex:none;border:3px solid #E8EDE3}"
+  + "ul{margin:6px 0 0;padding-left:21px}li{font-size:14px;line-height:1.55;margin:3px 0}"
+  + "ul ul{margin:3px 0 0;padding-left:18px;list-style:circle}"
   + ".tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}"
   + ".tag{font-size:12.5px;font-weight:700;padding:3px 11px;border-radius:99px;background:#EEF5E6;color:#3E7A12}"
   + "a{color:#3E7A12}@media print{body{background:#fff}main{padding:0;max-width:none}}";
@@ -2701,7 +2844,9 @@ function pageExport(titre, corps) {
 
 /** Reprend le rendu de l'aperçu en remplaçant les classes internes par celles de l'export. */
 const versExport = (html) => html.replace(/class="ap-sub"/g, 'class="sub"').replace(/class="ap-meta"/g, 'class="meta"')
-  .replace(/class="ap-item"/g, 'class="item"').replace(/class="ap-tags"/g, 'class="tags"').replace(/class="ap-tag"/g, 'class="tag"');
+  .replace(/class="ap-item"/g, 'class="item"').replace(/class="ap-tags"/g, 'class="tags"').replace(/class="ap-tag"/g, 'class="tag"')
+  .replace(/class="ap-head-t"/g, 'class="head-t"').replace(/class="ap-head"/g, 'class="head"')
+  .replace(/class="ap-photo"/g, 'class="photo"');
 
 async function telecharger(nomFichier, contenu) {
   let ok = false;
@@ -3097,9 +3242,22 @@ function formModal(cfg) {
 function fieldHTML(f, v) {
   const val = v === undefined || v === null ? (f.default ?? "") : v;
   let ctrl;
+  if (f.type === "photo") {
+    // Pas de <label> englobant : il déclencherait le sélecteur de fichier au moindre clic.
+    return '<div class="f"><span class="f-lab">' + esc(f.label) + "</span>"
+      + '<div class="photo-champ">'
+      + '<input type="hidden" name="' + f.name + '" value="' + esc(val) + '">'
+      + '<img class="photo-vue" alt="" src="' + esc(val) + '"' + (val ? "" : " hidden") + ">"
+      + '<div class="row wrap" style="gap:7px">'
+      + '<input type="file" accept="image/*" hidden data-role="photo-file">'
+      + '<button type="button" class="btn sm" data-act="photo-pick">Choisir une photo</button>'
+      + '<button type="button" class="btn sm ghost" data-act="photo-clear">Retirer</button>'
+      + "</div></div>"
+      + (f.hint ? '<span class="hint">' + f.hint + "</span>" : "")
+      + "</div>";
+  }
   if (f.type === "select") {
-    ctrl = '<select name="' + f.name + '">' + f.options.map((o) =>
-      '<option value="' + esc(o.v) + '"' + (String(o.v) === String(val) ? " selected" : "") + ">" + esc(o.l) + "</option>").join("") + "</select>";
+    ctrl = selectHTML(f.name, f.options, val);
   } else if (f.type === "textarea") {
     ctrl = '<textarea name="' + f.name + '">' + esc(val) + "</textarea>";
   } else if (f.type === "checkbox") {
@@ -3108,8 +3266,7 @@ function fieldHTML(f, v) {
     ctrl = '<input type="' + f.type + '" name="' + f.name + '" value="' + esc(val) + '"'
       + (f.step ? ' step="' + f.step + '"' : "") + (f.min !== undefined ? ' min="' + f.min + '"' : "") + ">";
   }
-  return '<label class="f"><span>' + esc(f.label) + "</span>" + ctrl
-    + (f.hint ? '<span class="hint">' + f.hint + "</span>" : "") + "</label>";
+  return champ(f.label, ctrl, f.hint, f.info);
 }
 
 const canalOptions = () => [{ v: "", l: "—" }].concat(Store.all("channels").map((c) => ({ v: c.nom, l: c.nom })));
@@ -3233,7 +3390,10 @@ function checkModal(id) {
       { name: "echeance", label: "Échéance ferme", type: "date", fold: true },
       { name: "note", label: "Note", type: "textarea", fold: true },
       { name: "organisme", label: "Organisme", type: "text", fold: true },
-      { name: "lien", label: "Lien", type: "text", fold: true, hint: "laissez vide si vous n'êtes pas certain de l'URL" }
+      { name: "lien", label: "Lien", type: "text", fold: true, hint: "laissez vide si vous n'êtes pas certain de l'URL" },
+      { name: "onglet", label: "Écran du cockpit", type: "select", fold: true,
+        options: [{ v: "", l: "— aucun —" }].concat(TABS.map((t) => ({ v: t.id, l: t.nom }))),
+        hint: "ajoute un bouton qui ouvre directement cet écran" }
     ],
     onSubmit: (v) => {
       const rec = { ...(c || { fait: false, ordre: 999 }), ...v, phase: Number(v.phase) };
@@ -3338,9 +3498,13 @@ function cvBlockModal(id) {
     fields: [
       { name: "type", label: "Type de bloc", type: "select", options: TYPES_CV.map((t) => ({ v: t.v, l: t.l })) },
       { name: "titre", label: "Titre", type: "text", hint: "poste, diplôme, ou intitulé de la rubrique" },
-      { name: "periode", label: "Période", type: "text", hint: "ex. 2024 – 2026" },
-      { name: "description", label: "Description", type: "textarea", hint: "pour les compétences, séparez par des virgules" },
-      { name: "sousTitre", label: "Entreprise / école", type: "text", fold: true }
+      { name: "debut", label: "Début", type: "month" },
+      { name: "fin", label: "Fin", type: "month", hint: "laissez vide si le poste est toujours en cours" },
+      { name: "description", label: "Description", type: "textarea",
+        hint: "une puce par ligne, commencez par un tiret. Deux espaces avant le tiret pour une sous-puce.",
+        info: "Exemple :\n- Application de gestion de patrimoine\n  - Stack : React, .NET Core, Azure\n  - Intégration de sources financières externes\nUne ligne sans tiret reste un paragraphe. Pour un bloc Compétences, séparez plutôt par des virgules." },
+      { name: "sousTitre", label: "Entreprise / école", type: "text", fold: true },
+      { name: "periode", label: "Période libre", type: "text", fold: true, hint: "utilisée seulement si Début et Fin sont vides" }
     ],
     onSubmit: (v) => Store.put("cvBlocks", { ...(b || { creeLe: todayISO() }), ...v })
       .then(() => { if (!b) gagnerXP(XP_GAIN.cvBloc, "bloc de CV ajouté"); }),
@@ -3354,6 +3518,7 @@ function cvEnteteModal() {
     title: "En-tête du CV",
     values: e,
     fields: [
+      { name: "photo", label: "Photo", type: "photo", hint: "recadrée en carré et réduite automatiquement — elle reste dans vos données, jamais dans le code de la page" },
       { name: "nom", label: "Nom affiché", type: "text" },
       { name: "titre", label: "Titre professionnel", type: "text", hint: "ex. Développeur full-stack .NET / Angular" },
       { name: "email", label: "E-mail", type: "text" },
@@ -3464,7 +3629,7 @@ function settingsModal() {
     + '<button class="icon-btn" data-close="1" aria-label="Fermer">&#10005;</button></div>'
     + '<div class="modal-b">'
     + '<div class="grid-2">'
-    + fieldHTML({ name: "statut", label: "Statut actif", type: "select", options: STATUTS.map((s) => ({ v: s.id, l: s.nom })), hint: "pilote les échéances, la provision et les jauges de plafonds" }, S.statut)
+    + fieldHTML({ name: "statut", label: "Statut actif", type: "select", options: STATUTS.map((s) => ({ v: s.id, l: s.nom })), hint: "pilote les échéances, la provision et les jauges de plafonds", info: "Le statut choisi ici change tout le reste de l'application : les échéances générées, le taux de provision sur chaque encaissement, les jauges de plafonds et le chemin de l'Aventure. Vous pouvez le changer à tout moment sans rien perdre." }, S.statut)
     + fieldHTML({ name: "tjm", label: "TJM cible", type: "number" }, S.tjm)
     + fieldHTML({ name: "joursFactures", label: "Jours facturés / an", type: "number" }, S.joursFactures)
     + fieldHTML({ name: "salaireNetMensuel", label: "Salaire net mensuel de référence", type: "number" }, S.salaireNetMensuel)
@@ -3472,21 +3637,22 @@ function settingsModal() {
     + fieldHTML({ name: "fraisGestionPortage", label: "Frais de gestion portage", type: "number", step: "0.005" }, S.fraisGestionPortage)
     + fieldHTML({ name: "delaiRelance", label: "Délai de relance par défaut (jours)", type: "number" }, S.delaiRelance)
     + fieldHTML({ name: "seuilDormance", label: "Piste dormante après (jours)", type: "number" }, S.seuilDormance)
-    + fieldHTML({ name: "areJournaliere", label: "ARE journalière réelle (€)", type: "number", step: "0.01", hint: "relevé France Travail — 0 pour laisser l'estimation" }, S.areJournaliere)
+    + fieldHTML({ name: "areJournaliere", label: "ARE journalière réelle (€)", type: "number", step: "0.01", hint: "relevé France Travail — 0 pour laisser l'estimation", info: "Montant brut de votre allocation chômage par jour calendaire — France Travail paie 30 ou 31 jours par mois, pas 21 jours ouvrés. C'est le chiffre qui pilote toute la projection : tant qu'il vaut 0, l'application l'estime à partir de votre salaire, ce qui est nettement moins fiable." }, S.areJournaliere)
     + fieldHTML({ name: "areJoursDroits", label: "Jours de droits ARE restants", type: "number", hint: "relevé France Travail — 0 pour estimer" }, S.areJoursDroits)
     + fieldHTML({ name: "salaireBrutAnnuel", label: "Salaire brut annuel actuel", type: "number", hint: "base de l'estimation ARE" }, S.salaireBrutAnnuel)
     + fieldHTML({ name: "joursAnnee1", label: "Jours facturés la 1re année", type: "number" }, S.joursAnnee1)
     + fieldHTML({ name: "horizonAnnees", label: "Horizon de projection (années)", type: "number" }, S.horizonAnnees)
-    + fieldHTML({ name: "periodiciteUrssaf", label: "Déclaration URSSAF", type: "select", options: [{ v: "mensuelle", l: "Mensuelle" }, { v: "trimestrielle", l: "Trimestrielle" }] }, S.periodiciteUrssaf)
-    + fieldHTML({ name: "assujettiTVA", label: "TVA", type: "checkbox", checkLabel: "Assujetti à la TVA" }, S.assujettiTVA)
+    + fieldHTML({ name: "periodiciteUrssaf", label: "Déclaration URSSAF", type: "select", options: [{ v: "mensuelle", l: "Mensuelle" }, { v: "trimestrielle", l: "Trimestrielle" }], info: "Rythme auquel vous déclarez votre chiffre d'affaires et payez vos cotisations. Le trimestriel espace les démarches mais concentre les prélèvements ; le mensuel lisse la trésorerie. Ce choix se fait à la création et se modifie une fois par an." }, S.periodiciteUrssaf)
+    + fieldHTML({ name: "assujettiTVA", label: "TVA", type: "checkbox", checkLabel: "Assujetti à la TVA", info: "Être assujetti, c'est facturer la TVA à vos clients (20 % en plus de votre TJM), la reverser à l'État, et en contrepartie récupérer celle que vous payez sur vos achats. En dessous de 37 500 € de chiffre d'affaires vous pouvez rester en franchise en base : pas de TVA facturée, pas de déclaration, mais rien de récupérable non plus. Pour un client professionnel la TVA est neutre — il la récupère — donc l'assujettissement ne vous rend pas plus cher." }, S.assujettiTVA)
     + "</div>"
     + '<details class="fold"><summary>Paramètres de calcul — vérifiés ' + esc(S.params._verifie) + "</summary><div class=\"fold-b\">"
     + '<p class="note warn">Ces valeurs changent chaque année et certaines proviennent de baromètres, pas de textes officiels. Les taux sont exprimés en décimal (0,256 = 25,6 %).</p>'
     + '<div class="grid-2">' + PARAM_FIELDS.map(([p, lab, step]) =>
       fieldHTML({ name: "P:" + p, label: lab, type: "number", step: String(step) }, getPath(S.params, p))).join("") + "</div>"
-    + '<label class="f"><span>Barème de l\'impôt sur le revenu (JSON)</span>'
-    + '<textarea name="P:ir.bareme" style="font-family:var(--mono);font-size:11.5px;min-height:96px">' + esc(JSON.stringify(S.params.ir.bareme)) + "</textarea>"
-    + '<span class="hint">Fiabilité faible : barème indexé chaque année en loi de finances, non confirmé pour 2026.</span></label>'
+    + champ("Barème de l'impôt sur le revenu (JSON)",
+      '<textarea name="P:ir.bareme" style="font-size:12px;min-height:96px">' + esc(JSON.stringify(S.params.ir.bareme)) + "</textarea>",
+      "Fiabilité faible : barème indexé chaque année en loi de finances, non confirmé pour 2026.",
+      "Chaque tranche s'écrit {\"de\": début, \"a\": fin ou null, \"taux\": part}. Le taux est en décimal : 0.30 pour 30 %. Le calcul applique le taux uniquement à la part du revenu comprise dans la tranche.")
     + "</div></details>"
     + '<details class="fold"><summary>Données</summary><div class="fold-b">'
     + '<div class="row wrap">'
@@ -3803,7 +3969,17 @@ function openDrawer(lead) {
   setTimeout(() => $("#drawerInput").focus(), 180);
 }
 
+function fermerListes(sauf) {
+  $$(".sel").forEach((box) => {
+    if (box === sauf) return;
+    const l = $(".sel-list", box), b = $(".sel-btn", box);
+    if (l) l.hidden = true;
+    if (b) b.setAttribute("aria-expanded", "false");
+  });
+}
+
 document.addEventListener("click", (e) => {
+  if (!e.target.closest(".sel")) fermerListes(null);
   const tab = e.target.closest("[data-tab]");
   if (tab) { state.tab = tab.dataset.tab; state.proposals = null; render(); return; }
   const act = e.target.closest("[data-act]");
@@ -3870,6 +4046,45 @@ document.addEventListener("click", (e) => {
       if (b) Store.put("siteBlocks", { ...b, actif: b.actif === false });
       break;
     }
+    case "photo-pick": {
+      e.preventDefault();
+      const f = $('[data-role="photo-file"]', act.closest(".photo-champ"));
+      if (f) f.click();
+      break;
+    }
+    case "photo-clear": {
+      e.preventDefault();
+      const box = act.closest(".photo-champ");
+      $('input[type="hidden"]', box).value = "";
+      const img = $(".photo-vue", box);
+      img.removeAttribute("src"); img.hidden = true;
+      break;
+    }
+    case "info": {
+      e.preventDefault();
+      const cible = document.getElementById(act.dataset.for);
+      if (cible) act.setAttribute("aria-expanded", cible.classList.toggle("on") ? "true" : "false");
+      break;
+    }
+    case "sel-open": {
+      e.preventDefault();
+      const box = act.closest(".sel"), liste = $(".sel-list", box);
+      const etaitOuvert = !liste.hidden;
+      fermerListes(box);
+      liste.hidden = etaitOuvert;
+      act.setAttribute("aria-expanded", etaitOuvert ? "false" : "true");
+      break;
+    }
+    case "sel-opt": {
+      e.preventDefault();
+      const box = act.closest(".sel");
+      $('input[type="hidden"]', box).value = act.dataset.v;
+      $(".sel-val", box).textContent = act.textContent;
+      $$(".sel-opt", box).forEach((o) => o.classList.toggle("on", o === act));
+      $(".sel-list", box).hidden = true;
+      $(".sel-btn", box).setAttribute("aria-expanded", "false");
+      break;
+    }
     case "paie-new": payslipModal(null); break;
     case "paie-edit": payslipModal(id); break;
     case "paie-report": {
@@ -3897,8 +4112,44 @@ document.addEventListener("click", (e) => {
   }
 });
 
+/** Recadre la photo en carré et la réduit : une image d'appareil photo pèse
+ *  plusieurs mégaoctets, bien au-delà de ce qu'un enregistrement peut contenir. */
+function lirePhoto(file, cb) {
+  const COTE = 320;
+  const fr = new FileReader();
+  fr.onerror = () => cb(null);
+  fr.onload = () => {
+    const img = new Image();
+    img.onerror = () => cb(null);
+    img.onload = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = COTE; c.height = COTE;
+        const cote = Math.min(img.width, img.height);
+        c.getContext("2d").drawImage(img, (img.width - cote) / 2, (img.height - cote) / 2, cote, cote, 0, 0, COTE, COTE);
+        cb(c.toDataURL("image/jpeg", 0.82));
+      } catch (_) { cb(null); }
+    };
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(file);
+}
+
 document.addEventListener("change", (e) => {
   const t = e.target;
+  if (t.dataset && t.dataset.role === "photo-file") {
+    const file = t.files && t.files[0];
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { toast("Ce fichier n'est pas une image"); return; }
+    lirePhoto(file, (data) => {
+      if (!data) { toast("Image illisible"); return; }
+      const box = t.closest(".photo-champ");
+      $('input[type="hidden"]', box).value = data;
+      const img = $(".photo-vue", box);
+      img.src = data; img.hidden = false;
+    });
+    return;
+  }
   if (t.dataset.sfield !== undefined) {
     const k = t.dataset.sfield;
     Store.saveSettings({ [k]: t.type === "checkbox" ? t.checked : Number(t.value) });
@@ -4047,6 +4298,7 @@ $("#themeBtn").addEventListener("click", () => {
 });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
+    if ($$(".sel-list").some((l) => !l.hidden)) { fermerListes(null); return; }
     if ($("#modalRoot").innerHTML) closeModal();
     else if (state.drawerOpen) { state.drawerOpen = false; renderDrawer(); }
   }
