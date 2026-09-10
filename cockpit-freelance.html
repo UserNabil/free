@@ -1554,7 +1554,7 @@ const state = {
   proposals: null,    // pistes proposées par Claude, en attente de validation
   busy: false,
   abort: null,
-  sample: null,
+  sample: undefined,   // undefined = en cours de résolution · null = indisponible
   selectedLead: null
 };
 
@@ -3791,7 +3791,7 @@ function messageModal(id) {
   const l = Store.get("leads", id);
   if (!l) return;
   const S = Store.settings;
-  const dispo = !!state.sample;
+  const dispo = state.sample !== null;
   const initial = l.message || S.messageType || "";
 
   $("#modalRoot").innerHTML = '<div class="scrim"><div class="modal wide" role="dialog" aria-modal="true">'
@@ -3852,7 +3852,7 @@ function messageModal(id) {
   if (!gen) return;
   gen.addEventListener("click", async () => {
     const s = state.sample;
-    if (!s) return;
+    if (!s) { toast("Claude n'est pas encore prêt — réessayez dans un instant"); return; }
     gen.disabled = true;
     $("#msgEtat").textContent = "Claude rédige…";
     const existant = zone.value.trim();
@@ -3937,7 +3937,7 @@ function checkModal(id) {
 function preparerModal(id) {
   const c = Store.get("checklist", id);
   if (!c) return;
-  const dispo = !!state.sample;
+  const dispo = state.sample !== null;
 
   $("#modalRoot").innerHTML = '<div class="scrim"><div class="modal wide" role="dialog" aria-modal="true">'
     + '<div class="modal-h"><h2>Préparer : ' + esc(c.titre) + "</h2>"
@@ -3977,7 +3977,7 @@ function preparerModal(id) {
   if (!ask) return;
   ask.addEventListener("click", async () => {
     const s = state.sample;
-    if (!s) return;
+    if (!s) { toast("Claude n'est pas encore prêt — réessayez dans un instant"); return; }
     const brouillon = $("#prepTexte").value.trim();
     const sortie = $("#prepSortie");
     ask.disabled = true;
@@ -4435,11 +4435,16 @@ function renderDrawer() {
   $("#drawer").classList.toggle("open", state.drawerOpen);
   const body = $("#drawerBody");
   const chips = $("#drawerChips");
+  const saisie = $("#drawerInput");
+  // `undefined` = capability pas encore résolue, `null` = indisponible.
+  // Ne jamais confondre les deux : autrefois le champ était désactivé au premier
+  // rendu, puis plus rien ne le réactivait.
   if (state.sample === null) {
     body.innerHTML = '<p class="note warn">L\'intégration Claude n\'est pas disponible sur cette page. Le reste du cockpit fonctionne normalement.</p>';
-    chips.innerHTML = ""; $("#drawerSend").disabled = true; $("#drawerInput").disabled = true;
+    chips.innerHTML = ""; $("#drawerSend").disabled = true; saisie.disabled = true;
     return;
   }
+  saisie.disabled = false;
   chips.innerHTML = (CHIPS[state.tab] || []).map((c, i) =>
     '<button class="chip" data-chip="' + i + '">' + esc(c.l) + "</button>").join("");
   let html = state.chat.length ? "" :
@@ -4461,8 +4466,9 @@ function renderDrawer() {
   body.innerHTML = html;
   body.scrollTop = body.scrollHeight;
   $("#drawerStop").hidden = !state.busy;
-  $("#drawerSend").disabled = state.busy;
-  $("#drawerHint").textContent = state.busy ? "Claude réfléchit…" : "";
+  $("#drawerSend").disabled = state.busy || state.sample === undefined;
+  $("#drawerHint").textContent = state.busy ? "Claude réfléchit…"
+    : state.sample === undefined ? "Connexion à Claude…" : "";
   const add = $("#propAdd");
   if (add) {
     add.addEventListener("click", async () => {
