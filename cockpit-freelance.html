@@ -965,8 +965,17 @@ const Store = {
   }
 };
 
+/** Champs texte que rien ne doit transformer en nombre : on répare au chargement
+ *  les valeurs corrompues par d'anciennes versions. */
+const CHAMPS_TEXTE = ["dateEntreeEntreprise", "dateFinContrat", "statut", "periodiciteUrssaf",
+  "scenarioAide", "canalPrincipal", "vitrineSection", "siteAccroche", "chargesFixesNote"];
+
 function mergeSettings(s) {
   const out = { ...DEFAULT_SETTINGS, ...(s || {}) };
+  CHAMPS_TEXTE.forEach((k) => { if (typeof out[k] !== "string") out[k] = DEFAULT_SETTINGS[k] || ""; });
+  Object.keys(out).forEach((k) => {
+    if (typeof out[k] === "number" && !Number.isFinite(out[k])) out[k] = nz(DEFAULT_SETTINGS[k], 0);
+  });
   out.params = deepMerge(structuredCloneSafe(PARAMS_2026), (s && s.params) || {});
   // `jeu` est toujours recopié : jamais de référence partagée avec DEFAULT_SETTINGS.
   const j = { ...DEFAULT_SETTINGS.jeu, ...((s && s.jeu) || {}) };
@@ -1239,9 +1248,15 @@ function comparerScenarios(S, statutId) {
 const mensuelBrut = (S) => nz(S.salaireBrutAnnuel) / 12;
 
 function ancienneteAnnees(S) {
-  if (!S.dateEntreeEntreprise) return 0;
   const fin = S.dateFinContrat || todayISO();
-  const j = daysDiff(fin, S.dateEntreeEntreprise);
+  if (S.dateEntreeEntreprise) {
+    const j = daysDiff(fin, S.dateEntreeEntreprise);
+    return j > 0 ? j / 365.25 : 0;
+  }
+  // À défaut de date saisie, la plus ancienne fiche de paie fait foi.
+  const mois = Store.all("payslips").map((p) => p.mois).filter(Boolean).sort();
+  if (!mois.length) return 0;
+  const j = daysDiff(fin, mois[0] + "-01");
   return j > 0 ? j / 365.25 : 0;
 }
 
@@ -2007,18 +2022,31 @@ function blocARE(S) {
   const entrees = '<div class="panel-b" style="border-bottom:2px solid var(--line)">'
     + '<div class="eyebrow" style="margin-bottom:9px">Mes données de rupture</div>'
     + '<div class="grid-2" style="gap:11px">'
-    + field("dateEntreeEntreprise", "Date d'entrée dans l'entreprise", "date", S.dateEntreeEntreprise, "détermine l'ancienneté et la durée d'indemnisation")
-    + field("dateFinContrat", "Date de fin de contrat envisagée", "date", S.dateFinContrat, "point de départ des différés")
-    + field("salaireBrut12Mois", "Salaire brut des 12 derniers mois", "number", S.salaireBrut12Mois, "0 = reprendre le salaire brut annuel (" + eur(nz(S.salaireBrutAnnuel)) + ")")
-    + field("indemniteRupture", "Indemnité de rupture négociée", "number", S.indemniteRupture, "montant total, indemnité légale comprise")
-    + field("indemniteCongesPayes", "Indemnité compensatrice de congés payés", "number", S.indemniteCongesPayes, "solde de congés non pris")
+    + field("dateEntreeEntreprise", "Date d'entrée dans l'entreprise", "date", S.dateEntreeEntreprise,
+      "connue : elle figure sur votre contrat et sur vos fiches de paie", null,
+      "Elle fixe votre ancienneté, donc la durée d'indemnisation et le plancher légal de l'indemnité de rupture. Si vous la laissez vide, l'application prend la plus ancienne de vos fiches de paie.")
+    + field("dateFinContrat", "Date de fin de contrat envisagée", "date", S.dateFinContrat,
+      "à vous de la fixer — vide, l'ancienneté est arrêtée à aujourd'hui", null,
+      "En rupture conventionnelle, les deux parties fixent librement cette date dans la convention : il n'y a pas de préavis. C'est elle qui sert de point de départ aux différés, donc à la date du premier versement de l'ARE.")
+    + field("salaireBrut12Mois", "Salaire brut des 12 derniers mois", "number", S.salaireBrut12Mois,
+      "repris de vos fiches de paie — 0 pour utiliser le salaire brut annuel (" + eur(nz(S.salaireBrutAnnuel)) + ")", "0.01",
+      "France Travail calcule votre allocation sur les rémunérations brutes des douze derniers mois, primes comprises. C'est pour cela que ce montant dépasse le simple salaire de base multiplié par douze.")
+    + field("indemniteRupture", "Indemnité de rupture négociée", "number", S.indemniteRupture,
+      "0 tant qu'elle n'est pas négociée — le plancher légal est calculé plus bas", "0.01",
+      "Montant total que vous toucherez à la rupture, plancher légal compris. Tout ce qui dépasse ce plancher retarde le premier versement de l'ARE d'un jour par tranche de 95,80 €, dans la limite de 150 jours.")
+    + field("indemniteCongesPayes", "Indemnité compensatrice de congés payés", "number", S.indemniteCongesPayes, "",
+      "0.01",
+      "Ce que l'employeur vous paie pour les congés acquis et non pris. Attention : cette somme crée elle aussi un différé avant l'ARE. Prendre les congés avant la fin du contrat plutôt que se les faire payer supprime ce différé.")
     + "</div></div>";
 
   if (!pret) {
     return '<div class="panel"><div class="panel-h"><h2>Simulateur ARE</h2>'
       + '<span class="pill warn">données incomplètes</span></div>' + entrees
-      + '<div class="panel-b"><p class="note warn">Renseignez au minimum votre <b>date d\'entrée dans l\'entreprise</b> et votre <b>salaire brut</b> pour calculer vos droits. '
-      + "Ce simulateur reproduit la mécanique de France Travail, mais il ne la remplace pas : seule la simulation officielle vous engage.</p></div></div>";
+      + '<div class="panel-b"><p class="note warn">Il manque votre <b>date d\'entrée dans l\'entreprise</b> ou votre <b>salaire brut</b>. '
+      + (Store.all("payslips").length
+        ? "Vos fiches de paie sont pourtant enregistrées : vérifiez que la date d'entrée est bien renseignée ci-dessus."
+        : "Enregistrez vos fiches de paie dans « Mon historique de paie » et les deux se rempliront d'eux-mêmes.")
+      + " Ce simulateur reproduit la mécanique de France Travail sans la remplacer : seule la simulation officielle vous engage.</p></div></div>";
   }
 
   const cascade = [
@@ -2253,6 +2281,7 @@ VIEWS.demarches = function (S) {
     + (enRetard ? '<span class="pill bad">' + enRetard + " en retard</span>" : "")
     + '<button class="btn sm" data-act="check-new">+ Ligne</button>'
     + "</div></div>"
+    + blocInfos()
     + blocClauses()
     + '<p class="note acc">Chaque ligne a trois états : <b>à faire</b>, <b>&#9203; en attente</b> quand vous avez fait votre part et que la réponse dépend d\'un tiers, et <b>&#10003; fait</b>. Une ligne mise en attente démarre un compte à rebours, affiché sur l\'accueil et signalé en rouge s\'il dépasse.</p>'
     + PHASES.map((ph) => {
@@ -2293,6 +2322,9 @@ VIEWS.demarches = function (S) {
                 + (nz(i.delaiAttente) > 0 ? "Délai habituel : " + nz(i.delaiAttente) + " jours" : "Lancer un compte à rebours") + '">'
                 + (e === "en_attente" ? "Annuler l&#39;attente" : "&#9203; En attente") + "</button>"
               : "")
+            + (i.resultat ? '<span class="pill ok" title="' + esc(String(i.resultat).slice(0, 160)) + '">&#10003; consigné</span>' : "")
+            + '<button class="btn sm blue" data-act="check-prep" data-id="' + i.id + '">'
+            + (i.resultat ? "Voir / compléter" : i.brouillon ? "&#9998; Mon brouillon" : "Préparer avec Claude") + "</button>"
             + '<button class="btn sm ghost" data-act="check-edit" data-id="' + i.id + '">Modifier</button>'
             + "</div></div></div>";
         }).join("")
@@ -2302,6 +2334,34 @@ VIEWS.demarches = function (S) {
     + '<p class="note">Les liens pointent vers les sites officiels des organismes. Lorsqu\'aucun lien certain n\'existe pour une démarche précise, seul le nom de l\'organisme est indiqué.</p>'
     + "</div>";
 };
+
+/** Récapitulatif de tout ce qui a été obtenu : numéros, références, contacts.
+ *  C'est le point de centralisation — une seule page à rouvrir six mois plus tard. */
+function blocInfos() {
+  const li = Store.all("checklist").slice().sort((a, b) => nz(a.ordre) - nz(b.ordre))
+    .filter((c) => String(c.resultat || "").trim());
+  const total = Store.all("checklist").length;
+  if (!li.length) {
+    return '<p class="note acc">Chaque démarche a un espace <b>« Ce que j\'ai obtenu »</b> : numéro SIRET, référence de contrat, '
+      + "IBAN, nom d'un conseiller, date de réponse. Consignez-y l'information au fur et à mesure et tout se retrouvera ici, "
+      + "dans un récapitulatif unique.</p>";
+  }
+  return '<details class="panel" id="panInfos"' + (localStorage_get("infosOpen") === "1" ? " open" : "") + ">"
+    + '<summary class="panel-h"><span class="chev">&#9656;</span>'
+    + "<h2>Mes informations</h2>"
+    + '<span class="pill ok">' + li.length + " consignée" + (li.length > 1 ? "s" : "") + "</span>"
+    + '<span class="xs dim" style="flex:1">sur ' + total + " démarches</span></summary>"
+    + '<div class="panel-b" style="display:flex;flex-direction:column;gap:11px">'
+    + li.map((c) => '<div style="display:flex;gap:11px;align-items:flex-start">'
+      + '<span class="pill' + (etatCheck(c) === "fait" ? " ok" : "") + '">Phase ' + nz(c.phase) + "</span>"
+      + '<div style="flex:1;min-width:0">'
+      + '<div class="small" style="font-weight:700">' + esc(c.titre) + "</div>"
+      + '<div class="extrait" style="margin-top:5px;font-size:12.5px">' + esc(c.resultat) + "</div>"
+      + "</div>"
+      + '<button class="btn sm ghost" data-act="check-prep" data-id="' + c.id + '">Modifier</button>'
+      + "</div>").join("")
+    + "</div></details>";
+}
 
 /** Lecture des clauses du contrat, directement dans l'application.
  *  Le contenu vient du magasin privé : rien de personnel n'est écrit dans la page. */
@@ -3409,6 +3469,93 @@ function checkModal(id) {
   });
 }
 
+/** Atelier de préparation d'une démarche : on écrit son brouillon, Claude relit.
+ *  Le brouillon reste la propriété de l'utilisateur — rien n'est remplacé sans son geste. */
+function preparerModal(id) {
+  const c = Store.get("checklist", id);
+  if (!c) return;
+  const dispo = !!state.sample;
+
+  $("#modalRoot").innerHTML = '<div class="scrim"><div class="modal wide" role="dialog" aria-modal="true">'
+    + '<div class="modal-h"><h2>Préparer : ' + esc(c.titre) + "</h2>"
+    + '<button class="icon-btn" data-close="1" aria-label="Fermer">&#10005;</button></div>'
+    + '<div class="modal-b">'
+    + (c.note ? '<p class="note">' + esc(c.note) + "</p>" : "")
+    + '<label class="f"><span class="f-lab">Mon brouillon</span>'
+    + '<textarea id="prepTexte" style="min-height:180px" placeholder="Écrivez ici : votre argumentaire, votre message, vos notes…">'
+    + esc(c.brouillon || "") + "</textarea>"
+    + '<span class="hint">Ce texte vous appartient et reste enregistré avec la démarche. '
+    + (dispo ? "Claude le relit, le corrige et signale ce qui manque — il ne le remplace que si vous le demandez."
+      : "L'intégration Claude n'est pas disponible sur cette page ; le brouillon reste enregistré normalement.") + "</span></label>"
+    + (dispo ? '<div class="row wrap" style="gap:9px">'
+      + '<button class="btn blue" id="prepAsk">Demander à Claude de relire</button>'
+      + '<span class="hint" id="prepEtat"></span></div>' : "")
+    + '<div id="prepSortie"></div>'
+    + '<label class="f" style="border-top:2px solid var(--line);padding-top:13px">'
+    + '<span class="f-lab">Ce que j\'ai obtenu</span>'
+    + '<textarea id="prepResultat" style="min-height:110px" placeholder="Numéro SIRET, référence de contrat, IBAN, nom du conseiller, date de réponse…">'
+    + esc(c.resultat || "") + "</textarea>"
+    + '<span class="hint">Consignez ici l\'information une fois obtenue. Tout ce que vous notez remonte dans le récapitulatif « Mes informations », en haut de cet onglet.</span></label>'
+    + "</div>"
+    + '<div class="modal-f"><button class="btn" data-close="1">Fermer</button>'
+    + '<button class="btn primary" id="prepSave">Enregistrer</button></div>'
+    + "</div></div>";
+
+  const root = $("#modalRoot");
+  root.querySelectorAll("button[data-close]").forEach((b) => b.addEventListener("click", closeModal));
+  root.querySelector(".scrim").addEventListener("click", (ev) => { if (ev.target.classList.contains("scrim")) closeModal(); });
+  $("#prepSave").addEventListener("click", () => {
+    Store.put("checklist", { ...c, brouillon: $("#prepTexte").value, resultat: $("#prepResultat").value });
+    closeModal();
+    toast("Enregistré");
+  });
+
+  const ask = $("#prepAsk");
+  if (!ask) return;
+  ask.addEventListener("click", async () => {
+    const s = state.sample;
+    if (!s) return;
+    const brouillon = $("#prepTexte").value.trim();
+    const sortie = $("#prepSortie");
+    ask.disabled = true;
+    $("#prepEtat").textContent = "Claude réfléchit…";
+    sortie.innerHTML = '<div class="msg ai" id="prepBulle">…</div>';
+    const bulle = $("#prepBulle");
+    const S = Store.settings;
+    const prompt = "Tu aides un développeur français qui prépare son passage en freelance en Île-de-France.\n"
+      + "Démarche en cours : " + c.titre + "\n"
+      + (c.note ? "Ce que son cockpit en dit : " + c.note + "\n" : "")
+      + "Statut envisagé : " + ((STATUTS.find((x) => x.id === S.statut) || {}).nom || "non arrêté")
+      + " · TJM cible : " + nz(S.tjm) + " €\n\n"
+      + (brouillon
+        ? "Voici son brouillon :\n\"\"\"\n" + brouillon + "\n\"\"\"\n\n"
+          + "Relis-le : corrige la langue, resserre ce qui traîne, signale ce qui manque ou ce qui le dessert. "
+          + "Rends d'abord une version prête à l'emploi, puis trois remarques courtes au maximum."
+        : "Il n'a encore rien écrit. Propose-lui un point de départ concret et bref pour cette démarche, "
+          + "puis trois remarques courtes au maximum.")
+      + "\n\nRéponds en français, sans flatterie ni préambule. N'invente aucun fait le concernant : "
+      + "si une information te manque, laisse un espace à compléter entre crochets.";
+    try {
+      const res = await s(prompt, { onText: ({ text }) => { bulle.textContent = text; } });
+      bulle.textContent = res.text + (res.truncated ? "\n\n(réponse tronquée)" : "");
+      sortie.insertAdjacentHTML("beforeend",
+        '<div class="row wrap" style="margin-top:9px;gap:9px">'
+        + '<button class="btn sm primary" id="prepUse">Remplacer mon brouillon</button>'
+        + '<span class="hint">Réponse générée : relisez-la avant d\'en faire quoi que ce soit.</span></div>');
+      $("#prepUse").addEventListener("click", () => {
+        $("#prepTexte").value = res.text;
+        toast("Brouillon remplacé — pensez à enregistrer");
+      });
+    } catch (e) {
+      const msg = erreurClaude(e && e.code);
+      bulle.textContent = (e && e.text) ? e.text + "\n\n— " + msg : msg;
+    } finally {
+      ask.disabled = false;
+      $("#prepEtat").textContent = "";
+    }
+  });
+}
+
 function missionModal(id) {
   const m = id ? Store.get("missions", id) : null;
   const S = Store.settings;
@@ -3993,6 +4140,7 @@ document.addEventListener("click", (e) => {
     case "canal-edit": canalModal(id); break;
     case "check-new": checkModal(null); break;
     case "check-edit": checkModal(id); break;
+    case "check-prep": preparerModal(id); break;
     case "check-toggle": toggleCheck(id); break;
     case "check-attente": toggleAttente(id); break;
     case "quete-ok": marquerQuete(id); break;
@@ -4152,7 +4300,14 @@ document.addEventListener("change", (e) => {
   }
   if (t.dataset.sfield !== undefined) {
     const k = t.dataset.sfield;
-    Store.saveSettings({ [k]: t.type === "checkbox" ? t.checked : Number(t.value) });
+    // Le type du champ décide de la conversion : appliquer Number() à une date
+    // produisait NaN, écrit en base comme null, et effaçait la valeur.
+    let v;
+    if (t.type === "checkbox") v = t.checked;
+    else if (t.type === "number") v = t.value === "" ? 0 : Number(t.value);
+    else v = t.value;
+    if (typeof v === "number" && !Number.isFinite(v)) return;
+    Store.saveSettings({ [k]: v });
     return;
   }
   const act = t.dataset.act;
@@ -4179,7 +4334,8 @@ document.addEventListener("input", (e) => {
 
 document.addEventListener("toggle", (e) => {
   const t = e.target;
-  if (t.id === "panPaie") localStorage_set("paieOpen", t.open ? "1" : "0");
+  if (t.id === "panInfos") localStorage_set("infosOpen", t.open ? "1" : "0");
+  else if (t.id === "panPaie") localStorage_set("paieOpen", t.open ? "1" : "0");
   else if (t.id === "panClauses") localStorage_set("clausesOpen", t.open ? "1" : "0");
   else if (t.id === "regCanaux") localStorage_set("regOpen", t.open ? "1" : "0");
   else if (t.id === "grilleJours") localStorage_set("grilleOpen", t.open ? "1" : "0");
