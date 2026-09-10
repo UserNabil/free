@@ -1,0 +1,4 @@
+# Documents personnels : contrats, fiches de paie, pièces justificatives.
+# Ils ne doivent JAMAIS être versionnés — ce dépôt est public.
+documents/
+*.pdf
