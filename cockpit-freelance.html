@@ -590,44 +590,54 @@ const CANAUX_DEPART = [
   ["Slack / Discord tech FR", "Communautés"], ["Meetups", "Communautés"], ["Forums", "Communautés"]
 ];
 
-/* [phase, titre, organisme, lien, delaiAttente]
+/* [phase, titre, organisme, lien, delaiAttente, cle]
    delaiAttente = nombre de jours pendant lesquels la balle est dans le camp d'en face
-   une fois votre part faite (0 = rien à attendre, tout dépend de vous). */
+   une fois votre part faite (0 = rien à attendre, tout dépend de vous).
+   cle = identifiant STABLE. C'est lui qui relie la ligne aux jalons de l'Aventure :
+   renommer le titre ne casse donc jamais le lien. */
 const CHECKLIST_DEPART = [
-  [1, "Relire mon contrat de travail : clause de non-concurrence, de non-sollicitation, d'exclusivité", "", "", 0],
-  [1, "Simuler mes droits ARE : montant journalier et nombre de jours indemnisables", "France Travail", "https://www.francetravail.fr", 7],
-  [1, "Relever ma durée d'affiliation et mon salaire journalier de référence", "France Travail", "https://www.francetravail.fr", 0],
-  [1, "Reporter le montant réel de l'ARE dans les réglages du cockpit", "", "", 0],
-  [1, "Constituer une trésorerie de sécurité", "", "", 0],
-  [1, "Tester le marché avec 5 candidatures réelles pour valider mon TJM", "", "", 0],
-  [1, "Décider du statut juridique", "", "", 0],
-  [2, "Préparer l'argumentaire de rupture conventionnelle", "", "", 0],
-  [2, "Demander l'entretien à mon employeur", "", "", 14],
-  [2, "Entretien(s) obligatoire(s) avec l'employeur", "Service-public.fr", "https://www.service-public.fr", 0],
-  [2, "Signature de la convention de rupture", "", "", 0],
-  [2, "Délai de rétractation : 15 jours calendaires", "", "", 15],
-  [2, "Homologation DREETS : 15 jours ouvrables", "", "", 21],
-  [2, "Inscription France Travail", "France Travail", "https://www.francetravail.fr", 7],
-  [2, "Récupérer le solde de tout compte et l'attestation employeur", "", "", 14],
-  [3, "Immatriculation via le guichet unique", "INPI — Guichet unique", "https://formalites.entreprises.gouv.fr", 15],
-  [3, "Obtention du SIRET", "INSEE", "", 15],
-  [3, "Demander l'ACRE — dans les 60 jours suivant l'immatriculation", "URSSAF", "https://www.urssaf.fr", 30],
-  [3, "Trancher entre ARCE (capital) et maintien de l'ARE (mensuel) — le choix est définitif", "France Travail", "https://www.francetravail.fr", 0],
-  [3, "Demander l'ARCE après l'immatriculation, si c'est l'option retenue", "France Travail", "https://www.francetravail.fr", 30],
-  [3, "Déclarer chaque mois mon activité à France Travail si je reste indemnisé", "France Travail", "https://www.francetravail.fr", 0],
-  [3, "Ouvrir un compte bancaire dédié", "", "", 7],
-  [3, "Souscrire une RC Pro (quasi systématiquement exigée par les clients et les plateformes)", "", "", 7],
-  [3, "Souscrire prévoyance et mutuelle", "", "", 7],
-  [3, "Choisir l'outil de facturation", "", "", 0],
-  [3, "Décider de l'option TVA", "impots.gouv.fr", "https://www.impots.gouv.fr", 0],
-  [3, "Prendre un expert-comptable si société", "", "", 0],
-  [3, "Faire valider ma simulation de statut par un expert-comptable", "", "", 14],
-  [4, "Repositionner le profil LinkedIn : titre, bannière, section « à propos » orientée offre", "", "", 0],
-  [4, "Créer les profils sur les plateformes", "", "", 7],
-  [4, "Portfolio ou site vitrine", "", "", 0],
-  [4, "CV freelance et « one-pager » d'offre", "", "", 0],
-  [4, "Modèles de contrat de prestation et de devis", "", "", 0],
-  [4, "Grille tarifaire écrite : TJM, majoration urgence, conditions de règlement", "", "", 0]
+  [1, "Relire mon contrat de travail : clause de non-concurrence, de non-sollicitation, d'exclusivité", "", "", 0, "contrat-relecture"],
+  [1, "Simuler mes droits ARE : montant journalier et nombre de jours indemnisables", "France Travail", "https://www.francetravail.fr", 7, "are-simulation"],
+  [1, "Relever ma durée d'affiliation et mon salaire journalier de référence", "France Travail", "https://www.francetravail.fr", 0, "are-affiliation"],
+  [1, "Reporter le montant réel de l'ARE dans les réglages du cockpit", "", "", 0, "are-report"],
+  [1, "Constituer une trésorerie de sécurité", "", "", 0, "tresorerie"],
+  [1, "Tester le marché avec 5 candidatures réelles pour valider mon TJM", "", "", 0, "test-marche"],
+  [1, "Décider du statut juridique", "", "", 0, "statut-decision"],
+  [2, "Préparer l'argumentaire de rupture conventionnelle", "", "", 0, "argumentaire"],
+  [2, "Demander l'entretien à mon employeur", "", "", 14, "entretien-demande"],
+  [2, "Entretien(s) obligatoire(s) avec l'employeur", "Service-public.fr", "https://www.service-public.fr", 0, "entretien"],
+  [2, "Signature de la convention de rupture", "", "", 0, "convention-signature"],
+  [2, "Délai de rétractation : 15 jours calendaires", "", "", 15, "retractation"],
+  [2, "Homologation DREETS : 15 jours ouvrables", "", "", 21, "dreets"],
+  [2, "Inscription France Travail", "France Travail", "https://www.francetravail.fr", 7, "ft-inscription"],
+  [2, "Récupérer le solde de tout compte et l'attestation employeur", "", "", 14, "solde-tout-compte"],
+  [3, "Rédiger les statuts de la société", "", "", 0, "societe-statuts"],
+  [3, "Déposer le capital social sur un compte bloqué", "", "", 7, "societe-capital"],
+  [3, "Choisir ma société de portage et comparer les frais de gestion", "", "", 0, "portage-choix"],
+  [3, "Signer la convention d'adhésion au portage", "", "", 7, "portage-convention"],
+  [3, "Immatriculation via le guichet unique", "INPI — Guichet unique", "https://formalites.entreprises.gouv.fr", 15, "immatriculation"],
+  [3, "Obtention du SIRET", "INSEE", "", 15, "siret"],
+  [3, "Demander l'ACRE — dans les 60 jours suivant l'immatriculation", "URSSAF", "https://www.urssaf.fr", 30, "acre"],
+  [3, "Trancher entre ARCE (capital) et maintien de l'ARE (mensuel) — le choix est définitif", "France Travail", "https://www.francetravail.fr", 0, "aide-arbitrage"],
+  [3, "Demander l'ARCE après l'immatriculation, si c'est l'option retenue", "France Travail", "https://www.francetravail.fr", 30, "arce-demande"],
+  [3, "Déclarer chaque mois mon activité à France Travail si je reste indemnisé", "France Travail", "https://www.francetravail.fr", 0, "ft-declaration"],
+  [3, "Ouvrir un compte bancaire dédié", "", "", 7, "banque"],
+  [3, "Souscrire une RC Pro (quasi systématiquement exigée par les clients et les plateformes)", "", "", 7, "rcpro"],
+  [3, "Souscrire prévoyance et mutuelle", "", "", 7, "prevoyance"],
+  [3, "Choisir l'outil de facturation", "", "", 0, "facturation-outil"],
+  [3, "Décider de l'option TVA", "impots.gouv.fr", "https://www.impots.gouv.fr", 0, "tva-option"],
+  [3, "Mettre en place la déclaration de TVA (CA3)", "impots.gouv.fr", "https://www.impots.gouv.fr", 0, "tva-ca3"],
+  [3, "Surveiller le seuil de franchise en base de TVA", "", "", 0, "tva-seuil"],
+  [3, "Prendre un expert-comptable si société", "", "", 0, "expert-comptable"],
+  [3, "Faire valider ma simulation de statut par un expert-comptable", "", "", 14, "expert-validation"],
+  [4, "Repositionner le profil LinkedIn : titre, bannière, section « à propos » orientée offre", "", "", 0, "linkedin"],
+  [4, "Créer les profils sur les plateformes (Malt, Free-Work, Comet)", "", "", 7, "canal-plateformes"],
+  [4, "Constituer une liste de 20 ESN et cabinets à contacter en Île-de-France", "", "", 0, "canal-esn"],
+  [4, "Réactiver 10 anciens collègues et contacts directs", "", "", 0, "canal-reseau"],
+  [4, "Portfolio ou site vitrine", "", "", 0, "portfolio"],
+  [4, "CV freelance et « one-pager » d'offre", "", "", 0, "cv"],
+  [4, "Modèles de contrat de prestation et de devis", "", "", 0, "contrats-modeles"],
+  [4, "Grille tarifaire écrite : TJM, majoration urgence, conditions de règlement", "", "", 0, "grille-tarifaire"]
 ];
 
 const PHASES = [
@@ -663,6 +673,7 @@ const DEFAULT_SETTINGS = {
   indemniteRupture: 0,           // indemnité totale négociée
   indemniteCongesPayes: 0,       // indemnité compensatrice de congés payés
   canalPrincipal: "",
+  migrationCles: 0,
   // --- vitrine ---
   vitrineSection: "projets",
   cvEntete: { nom: "", titre: "", email: "", tel: "", ville: "", liens: "" },
@@ -767,8 +778,8 @@ const Store = {
     }
     const now = new Date().toISOString();
     const chans = CANAUX_DEPART.map(([nom, categorie], i) => ({ id: uid(), nom, categorie, ordre: i, updatedAt: now }));
-    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien, delaiAttente], i) => ({
-      id: uid(), phase, titre, organisme, lien, delaiAttente: delaiAttente || 0,
+    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien, delaiAttente, cle], i) => ({
+      id: uid(), phase, titre, organisme, lien, delaiAttente: delaiAttente || 0, cle: cle || "",
       etat: "a_faire", attenduLe: "", faitLe: "", echeance: "", note: "", ordre: i, updatedAt: now
     }));
     const exemples = [
@@ -857,8 +868,8 @@ const Store = {
   async seedSansBail() {
     const now = new Date().toISOString();
     const chans = CANAUX_DEPART.map(([nom, categorie], i) => ({ id: uid(), nom, categorie, ordre: i, updatedAt: now }));
-    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien, delaiAttente], i) => ({
-      id: uid(), phase, titre, organisme, lien, delaiAttente: delaiAttente || 0,
+    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien, delaiAttente, cle], i) => ({
+      id: uid(), phase, titre, organisme, lien, delaiAttente: delaiAttente || 0, cle: cle || "",
       etat: "a_faire", attenduLe: "", faitLe: "", echeance: "", note: "", ordre: i, updatedAt: now
     }));
     for (const c of chans) await this.put("channels", c);
@@ -1226,6 +1237,12 @@ function checkFait(fragment) {
   const f = fragment.toLowerCase();
   return Store.all("checklist").some((c) => etatCheck(c) === "fait" && (c.titre || "").toLowerCase().includes(f));
 }
+/** Par clé stable d'abord, repli sur le titre pour les bases antérieures aux clés. */
+function cleFait(cle, fallback) {
+  const c = Store.all("checklist").find((x) => x.cle === cle);
+  if (c) return etatCheck(c) === "fait";
+  return fallback ? checkFait(fallback) : false;
+}
 function phaseStats(n) {
   const li = Store.all("checklist").filter((c) => nz(c.phase) === n);
   return { total: li.length, faits: li.filter((c) => etatCheck(c) === "fait").length, attente: li.filter((c) => etatCheck(c) === "en_attente").length };
@@ -1236,7 +1253,7 @@ const RANGS = [
   { n: 2, nom: "En préparation", desc: "Phase 1 entamée.", cond: () => phaseStats(1).faits > 0 },
   { n: 3, nom: "Décidé", desc: "Statut choisi et phase 1 bouclée.", cond: (S) => S.statut !== "undecided" && phaseStats(1).total > 0 && phaseStats(1).faits === phaseStats(1).total },
   { n: 4, nom: "En négociation", desc: "Rupture conventionnelle engagée.", cond: () => phaseStats(2).faits > 0 },
-  { n: 5, nom: "Immatriculé", desc: "SIRET en poche.", cond: () => checkFait("Obtention du SIRET") },
+  { n: 5, nom: "Immatriculé", desc: "SIRET en poche.", cond: (S) => cleFait("siret", "Obtention du SIRET") || (S.statut === "portage" && cleFait("portage-convention")) },
   { n: 6, nom: "Freelance lancé", desc: "Première mission signée.", cond: () => Store.all("missions").length > 0 },
   { n: 7, nom: "Freelance confirmé", desc: "Premier encaissement reçu.", cond: () => Store.all("invoices").some((i) => i.dateEncaissement) }
 ];
@@ -1248,11 +1265,11 @@ function rangActuel(S) {
 
 const BADGES = [
   { id: "premier_pas", ico: "🐣", t: "Premier pas", test: () => Store.all("leads").length > 0 },
-  { id: "contrat", ico: "📄", t: "Contrat relu", test: () => checkFait("Relire mon contrat") },
+  { id: "contrat", ico: "📄", t: "Contrat relu", test: () => cleFait("contrat-relecture", "Relire mon contrat") },
   { id: "are", ico: "🧮", t: "Droits ARE connus", test: (S) => nz(S.areJournaliere) > 0 },
   { id: "statut", ico: "⚖️", t: "Statut choisi", test: (S) => S.statut !== "undecided" },
-  { id: "rupture", ico: "🤝", t: "Rupture signée", test: () => checkFait("Signature de la convention") },
-  { id: "siret", ico: "🏛️", t: "SIRET obtenu", test: () => checkFait("Obtention du SIRET") },
+  { id: "rupture", ico: "🤝", t: "Rupture signée", test: () => cleFait("convention-signature", "Signature de la convention") },
+  { id: "siret", ico: "🏛️", t: "SIRET obtenu", test: () => cleFait("siret", "Obtention du SIRET") },
   { id: "prospecteur", ico: "🎯", t: "20 candidatures", test: () => Store.all("leads").filter((l) => (l.stageDates || {}).envoyee).length >= 20 },
   { id: "mission", ico: "💼", t: "1re mission", test: () => Store.all("missions").length > 0 },
   { id: "encaisse", ico: "💰", t: "1er encaissement", test: () => Store.all("invoices").some((i) => i.dateEncaissement) },
@@ -1323,12 +1340,49 @@ async function gagnerXPInterne(montant, libelle) {
   }
 }
 
+/** Rattrape les bases créées avant les clés stables : relie chaque ligne existante à sa
+ *  clé par son titre, puis ajoute les lignes de branche qui manquent. Idempotent. */
+let migrationLancee = false;
+const normTitre = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+async function migrerChecklist() {
+  if (migrationLancee) return;
+  const S = Store.settings;
+  if (!S || nz(S.migrationCles) >= 2) { migrationLancee = true; return; }
+  const items = Store.all("checklist");
+  if (!items.length) return;                 // base vide : le contenu de départ s'en charge
+  migrationLancee = true;
+
+  for (const it of items) {
+    if (it.cle) continue;
+    const a = normTitre(it.titre);
+    const cands = CHECKLIST_DEPART.filter((l) => {
+      const b = normTitre(l[1]);
+      return a.startsWith(b.slice(0, 18)) || b.startsWith(a.slice(0, 18));
+    });
+    if (cands.length !== 1) continue;        // ambigu : on ne devine pas
+    const ref = cands[0];
+    await Store.put("checklist", { ...it, cle: ref[5], delaiAttente: nz(it.delaiAttente, 0) || ref[4] || 0 });
+  }
+
+  const presentes = new Set(Store.all("checklist").map((c) => c.cle).filter(Boolean));
+  let ordre = Math.max(0, ...Store.all("checklist").map((c) => nz(c.ordre))) + 1;
+  for (const [phase, titre, organisme, lien, delai, cle] of CHECKLIST_DEPART) {
+    if (presentes.has(cle)) continue;
+    await Store.put("checklist", {
+      phase, titre, organisme, lien, delaiAttente: delai || 0, cle,
+      etat: "a_faire", fait: false, faitLe: "", attenduLe: "", echeance: "", note: "", ordre: ordre++
+    });
+  }
+  await Store.saveSettings({ migrationCles: 2 });
+}
+
 /** Vérifie quêtes terminées et badges débloqués. Idempotent. */
 let verifEnCours = false;
 async function verifierProgression() {
   if (verifEnCours || !Store.ready || Store.settings === null) return;
   verifEnCours = true;
   try {
+    await migrerChecklist();
     const S = Store.settings, t = todayISO();
     const j = { ...jeu() };
     const faites = (j.quetesFaites || []).slice();
@@ -1339,7 +1393,7 @@ async function verifierProgression() {
     }
     const noeudsXP = (j.noeudsXP || []).slice();
     const av = etatAventure(S);
-    AVENTURE.forEach((n, i) => {
+    av.noeuds.forEach((n, i) => {
       if (av.faits[i] && !noeudsXP.includes(n.id)) { noeudsXP.push(n.id); gain += n.xp; libelles.push(n.t); }
     });
     const badges = (j.badges || []).slice(); const nouveaux = [];
@@ -2560,124 +2614,200 @@ const CHAPITRES = [
   { n: 4, t: "Lancement" }
 ];
 
+/* Un jalon est relié au reste de l'application de trois façons possibles :
+   - `cle`  : une ligne de la checklist, désignée par sa CLÉ STABLE. C'est elle qui
+              fait foi — cocher le jalon coche la ligne, et inversement. Renommer la
+              ligne ne casse rien. `fb` sert de repli pour les bases créées avant les clés.
+   - `test` : une vérité déduite des données (ARE renseignée, mission créée…).
+   - carrefour : une décision, enregistrée et appliquée aux réglages.
+   `si` masque un jalon qui ne concerne pas le chemin choisi : c'est ce qui fait
+   de l'aventure un arbre et non une ligne droite. */
+const estSociete = (S) => S.statut === "eurl" || S.statut === "sasu";
+const estPortage = (S) => S.statut === "portage";
+
 const AVENTURE = [
+  /* --- chapitre 1 : préparation --- */
   { ch: 1, id: "contrat", ico: "📄", t: "Contrat lu", xp: 40, go: "demarches",
-    d: "Repérer non-concurrence, exclusivité et propriété intellectuelle.",
-    test: () => checkFait("Relire mon contrat") },
+    cle: "contrat-relecture", fb: "Relire mon contrat",
+    d: "Repérer non-concurrence, exclusivité et propriété intellectuelle." },
   { ch: 1, id: "are", ico: "🧮", t: "Droits ARE", xp: 60, go: "simulateur",
-    d: "Savoir combien France Travail versera, et à partir de quand.",
-    test: (S) => nz(S.areJournaliere) > 0 },
+    test: (S) => nz(S.areJournaliere) > 0,
+    d: "Renseigner l'ARE réelle relevée sur France Travail." },
   { ch: 1, id: "tresorerie", ico: "🏦", t: "Trésorerie", xp: 40, go: "demarches",
-    d: "De quoi tenir plusieurs mois sans revenu.",
-    test: () => checkFait("trésorerie de sécurité") },
+    cle: "tresorerie", fb: "trésorerie de sécurité",
+    d: "De quoi tenir plusieurs mois sans revenu." },
   { ch: 1, id: "tjm", ico: "🎯", t: "TJM fixé", xp: 40, go: "simulateur",
-    d: "Un tarif validé par le marché, pas par l'espoir.",
-    test: (S) => nz(S.tjm) > 0 && Store.all("leads").length >= 3 },
+    test: (S) => nz(S.tjm) > 0 && Store.all("leads").length >= 3,
+    d: "Un tarif confronté à trois pistes réelles, au moins." },
   { ch: 1, id: "choix-statut", ico: "⚖️", t: "Mon statut", xp: 100, type: "carrefour", go: "simulateur",
-    d: "La décision la plus structurante. Modifiable ensuite.",
     test: (S) => S.statut !== "undecided",
+    d: "La décision la plus structurante. Elle ouvre un chemin différent.",
     options: [
       { v: "micro", ico: "🌱", l: "Micro-entreprise", d: "Le plus simple. Plafond de CA à surveiller.", patch: { statut: "micro" } },
-      { v: "eurl", ico: "🏛️", l: "EURL à l'IS", d: "Cotisations plus basses, comptabilité lourde.", patch: { statut: "eurl" } },
-      { v: "sasu", ico: "🏢", l: "SASU à l'IS", d: "Protection de salarié, cotisations élevées.", patch: { statut: "sasu" } },
-      { v: "portage", ico: "🛟", l: "Portage salarial", d: "Zéro administration, chômage conservé.", patch: { statut: "portage" } }
+      { v: "eurl", ico: "🏛️", l: "EURL à l'IS", d: "Statuts, capital, comptabilité. Cotisations plus basses.", patch: { statut: "eurl" } },
+      { v: "sasu", ico: "🏢", l: "SASU à l'IS", d: "Statuts, capital. Protection de salarié, cotisations élevées.", patch: { statut: "sasu" } },
+      { v: "portage", ico: "🛟", l: "Portage salarial", d: "Ni immatriculation ni ACRE : la société porte tout.", patch: { statut: "portage" } }
     ] },
 
+  /* --- chapitre 2 : sortie --- */
   { ch: 2, id: "argumentaire", ico: "🗣️", t: "Argumentaire", xp: 30, go: "demarches",
-    d: "Ce que vous direz, et ce que vous ne direz pas.",
-    test: () => checkFait("argumentaire") },
+    cle: "argumentaire", fb: "argumentaire",
+    d: "Ce que vous direz, et ce que vous ne direz pas." },
   { ch: 2, id: "demande", ico: "🤝", t: "Demande faite", xp: 40, go: "demarches",
-    d: "L'employeur doit accepter : ça ne s'impose pas.",
-    test: () => checkFait("Demander l'entretien") },
+    cle: "entretien-demande", fb: "Demander l'entretien",
+    d: "L'employeur doit accepter : ça ne s'impose pas." },
   { ch: 2, id: "signature", ico: "✍️", t: "Convention signée", xp: 60, go: "demarches",
-    d: "Puis 15 jours de rétractation.",
-    test: () => checkFait("Signature de la convention") },
+    cle: "convention-signature", fb: "Signature de la convention",
+    d: "Puis 15 jours de rétractation." },
   { ch: 2, id: "homologation", ico: "🏛️", t: "Homologuée", xp: 60, go: "demarches",
-    d: "La DREETS valide sous 15 jours ouvrables.",
-    test: () => checkFait("Homologation") },
+    cle: "dreets", fb: "Homologation",
+    d: "La DREETS valide sous 15 jours ouvrables." },
   { ch: 2, id: "inscription", ico: "📋", t: "France Travail", xp: 40, go: "demarches",
-    d: "L'inscription ouvre les droits.",
-    test: () => checkFait("Inscription France Travail") },
+    cle: "ft-inscription", fb: "Inscription France Travail",
+    d: "L'inscription ouvre les droits." },
 
+  /* --- chapitre 3 : création — le chemin dépend du statut --- */
+  { ch: 3, id: "societe-statuts", ico: "📜", t: "Statuts rédigés", xp: 60, go: "demarches",
+    si: estSociete, cle: "societe-statuts",
+    d: "Objet social, gérance, exercice comptable." },
+  { ch: 3, id: "societe-capital", ico: "🏦", t: "Capital déposé", xp: 50, go: "demarches",
+    si: estSociete, cle: "societe-capital",
+    d: "Sur un compte bloqué, avant l'immatriculation." },
+  { ch: 3, id: "portage-choix", ico: "🔎", t: "Société choisie", xp: 60, go: "simulateur",
+    si: estPortage, cle: "portage-choix",
+    d: "Comparer les frais de gestion : 5 à 10 % du CA." },
+  { ch: 3, id: "portage-convention", ico: "🤝", t: "Convention signée", xp: 60, go: "demarches",
+    si: estPortage, cle: "portage-convention",
+    d: "L'adhésion vous rend salarié de la société de portage." },
   { ch: 3, id: "immat", ico: "🏢", t: "SIRET", xp: 80, go: "demarches",
-    d: "L'entreprise existe.",
-    test: () => checkFait("Obtention du SIRET") },
+    si: (S) => !estPortage(S), cle: "siret", fb: "Obtention du SIRET",
+    d: "L'entreprise existe." },
   { ch: 3, id: "acre", ico: "🎁", t: "ACRE demandée", xp: 60, go: "demarches",
-    d: "60 jours après l'immatriculation, pas un de plus.",
-    test: () => checkFait("ACRE") },
+    si: (S) => !estPortage(S), cle: "acre", fb: "ACRE",
+    d: "60 jours après l'immatriculation, pas un de plus." },
+  { ch: 3, id: "expert", ico: "🧾", t: "Expert-comptable", xp: 40, go: "demarches",
+    si: estSociete, cle: "expert-comptable", fb: "expert-comptable si société",
+    d: "Indispensable de fait dès qu'il y a un bilan." },
   { ch: 3, id: "choix-aide", ico: "💸", t: "ARCE ou ARE", xp: 100, type: "carrefour", go: "simulateur",
-    d: "Choix définitif. Le simulateur chiffre les deux.",
+    si: (S) => !estPortage(S),
+    d: "Choix définitif. Il ouvre une démarche différente ensuite.",
     options: [
       { v: "arce", ico: "💸", l: "ARCE — capital", d: "60 % des droits en deux versements. Solde les droits.", patch: { scenarioAide: "arce" } },
-      { v: "maintien", ico: "📆", l: "Maintien de l'ARE", d: "Allocation mensuelle, droits conservés plus longtemps.", patch: { scenarioAide: "maintien" } },
+      { v: "maintien", ico: "📆", l: "Maintien de l'ARE", d: "Allocation mensuelle, à déclarer tous les mois.", patch: { scenarioAide: "maintien" } },
       { v: "aucune", ico: "⛔", l: "Aucune aide", d: "Je démarre sans dispositif.", patch: { scenarioAide: "aucune" } }
     ] },
+  { ch: 3, id: "arce-demande", ico: "📨", t: "ARCE demandée", xp: 60, go: "demarches",
+    si: (S) => !estPortage(S) && S.scenarioAide === "arce", cle: "arce-demande",
+    d: "À déposer après l'immatriculation." },
+  { ch: 3, id: "ft-declaration", ico: "📆", t: "Déclaration mensuelle", xp: 50, go: "demarches",
+    si: (S) => !estPortage(S) && S.scenarioAide === "maintien", cle: "ft-declaration",
+    d: "Tous les mois, même sans revenu. Un oubli suspend le versement." },
   { ch: 3, id: "rcpro", ico: "🛡️", t: "RC Pro", xp: 40, go: "demarches",
-    d: "Exigée par presque tous les clients.",
-    test: () => checkFait("RC Pro") },
+    si: (S) => !estPortage(S), cle: "rcpro", fb: "RC Pro",
+    d: "Exigée par presque tous les clients." },
   { ch: 3, id: "choix-tva", ico: "🧾", t: "TVA", xp: 60, type: "carrefour", go: "echeances",
+    si: (S) => !estPortage(S),
     d: "Franchise en base, ou TVA dès le premier euro.",
     options: [
-      { v: "franchise", ico: "🌾", l: "Franchise en base", d: "Pas de TVA à facturer sous le seuil.", patch: { assujettiTVA: false } },
-      { v: "assujetti", ico: "🧾", l: "Assujetti à la TVA", d: "TVA facturée, et récupérable sur mes achats.", patch: { assujettiTVA: true } }
+      { v: "franchise", ico: "🌾", l: "Franchise en base", d: "Pas de TVA à facturer sous le seuil. Seuil à surveiller.", patch: { assujettiTVA: false } },
+      { v: "assujetti", ico: "🧾", l: "Assujetti à la TVA", d: "TVA facturée, récupérable, et déclaration périodique.", patch: { assujettiTVA: true } }
     ] },
+  { ch: 3, id: "tva-ca3", ico: "📑", t: "Déclaration TVA", xp: 40, go: "echeances",
+    si: (S) => !estPortage(S) && S.assujettiTVA === true, cle: "tva-ca3",
+    d: "Mettre en place la CA3." },
+  { ch: 3, id: "tva-seuil", ico: "📏", t: "Seuil surveillé", xp: 40, go: "missions",
+    si: (S) => !estPortage(S) && S.assujettiTVA !== true, cle: "tva-seuil",
+    d: "La jauge de plafonds suit le franchissement." },
 
+  /* --- chapitre 4 : lancement --- */
   { ch: 4, id: "vitrine", ico: "🌐", t: "Vitrine prête", xp: 60, go: "vitrine",
-    d: "CV et portfolio en ligne.",
-    test: () => Store.all("cvBlocks").length >= 4 && Store.all("siteBlocks").filter((b) => b.actif !== false).length >= 3 },
+    test: () => Store.all("cvBlocks").length >= 4 && Store.all("siteBlocks").filter((b) => b.actif !== false).length >= 3,
+    d: "CV étoffé et portfolio monté." },
   { ch: 4, id: "piste", ico: "🔍", t: "1re piste", xp: 30, go: "prospection",
-    d: "Le kanban commence à vivre.",
-    test: () => Store.all("leads").length > 0 },
+    test: () => Store.all("leads").length > 0,
+    d: "Le kanban commence à vivre." },
   { ch: 4, id: "choix-canal", ico: "📡", t: "Canal principal", xp: 60, type: "carrefour", go: "prospection",
+    test: (S) => !!S.canalPrincipal,
     d: "Où vous investissez votre temps en priorité.",
     options: [
       { v: "plateformes", ico: "🖥️", l: "Plateformes", d: "Malt, Free-Work, Comet, Talent.io.", patch: { canalPrincipal: "plateformes" } },
       { v: "esn", ico: "🏢", l: "ESN et cabinets", d: "Le canal dominant en régie sur .NET / Angular en IDF.", patch: { canalPrincipal: "esn" } },
       { v: "reseau", ico: "🤝", l: "Réseau direct", d: "Anciens collègues, LinkedIn, bouche-à-oreille.", patch: { canalPrincipal: "reseau" } }
     ] },
+  { ch: 4, id: "canal-plateformes", ico: "🖥️", t: "Profils créés", xp: 50, go: "prospection",
+    si: (S) => S.canalPrincipal === "plateformes", cle: "canal-plateformes",
+    d: "Malt, Free-Work, Comet." },
+  { ch: 4, id: "canal-esn", ico: "🏢", t: "20 ESN listées", xp: 50, go: "prospection",
+    si: (S) => S.canalPrincipal === "esn", cle: "canal-esn",
+    d: "Une liste nominative, pas une intention." },
+  { ch: 4, id: "canal-reseau", ico: "🤝", t: "10 contacts relancés", xp: 50, go: "prospection",
+    si: (S) => S.canalPrincipal === "reseau", cle: "canal-reseau",
+    d: "Anciens collègues d'abord." },
   { ch: 4, id: "candidature", ico: "📤", t: "1re candidature", xp: 60, go: "prospection",
-    d: "Une piste passée en « Candidature envoyée ».",
-    test: () => Store.all("leads").some((l) => (l.stageDates || {}).envoyee) },
+    test: () => Store.all("leads").some((l) => (l.stageDates || {}).envoyee),
+    d: "Une piste passée en « Candidature envoyée »." },
   { ch: 4, id: "mission", ico: "💼", t: "1re mission", xp: 150, go: "missions",
-    d: "Signée.",
-    test: () => Store.all("missions").length > 0 },
+    test: () => Store.all("missions").length > 0,
+    d: "Signée." },
   { ch: 4, id: "encaisse", ico: "💰", t: "1er encaissement", xp: 300, go: "missions",
-    d: "L'argent est arrivé. Vous êtes freelance.",
-    test: () => Store.all("invoices").some((i) => i.dateEncaissement) }
+    test: () => Store.all("invoices").some((i) => i.dateEncaissement),
+    d: "L'argent est arrivé. Vous êtes freelance." }
 ];
 
 const DX_CHEMIN = [0, 46, 66, 46, 0, -46, -66, -46];
 
+/** La ligne de checklist adossée à un jalon, par clé stable puis par repli de titre. */
+function tacheDuNoeud(n) {
+  if (!n.cle) return null;
+  const parCle = Store.all("checklist").find((c) => c.cle === n.cle);
+  if (parCle) return parCle;
+  if (!n.fb) return null;
+  const f = n.fb.toLowerCase();
+  return Store.all("checklist").find((c) => (c.titre || "").toLowerCase().includes(f)) || null;
+}
+
 function noeudFait(n, S) {
-  if (((jeu().noeuds) || []).includes(n.id)) return true;
-  try { return n.test ? !!n.test(S) : false; } catch (_) { return false; }
+  // Un jalon adossé à une tâche n'a pas d'état propre : la checklist fait foi.
+  const tache = tacheDuNoeud(n);
+  if (tache) return etatCheck(tache) === "fait";
+  if (n.test) { try { if (n.test(S)) return true; } catch (_) { } }
+  return ((jeu().noeuds) || []).includes(n.id);
+}
+
+function noeudsVisibles(S) {
+  return AVENTURE.filter((n) => { try { return n.si ? !!n.si(S) : true; } catch (_) { return true; } });
 }
 
 function etatAventure(S) {
-  const faits = AVENTURE.map((n) => noeudFait(n, S));
+  const noeuds = noeudsVisibles(S);
+  const faits = noeuds.map((n) => noeudFait(n, S));
   let courant = -1;
-  const dispo = AVENTURE.map((n, i) => {
+  const dispo = noeuds.map((n, i) => {
     const d = i === 0 || faits[i - 1];
     if (courant < 0 && d && !faits[i]) courant = i;
     return d;
   });
-  return { faits, dispo, courant, total: AVENTURE.length, nbFaits: faits.filter(Boolean).length };
+  return { noeuds, faits, dispo, courant, total: noeuds.length, nbFaits: faits.filter(Boolean).length };
 }
 
 VIEWS.aventure = function (S) {
   const e = etatAventure(S);
   const p = progressionNiveau(jeu().xp);
-  const suivant = e.courant >= 0 ? AVENTURE[e.courant] : null;
-  const xpRestant = AVENTURE.filter((n, i) => !e.faits[i]).reduce((a, n) => a + n.xp, 0);
+  const suivant = e.courant >= 0 ? e.noeuds[e.courant] : null;
+  const xpRestant = e.noeuds.filter((n, i) => !e.faits[i]).reduce((a, n) => a + n.xp, 0);
+  const branche = S.statut === "undecided" ? "chemin commun"
+    : estPortage(S) ? "voie portage salarial"
+      : estSociete(S) ? "voie société" : "voie micro-entreprise";
 
   const tete = '<div class="hero" style="max-width:540px;width:100%">'
     + anneauNiveau(p.pct, p.niveau)
     + '<div class="hero-main">'
     + "<h1>" + e.nbFaits + " / " + e.total + " jalons</h1>"
-    + '<div class="bar" style="margin:2px 0 4px"><i style="width:' + Math.round(e.nbFaits / e.total * 100) + '%"></i></div>'
+    + '<div class="bar" style="margin:2px 0 4px"><i style="width:' + Math.round(e.nbFaits / Math.max(1, e.total) * 100) + '%"></i></div>'
     + '<div class="hero-stats">'
     + '<span class="pill acc">' + num(nz(jeu().xp)) + " XP</span>"
     + '<span class="pill warn">🔥 ' + nz(jeu().serie) + " j</span>"
+    + '<span class="pill' + (S.statut === "undecided" ? "" : " ok") + '">' + esc(branche) + "</span>"
     + '<span class="pill">' + num(xpRestant) + " XP à gagner</span>"
     + "</div></div>"
     + (suivant ? '<div style="flex:1 1 190px;display:flex;flex-direction:column;gap:7px;align-items:flex-start">'
@@ -2685,11 +2815,12 @@ VIEWS.aventure = function (S) {
       + '<div class="row" style="gap:8px"><span style="font-size:22px">' + suivant.ico + "</span>"
       + '<b style="font-family:var(--display);font-size:15px">' + esc(suivant.t) + "</b></div>"
       + '<button class="btn primary" data-act="noeud" data-id="' + suivant.id + '">Commencer</button></div>'
-      : '<div style="flex:1 1 190px"><div class="eyebrow">Terminé</div><p class="small muted">Tous les jalons sont franchis.</p></div>')
+      : '<div style="flex:1 1 190px"><div class="eyebrow">Terminé</div><p class="small muted">Tous les jalons de votre voie sont franchis.</p></div>')
     + "</div>";
 
   const chapitres = CHAPITRES.map((ch) => {
-    const idx = AVENTURE.map((n, i) => (n.ch === ch.n ? i : -1)).filter((i) => i >= 0);
+    const idx = e.noeuds.map((n, i) => (n.ch === ch.n ? i : -1)).filter((i) => i >= 0);
+    if (!idx.length) return "";
     const f = idx.filter((i) => e.faits[i]).length;
     const complet = f === idx.length;
     return '<section class="chapitre">'
@@ -2699,7 +2830,7 @@ VIEWS.aventure = function (S) {
       + '<span class="xs dim num">' + f + "/" + idx.length + "</span></div>"
       + '<div class="chemin">'
       + idx.map((i, k) => {
-        const n = AVENTURE[i];
+        const n = e.noeuds[i];
         const fait = e.faits[i], disponible = e.dispo[i];
         const cls = fait ? "fait" : disponible ? "dispo" : "verrou";
         const lien = k > 0 ? '<span class="lien' + (e.faits[idx[k - 1]] ? " on" : "") + '"></span>' : "";
@@ -2722,27 +2853,30 @@ VIEWS.aventure = function (S) {
 
 function noeudModal(id) {
   const S = Store.settings;
-  const i = AVENTURE.findIndex((n) => n.id === id);
-  if (i < 0) return;
-  const n = AVENTURE[i];
   const e = etatAventure(S);
+  const i = e.noeuds.findIndex((n) => n.id === id);
+  if (i < 0) { toast("Ce jalon ne fait pas partie de votre voie"); return; }
+  const n = e.noeuds[i];
   const fait = e.faits[i];
+  const tache = tacheDuNoeud(n);
 
-  if (!fait && !e.dispo[i]) {
-    toast("Terminez d'abord « " + AVENTURE[i - 1].t + " »");
-    return;
-  }
+  if (!fait && !e.dispo[i]) { toast("Terminez d'abord « " + e.noeuds[i - 1].t + " »"); return; }
 
   const corps = '<div class="row" style="gap:12px;align-items:flex-start">'
     + '<span style="font-size:34px;line-height:1">' + n.ico + "</span>"
     + '<div style="flex:1;min-width:0"><p class="small">' + esc(n.d) + "</p>"
-    + '<div class="row" style="gap:6px;margin-top:7px">'
+    + '<div class="row wrap" style="gap:6px;margin-top:7px">'
     + '<span class="pill' + (fait ? " ok" : " warn") + '">' + (fait ? "Franchi" : "+" + n.xp + " XP") + "</span>"
     + (n.type === "carrefour" ? '<span class="pill acc">Carrefour</span>' : "")
-    + "</div></div></div>";
+    + (tache ? '<span class="pill">Tâche liée</span>' : "")
+    + "</div>"
+    + (tache ? '<p class="note" style="margin-top:9px">Adossé à la démarche : <b>' + esc(tache.titre) + "</b>. "
+      + "Cocher ici coche la démarche, et inversement — les deux ne peuvent pas diverger.</p>"
+      : n.type === "carrefour" ? "" : '<p class="note" style="margin-top:9px">Ce jalon se franchit tout seul dès que la donnée existe dans l\'application.</p>')
+    + "</div></div>";
 
   const options = n.type === "carrefour"
-    ? '<div class="choix">' + n.options.map((o) =>
+    ? '<div class="choix" style="margin-top:4px">' + n.options.map((o) =>
       '<button data-act="noeud-choix" data-id="' + n.id + '" data-opt="' + esc(o.v) + '">'
       + '<span class="ci">' + o.ico + "</span>"
       + '<span class="cb"><span class="ct">' + esc(o.l) + '</span><span class="cd">' + esc(o.d) + "</span></span>"
@@ -2754,7 +2888,7 @@ function noeudModal(id) {
     + '<div class="modal-b">' + corps + options + "</div>"
     + '<div class="modal-f">'
     + (n.go ? '<button class="btn" data-act="noeud-go" data-id="' + n.id + '">Ouvrir ' + esc((TABS.find((t) => t.id === n.go) || {}).nom || "") + "</button>" : "")
-    + (n.type === "carrefour" || fait ? "" : '<button class="btn primary" data-act="noeud-ok" data-id="' + n.id + '">C\'est fait</button>')
+    + (n.type === "carrefour" || fait || (!tache && n.test) ? "" : '<button class="btn primary" data-act="noeud-ok" data-id="' + n.id + '">C\'est fait</button>')
     + "</div></div></div>";
   $("#modalRoot").innerHTML = html;
   const root = $("#modalRoot");
@@ -2763,6 +2897,16 @@ function noeudModal(id) {
 }
 
 async function validerNoeud(id, patch) {
+  const n = AVENTURE.find((x) => x.id === id);
+  if (!n) return;
+  const tache = tacheDuNoeud(n);
+  if (tache) {
+    // La checklist est l'unique source de vérité : on coche la ligne, pas le jalon.
+    if (etatCheck(tache) !== "fait") await toggleCheck(tache.id);
+    if (patch) await Store.saveSettings(patch);
+    celebrer();
+    return;
+  }
   const j = { ...jeu() };
   const l = (j.noeuds || []).slice();
   if (!l.includes(id)) l.push(id);
@@ -3314,8 +3458,9 @@ function contexteOnglet() {
     const e = etatAventure(S);
     base.aventure = {
       jalonsFranchis: e.nbFaits, total: e.total,
-      prochain: e.courant >= 0 ? { titre: AVENTURE[e.courant].t, description: AVENTURE[e.courant].d, xp: AVENTURE[e.courant].xp } : null,
-      restants: AVENTURE.filter((n, i) => !e.faits[i]).map((n) => n.t),
+      voie: S.statut === "undecided" ? "commune" : S.statut,
+      prochain: e.courant >= 0 ? { titre: e.noeuds[e.courant].t, description: e.noeuds[e.courant].d, xp: e.noeuds[e.courant].xp } : null,
+      restants: e.noeuds.filter((n, i) => !e.faits[i]).map((n) => n.t),
       choixFaits: {
         statut: S.statut, aide: S.scenarioAide,
         tva: S.assujettiTVA ? "assujetti" : "franchise", canal: S.canalPrincipal || null
