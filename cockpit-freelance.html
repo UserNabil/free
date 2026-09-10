@@ -1535,11 +1535,31 @@ const state = {
 };
 
 let renderQueued = false;
+let renderDiffere = false;
+
+/** Vrai tant que le curseur est dans un champ de l'écran courant. Redessiner à ce
+ *  moment-là détruirait le champ en pleine saisie : le focus saute et une date
+ *  incomplète se retrouve enregistrée. */
+function editionEnCours() {
+  const a = document.activeElement;
+  if (!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false;
+  const v = $("#view");
+  return !!(v && v.contains(a));
+}
+
 function renderSoon() {
+  if (editionEnCours()) { renderDiffere = true; return; }
   if (renderQueued) return;
   renderQueued = true;
   requestAnimationFrame(() => { renderQueued = false; render(); });
 }
+
+/* Le rendu mis de côté pendant la saisie est rattrapé dès que le champ est quitté. */
+document.addEventListener("focusout", () => {
+  setTimeout(() => {
+    if (renderDiffere && !editionEnCours()) { renderDiffere = false; renderSoon(); }
+  }, 0);
+});
 
 /* ============================================================================
    Rendu
@@ -4305,7 +4325,12 @@ document.addEventListener("change", (e) => {
     let v;
     if (t.type === "checkbox") v = t.checked;
     else if (t.type === "number") v = t.value === "" ? 0 : Number(t.value);
-    else v = t.value;
+    else if (t.type === "date" || t.type === "month") {
+      v = t.value;
+      // Un champ date émet parfois « change » avant que l'année soit complète :
+      // on refuse les millésimes aberrants plutôt que d'enregistrer 01/01/0001.
+      if (v) { const an = Number(String(v).slice(0, 4)); if (!(an >= 1950 && an <= 2100)) return; }
+    } else v = t.value;
     if (typeof v === "number" && !Number.isFinite(v)) return;
     Store.saveSettings({ [k]: v });
     return;
