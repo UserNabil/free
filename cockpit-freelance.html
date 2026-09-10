@@ -1,0 +1,2000 @@
+<title>Cockpit Freelance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#F3F5F8; --surface:#FFFFFF; --surface-2:#EDF0F5; --surface-3:#E4E9F0;
+  --ink:#131922; --ink-2:#4A5665; --ink-3:#78838F;
+  --line:#DBE1E9; --line-strong:#C0CAD6;
+  --accent:#12469B; --accent-ink:#FFFFFF; --accent-soft:#E3ECFB; --accent-line:#B5CBEC;
+  --ok:#1A6B44; --ok-soft:#E0F0E7; --warn:#875600; --warn-soft:#FAEBD5; --bad:#A6251E; --bad-soft:#FAE4E2;
+  --shadow:0 1px 2px rgba(19,25,34,.07),0 6px 16px rgba(19,25,34,.05);
+  --radius:7px;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0D1218; --surface:#151B24; --surface-2:#1C232D; --surface-3:#232C38;
+    --ink:#E7ECF2; --ink-2:#A8B3C0; --ink-3:#7A8593;
+    --line:#232C38; --line-strong:#35414F;
+    --accent:#83ADF0; --accent-ink:#0D1218; --accent-soft:#182640; --accent-line:#2E4570;
+    --ok:#5FC28D; --ok-soft:#122B1D; --warn:#DFAA4F; --warn-soft:#2E2311; --bad:#EE837B; --bad-soft:#331A18;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0D1218; --surface:#151B24; --surface-2:#1C232D; --surface-3:#232C38;
+  --ink:#E7ECF2; --ink-2:#A8B3C0; --ink-3:#7A8593;
+  --line:#232C38; --line-strong:#35414F;
+  --accent:#83ADF0; --accent-ink:#0D1218; --accent-soft:#182640; --accent-line:#2E4570;
+  --ok:#5FC28D; --ok-soft:#122B1D; --warn:#DFAA4F; --warn-soft:#2E2311; --bad:#EE837B; --bad-soft:#331A18;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.01em}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.app{display:flex;flex-direction:column;min-height:100vh}
+header.top{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-row{display:flex;align-items:center;gap:10px;padding:9px 16px}
+.brand{display:flex;align-items:baseline;gap:9px;min-width:0}
+.brand b{font-size:15px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
+.brand .sub{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.top-spacer{flex:1}
+.statut-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent);border-radius:99px;font-family:var(--mono);font-size:11px;font-weight:500;white-space:nowrap;cursor:pointer}
+.statut-chip.undecided{border-color:var(--line-strong);background:var(--surface-2);color:var(--ink-2)}
+.tabs{display:flex;gap:2px;padding:0 10px;overflow-x:auto;scrollbar-width:thin}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:9px 12px;color:var(--ink-2);font-weight:500;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+main{flex:1;padding:16px;max-width:1440px;width:100%;margin:0 auto}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);cursor:pointer;color:var(--ink-2)}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:var(--radius);border:1px solid var(--line-strong);background:var(--surface);cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.sm{padding:3px 8px;font-size:12px}
+.btn.ghost{border-color:transparent;background:none;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--surface-2);color:var(--ink)}
+.btn.danger{color:var(--bad);border-color:var(--line)}
+.btn[disabled]{opacity:.5;cursor:default}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.panel-h{display:flex;align-items:center;gap:10px;padding:10px 13px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.panel-h h2{font-size:13.5px}
+.panel-b{padding:13px}
+.eyebrow{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);font-weight:500}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-2)}
+.dim{color:var(--ink-3)}
+.small{font-size:12.5px}
+.xs{font-size:11.5px}
+.row{display:flex;align-items:center;gap:8px}
+.wrap{flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:99px;font-family:var(--mono);font-size:10.5px;font-weight:500;border:1px solid var(--line-strong);background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.pill.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.pill.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.pill.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.empty{padding:22px 14px;text-align:center;color:var(--ink-3);font-size:13px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:500;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+.scroll-x{overflow-x:auto}
+.tnum{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+input[type=text],input[type=number],input[type=date],input[type=month],select,textarea{width:100%;padding:6px 8px;border:1px solid var(--line-strong);background:var(--surface);border-radius:5px;font-size:13px}
+input[type=number],input[type=date],input[type=month]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+textarea{resize:vertical;min-height:62px;font-family:inherit}
+label.f{display:flex;flex-direction:column;gap:3px}
+label.f>span{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+.hint{font-size:11.5px;color:var(--ink-3);line-height:1.35}
+.note{border-left:2px solid var(--line-strong);padding:7px 0 7px 10px;font-size:12px;color:var(--ink-2);line-height:1.45}
+.note.warn{border-color:var(--warn)}
+.note.acc{border-color:var(--accent)}
+a{color:var(--accent)}
+details>summary{cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+.chev{display:inline-block;transition:transform .15s}
+details[open]>summary .chev{transform:rotate(90deg)}
+.bar{height:6px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.bar>i.ok{background:var(--ok)} .bar>i.warn{background:var(--warn)} .bar>i.bad{background:var(--bad)}
+
+.kpis{display:flex;gap:0;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+.kpi{flex:1 1 150px;padding:9px 13px;border-right:1px solid var(--line);min-width:0}
+.kpi:last-child{border-right:0}
+.kpi .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:18px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.kpi .k{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);margin-top:1px}
+.kpi .d{font-size:11px;color:var(--ink-3)}
+
+.kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(228px,1fr);gap:9px;overflow-x:auto;padding-bottom:6px;align-items:start}
+.col{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;min-height:110px}
+.col.drop{outline:2px dashed var(--accent);outline-offset:-2px}
+.col-h{display:flex;align-items:center;gap:6px;padding:7px 9px;border-bottom:1px solid var(--line)}
+.col-h .t{font-size:12px;font-weight:600;flex:1;min-width:0}
+.col-b{padding:7px;display:flex;flex-direction:column;gap:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 9px;cursor:grab;display:flex;flex-direction:column;gap:5px}
+.card:hover{border-color:var(--line-strong)}
+.card.late{border-left:3px solid var(--bad)}
+.card.due{border-left:3px solid var(--warn)}
+.card.dormant{border-left:3px solid var(--ink-3)}
+.card .n{font-weight:600;font-size:13px;line-height:1.25;overflow-wrap:anywhere}
+.card .m{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.card-nav{display:flex;gap:3px;margin-left:auto}
+.card-nav button{width:20px;height:20px;border:1px solid var(--line);background:var(--surface-2);border-radius:4px;cursor:pointer;font-size:11px;line-height:1;color:var(--ink-2);padding:0}
+.card-nav button:hover{background:var(--surface-3);color:var(--ink)}
+.card-nav button[disabled]{opacity:.3;cursor:default}
+
+.today{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+.today-row{display:flex;align-items:center;gap:9px;padding:7px 12px;border-top:1px solid var(--line);cursor:pointer;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;width:100%}
+.today-row:hover{background:var(--surface-2)}
+.today-row .nm{font-weight:500;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.sim{display:grid;grid-template-columns:296px 1fr;gap:14px;align-items:start}
+.fields{display:flex;flex-direction:column;gap:10px}
+.cmp td.lab{font-size:12.5px;color:var(--ink-2);white-space:nowrap}
+.cmp tr.hi td{background:var(--surface-2);font-weight:600}
+.cmp td.q{font-size:11.5px;color:var(--ink-2);white-space:normal;min-width:132px;line-height:1.3}
+.delta.pos{color:var(--ok)} .delta.neg{color:var(--bad)}
+
+.phase{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+.phase>summary{display:flex;align-items:center;gap:9px;padding:10px 13px;background:var(--surface)}
+.phase>summary:hover{background:var(--surface-2)}
+.phase .pt{font-weight:600;font-size:13.5px;flex:1;min-width:0}
+.ck{display:flex;align-items:flex-start;gap:9px;padding:8px 13px;border-top:1px solid var(--line)}
+.ck input[type=checkbox]{margin-top:2px;width:15px;height:15px;accent-color:var(--accent);flex:none}
+.ck .b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.ck .t{font-size:13px;line-height:1.35}
+.ck.done .t{color:var(--ink-3);text-decoration:line-through}
+.ck .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--shadow);z-index:60;display:flex;flex-direction:column;transform:translateX(101%);transition:transform .18s ease}
+.drawer.open{transform:none}
+.drawer-h{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--line)}
+.drawer-b{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:11px}
+.drawer-f{border-top:1px solid var(--line);padding:11px 13px;display:flex;flex-direction:column;gap:8px}
+.msg{border-radius:7px;padding:9px 11px;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me{background:var(--accent-soft);color:var(--ink);align-self:flex-end;max-width:92%}
+.msg.ai{background:var(--surface-2);border:1px solid var(--line)}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{padding:3px 9px;border:1px solid var(--line-strong);background:var(--surface);border-radius:99px;font-size:12px;cursor:pointer;text-align:left}
+.chip:hover{background:var(--surface-2)}
+.prop{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:6px;padding:9px;display:flex;flex-direction:column;gap:7px}
+
+.scrim{position:fixed;inset:0;background:rgba(10,14,20,.45);z-index:70;display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);width:min(560px,100%);margin:auto 0}
+.modal.wide{width:min(760px,100%)}
+.modal-h{display:flex;align-items:center;gap:9px;padding:12px 15px;border-bottom:1px solid var(--line)}
+.modal-h h2{font-size:14.5px;flex:1}
+.modal-b{padding:15px;display:flex;flex-direction:column;gap:11px}
+.modal-f{padding:12px 15px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.fold{border-top:1px solid var(--line);padding-top:10px}
+.fold>summary{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+.fold-b{display:flex;flex-direction:column;gap:11px;padding-top:11px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:8px 15px;border-radius:99px;font-size:13px;z-index:90;box-shadow:var(--shadow)}
+
+@media (max-width:880px){
+  .sim{grid-template-columns:1fr}
+  .grid-2{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  main{padding:11px}
+  .top-row{padding:8px 11px}
+  .kanban{grid-auto-columns:minmax(80vw,80vw)}
+  .kpi{flex:1 1 50%;border-bottom:1px solid var(--line)}
+  .brand .sub{display:none}
+}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <div class="brand"><b>Cockpit Freelance</b><span class="sub">Passage en freelance</span></div>
+      <div class="top-spacer"></div>
+      <button class="statut-chip" id="statutChip" title="Statut actif — cliquer pour changer">…</button>
+      <button class="btn primary" id="askBtn">Demander à Claude</button>
+      <button class="icon-btn" id="settingsBtn" title="Réglages" aria-label="Réglages">&#9881;</button>
+      <button class="icon-btn" id="themeBtn" title="Thème clair / sombre" aria-label="Thème">&#9681;</button>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+  </header>
+  <main id="view" role="tabpanel"></main>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="Assistant Claude">
+  <div class="drawer-h">
+    <b style="flex:1;font-size:13.5px">Demander à Claude</b>
+    <span class="pill" id="drawerCtx"></span>
+    <button class="icon-btn" id="drawerClose" aria-label="Fermer">&#10005;</button>
+  </div>
+  <div class="drawer-b" id="drawerBody"></div>
+  <div class="drawer-f">
+    <div class="chips" id="drawerChips"></div>
+    <textarea id="drawerInput" placeholder="Votre question, ou collez des annonces à transformer en pistes…" rows="2"></textarea>
+    <div class="row">
+      <span class="hint" style="flex:1" id="drawerHint"></span>
+      <button class="btn sm" id="drawerStop" hidden>Arrêter</button>
+      <button class="btn primary sm" id="drawerSend">Envoyer</button>
+    </div>
+  </div>
+</aside>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+"use strict";
+/* ============================================================================
+   PARAMÈTRES DE CALCUL — vérifié 09/2026 — à réviser chaque janvier
+   Aucun chiffre de calcul ne doit exister ailleurs que dans cet objet.
+   `fiabilite` : haute = plusieurs sources concordantes / seuil légal ;
+                 moyenne = ordre de grandeur commercial ; faible = à confirmer.
+   ========================================================================== */
+const PARAMS_2026 = {
+  _verifie: "09/2026",
+  micro: {
+    _libelle: "Micro-entreprise (BNC non réglementé)",
+    plafondCA: 83600,              // fiabilite: haute
+    cotisations: 0.256,            // fiabilite: haute — % du CA
+    cfp: 0.002,                    // fiabilite: haute — contribution formation professionnelle
+    abattementFiscal: 0.34,        // fiabilite: haute
+    versementLiberatoire: 0.022,   // fiabilite: haute — % du CA, sur option et sous condition de RFR
+    tvaFranchiseBase: 37500,       // fiabilite: haute
+    tvaFranchiseMajore: 41250,     // fiabilite: haute
+    acreExoneration: 0.25,         // fiabilite: moyenne — taux applicable depuis le 01/07/2026, à demander sous 60 jours
+    cipav: 0.232                   // fiabilite: moyenne — non utilisé dans le calcul BNC non réglementé
+  },
+  eurl: {
+    _libelle: "EURL à l'IS (gérant TNS)",
+    cotisationsSurNet: 0.45,       // fiabilite: moyenne — % de la rémunération nette
+    cotisationsMin: 1135,          // fiabilite: moyenne — cotisations minimales annuelles
+    cotisationsDividendes: 0.45,   // fiabilite: faible — TNS sur la part de dividendes > 10 % du capital
+    seuilDividendes: 0.10          // fiabilite: haute — part du capital social au-delà de laquelle les dividendes sont cotisés
+  },
+  sasu: {
+    _libelle: "SASU à l'IS (président assimilé salarié)",
+    cotisationsSurNet: 0.80        // fiabilite: moyenne — ≈ 1 800 € de coût pour 1 000 € net
+  },
+  is: {
+    taux1: 0.15, seuil: 42500, taux2: 0.25   // fiabilite: haute
+  },
+  pfu: 0.314,                      // fiabilite: haute — 12,8 % IR + 18,6 % PS (ne pas coder 30 %)
+  portage: {
+    _libelle: "Portage salarial",
+    fraisGestionDefaut: 0.07,      // fiabilite: haute (fourchette 5–10 %)
+    fraisGestionMin: 0.05, fraisGestionMax: 0.10,
+    restitutionMin: 0.47,          // fiabilite: moyenne — taux de restitution net observé
+    restitutionMax: 0.52
+  },
+  ir: {
+    // fiabilite: FAIBLE — barème indexé chaque année en loi de finances.
+    // Tranches ci-dessous = dernier barème publié connu, NON confirmé pour 2026.
+    abattementSalaire: 0.10,
+    bareme: [
+      { de: 0,      a: 11497,  taux: 0    },
+      { de: 11497,  a: 29315,  taux: 0.11 },
+      { de: 29315,  a: 83823,  taux: 0.30 },
+      { de: 83823,  a: 180294, taux: 0.41 },
+      { de: 180294, a: null,   taux: 0.45 }
+    ]
+  },
+  marche: {
+    // Lecture seule. Baromètre déclaratif, pas une garantie de marché.
+    source: "Baromètre Free-Work — données déclaratives, septembre 2026",
+    url: "https://www.free-work.com/fr/tech-it/developpeur-fullstack/rate-tjm-freelance",
+    fullstackDirect: 410,
+    fullstackIntermediaire: 430,
+    idf: [
+      { label: "3–4 ans", tjm: 401 },
+      { label: "5–10 ans", tjm: 536 },
+      { label: "11–15 ans", tjm: 577 }
+    ]
+  },
+  reperes: {
+    joursFacturesPlafondTheorique: 220   // aide de saisie, pas un calcul
+  }
+};
+
+const QUALITATIF = {
+  micro:   { chomage: "Aucune — pas de cotisation à l'assurance chômage.",
+             complexite: "Très faible — déclaration de CA en ligne, pas de bilan." },
+  eurl:    { chomage: "Aucune — gérant majoritaire TNS, non affilié.",
+             complexite: "Élevée — comptabilité, bilan, expert-comptable de fait indispensable." },
+  sasu:    { chomage: "Aucune — président assimilé salarié mais non affilié à l'assurance chômage.",
+             complexite: "Élevée — comptabilité, bilan, expert-comptable de fait indispensable." },
+  portage: { chomage: "Oui — salarié : cotise à l'assurance chômage et à la retraite cadre.",
+             complexite: "Très faible — la société de portage porte l'administratif." },
+  salarie: { chomage: "Oui — situation actuelle.", complexite: "Nulle." }
+};
+
+const STATUTS = [
+  { id: "undecided", nom: "Statut non arrêté" },
+  { id: "micro", nom: "Micro-entreprise" },
+  { id: "eurl", nom: "EURL à l'IS" },
+  { id: "sasu", nom: "SASU à l'IS" },
+  { id: "portage", nom: "Portage salarial" }
+];
+
+const STAGES = [
+  { id: "a_contacter", nom: "À contacter" },
+  { id: "envoyee",     nom: "Candidature envoyée" },
+  { id: "echange",     nom: "Échange en cours" },
+  { id: "proposition", nom: "Proposition / TJM discuté" },
+  { id: "gagne",       nom: "Gagné" },
+  { id: "perdu",       nom: "Perdu" }
+];
+const STAGE_IDX = Object.fromEntries(STAGES.map((s, i) => [s.id, i]));
+
+const TABS = [
+  { id: "prospection", nom: "Prospection" },
+  { id: "simulateur",  nom: "Simulateur TJM" },
+  { id: "demarches",   nom: "Démarches" },
+  { id: "missions",    nom: "Missions & facturation" },
+  { id: "echeances",   nom: "Échéances & trésorerie" }
+];
+
+/* ---- contenu de départ (restaurable depuis les réglages) ---- */
+const CANAUX_DEPART = [
+  ["Malt", "Plateformes"], ["Free-Work", "Plateformes"], ["Comet", "Plateformes"],
+  ["LeHibou", "Plateformes"], ["Talent.io", "Plateformes"], ["Crème de la Crème", "Plateformes"],
+  ["StaffMe Pro", "Plateformes"], ["Codeur", "Plateformes"],
+  ["ESN / sociétés de conseil", "Intermédiaires"], ["Cabinets de placement IT", "Intermédiaires"],
+  ["Anciens collègues", "Réseau direct"], ["Clients de mon employeur actuel", "Réseau direct"],
+  ["LinkedIn", "Réseau direct"],
+  ["Slack / Discord tech FR", "Communautés"], ["Meetups", "Communautés"], ["Forums", "Communautés"]
+];
+
+const CHECKLIST_DEPART = [
+  [1, "Relire mon contrat de travail : clause de non-concurrence, de non-sollicitation, d'exclusivité", "", ""],
+  [1, "Vérifier mes droits ARE (simulation)", "France Travail", "https://www.francetravail.fr"],
+  [1, "Constituer une trésorerie de sécurité", "", ""],
+  [1, "Tester le marché avec 5 candidatures réelles pour valider mon TJM", "", ""],
+  [1, "Décider du statut juridique", "", ""],
+  [2, "Préparer l'argumentaire de rupture conventionnelle", "", ""],
+  [2, "Entretien(s) obligatoire(s) avec l'employeur", "Service-public.fr", "https://www.service-public.fr"],
+  [2, "Signature de la convention de rupture", "", ""],
+  [2, "Délai de rétractation : 15 jours calendaires", "", ""],
+  [2, "Homologation DREETS : 15 jours ouvrables", "", ""],
+  [2, "Inscription France Travail", "France Travail", "https://www.francetravail.fr"],
+  [2, "Récupérer le solde de tout compte et l'attestation employeur", "", ""],
+  [3, "Immatriculation via le guichet unique", "INPI — Guichet unique", "https://formalites.entreprises.gouv.fr"],
+  [3, "Obtention du SIRET", "INSEE", ""],
+  [3, "Ouvrir un compte bancaire dédié", "", ""],
+  [3, "Souscrire une RC Pro (quasi systématiquement exigée par les clients et les plateformes)", "", ""],
+  [3, "Souscrire prévoyance et mutuelle", "", ""],
+  [3, "Choisir l'outil de facturation", "", ""],
+  [3, "Décider de l'option TVA", "impots.gouv.fr", "https://www.impots.gouv.fr"],
+  [3, "Demander l'ACRE si éligible — sous 60 jours", "URSSAF", "https://www.urssaf.fr"],
+  [3, "Prendre un expert-comptable si société", "", ""],
+  [4, "Repositionner le profil LinkedIn : titre, bannière, section « à propos » orientée offre", "", ""],
+  [4, "Créer les profils sur les plateformes", "", ""],
+  [4, "Portfolio ou site vitrine", "", ""],
+  [4, "CV freelance et « one-pager » d'offre", "", ""],
+  [4, "Modèles de contrat de prestation et de devis", "", ""],
+  [4, "Grille tarifaire écrite : TJM, majoration urgence, conditions de règlement", "", ""]
+];
+
+const PHASES = [
+  { n: 1, titre: "Avant d'annoncer quoi que ce soit", note: "" },
+  { n: 2, titre: "Rupture conventionnelle",
+    note: "La rupture conventionnelle ne peut pas être imposée : elle nécessite l'accord de l'employeur. Un refus est un scénario à préparer — une démission n'ouvre pas droit à l'ARE, sauf démission-reconversion." },
+  { n: 3, titre: "Création", note: "" },
+  { n: 4, titre: "Lancement", note: "" }
+];
+
+const DEFAULT_SETTINGS = {
+  statut: "undecided",
+  tjm: 500,
+  joursFactures: 200,
+  fraisProAnnuels: 3000,
+  salaireNetMensuel: 3200,
+  fraisGestionPortage: PARAMS_2026.portage.fraisGestionDefaut,
+  delaiRelance: 7,
+  seuilDormance: 7,
+  partsFiscales: 2,
+  revenusConjoint: 0,
+  capitalSocial: 1000,
+  partDividendes: 0,
+  acrePremiereAnnee: false,
+  versementLiberatoire: false,
+  periodiciteUrssaf: "trimestrielle",
+  assujettiTVA: false,
+  chargesFixesNote: "",
+  params: PARAMS_2026
+};
+
+/* ============================================================================
+   Utilitaires
+   ========================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nEUR = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+const nEUR2 = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const nNUM = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
+const eur = (v) => Number.isFinite(v) ? nEUR.format(Math.round(v)) : "—";
+const eur2 = (v) => Number.isFinite(v) ? nEUR2.format(v) : "—";
+const pct = (v, d = 0) => Number.isFinite(v) ? (v * 100).toFixed(d).replace(".", ",") + " %" : "—";
+const num = (v) => Number.isFinite(v) ? nNUM.format(v) : "—";
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const monthISO = (d) => (d instanceof Date ? d : new Date(d)).toISOString().slice(0, 7);
+const parseD = (s) => { const d = new Date(s + "T00:00:00"); return isNaN(d) ? null : d; };
+const daysDiff = (a, b) => Math.round((parseD(a) - parseD(b)) / 86400000);
+const addDays = (iso, n) => { const d = parseD(iso) || new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const fmtDate = (iso) => { const d = parseD(iso); return d ? d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" }) : "—"; };
+const fmtDateLong = (iso) => { const d = parseD(iso); return d ? d.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" }) : "—"; };
+const fmtMonth = (m) => { const d = new Date(m + "-01T00:00:00"); return isNaN(d) ? m : d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" }); };
+const nz = (v, f = 0) => Number.isFinite(Number(v)) ? Number(v) : f;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+function toast(msg) {
+  const r = $("#toastRoot");
+  r.innerHTML = '<div class="toast">' + esc(msg) + "</div>";
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { r.innerHTML = ""; }, 2600);
+}
+
+/* ============================================================================
+   Store — `db` si disponible, sinon localStorage + export/import JSON
+   ========================================================================== */
+const COLLECTIONS = ["leads", "channels", "checklist", "missions", "invoices", "workdays", "deadlines", "fixedCosts"];
+const LS_KEY = "cockpit-freelance-v1";
+
+const Store = {
+  mode: "local",
+  db: null,
+  cache: {},
+  settings: null,
+  ready: false,
+
+  async init() {
+    COLLECTIONS.forEach((c) => { this.cache[c] = []; });
+    this.settings = { ...DEFAULT_SETTINGS };
+    let db = null;
+    try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; }
+    catch (_) { db = null; }
+    if (db) { this.db = db; this.mode = "db"; await this.initDb(); }
+    else { this.mode = "local"; this.loadLocal(); this.ready = true; }
+    render();
+  },
+
+  async initDb() {
+    const snap = await this.db.doc("settings/main").get().catch(() => null);
+    if (!snap || !snap.exists) await this.seed();
+    this.db.doc("settings/main").onSnapshot(
+      (s) => { if (s.exists) { this.settings = mergeSettings(s.data()); this.ready = true; renderSoon(); } },
+      (e) => dbError(e)
+    );
+    COLLECTIONS.forEach((c) => {
+      this.db.collection(c).onSnapshot(
+        (qs) => {
+          this.cache[c] = qs.docs.map((d) => ({ ...d.data(), id: d.id }));
+          this.ready = true; renderSoon();
+        },
+        (e) => dbError(e)
+      );
+    });
+  },
+
+  async seed() {
+    // Contenu de départ : canaux et checklist issus du cahier des charges.
+    // Un bail coopératif évite qu'un second onglet ouvert au même moment sème deux fois.
+    if (this.mode === "db") {
+      const lease = await this.db.doc("settings/main").acquire({ holder: "seed", ttlMs: 20000 }).catch(() => ({ acquired: false }));
+      if (!lease.acquired) return;
+    }
+    const now = new Date().toISOString();
+    const chans = CANAUX_DEPART.map(([nom, categorie], i) => ({ id: uid(), nom, categorie, ordre: i, updatedAt: now }));
+    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien], i) => ({
+      id: uid(), phase, titre, organisme, lien, fait: false, echeance: "", note: "", ordre: i, updatedAt: now
+    }));
+    const exemples = [
+      { id: uid(), nom: "Exemple — ESN Alpha (client final : assurance)", canal: "ESN / sociétés de conseil", poste: "Dev .NET / Angular — régie IDF",
+        stage: "envoyee", tjmVise: 550, tjmPropose: 0, dernierContact: addDays(todayISO(), -9), prochaineRelance: addDays(todayISO(), -2),
+        note: "Exemple de départ — supprimez-le quand vous voulez.", exemple: true, stageDates: { a_contacter: addDays(todayISO(), -12), envoyee: addDays(todayISO(), -9) }, updatedAt: now },
+      { id: uid(), nom: "Exemple — Scale-up Beta (direct)", canal: "Malt", poste: "Full-stack .NET / React",
+        stage: "echange", tjmVise: 600, tjmPropose: 0, dernierContact: addDays(todayISO(), -3), prochaineRelance: todayISO(),
+        note: "", exemple: true, stageDates: { a_contacter: addDays(todayISO(), -14), envoyee: addDays(todayISO(), -10), echange: addDays(todayISO(), -3) }, updatedAt: now },
+      { id: uid(), nom: "Exemple — Cabinet Gamma (banque)", canal: "Cabinets de placement IT", poste: "Lead dev Angular",
+        stage: "proposition", tjmVise: 620, tjmPropose: 580, dernierContact: addDays(todayISO(), -1), prochaineRelance: addDays(todayISO(), 4),
+        note: "", exemple: true, stageDates: { a_contacter: addDays(todayISO(), -21), envoyee: addDays(todayISO(), -18), echange: addDays(todayISO(), -8), proposition: addDays(todayISO(), -1) }, updatedAt: now }
+    ];
+    if (this.mode === "db") {
+      await Promise.all([
+        ...chans.map((c) => this.db.collection("channels").doc(c.id).set(c)),
+        ...checks.map((c) => this.db.collection("checklist").doc(c.id).set(c)),
+        ...exemples.map((l) => this.db.collection("leads").doc(l.id).set(l))
+      ]).catch(dbError);
+      await this.db.doc("settings/main").set({ ...DEFAULT_SETTINGS, updatedAt: now }).catch(dbError);
+    } else {
+      this.cache.channels = chans; this.cache.checklist = checks; this.cache.leads = exemples;
+      this.settings = { ...DEFAULT_SETTINGS };
+      this.persistLocal();
+    }
+  },
+
+  loadLocal() {
+    let raw = null;
+    try { raw = localStorage.getItem(LS_KEY); } catch (_) { raw = null; }
+    if (!raw) { this.seed(); return; }
+    try {
+      const d = JSON.parse(raw);
+      COLLECTIONS.forEach((c) => { this.cache[c] = Array.isArray(d[c]) ? d[c] : []; });
+      this.settings = mergeSettings(d.settings || {});
+    } catch (_) { this.seed(); }
+  },
+
+  persistLocal() {
+    if (this.mode !== "local") return;
+    try {
+      const payload = { settings: this.settings };
+      COLLECTIONS.forEach((c) => { payload[c] = this.cache[c]; });
+      localStorage.setItem(LS_KEY, JSON.stringify(payload));
+    } catch (_) { /* quota ou stockage bloqué : la session reste utilisable en mémoire */ }
+  },
+
+  all(coll) { return this.cache[coll] || []; },
+  get(coll, id) { return this.all(coll).find((x) => x.id === id) || null; },
+
+  async put(coll, obj) {
+    const rec = { ...obj };
+    if (!rec.id) rec.id = uid();
+    rec.updatedAt = new Date().toISOString();
+    const arr = this.cache[coll];
+    const i = arr.findIndex((x) => x.id === rec.id);
+    if (i >= 0) arr[i] = rec; else arr.push(rec);
+    if (this.mode === "db") { this.db.collection(coll).doc(rec.id).set(rec).catch(dbError); }
+    else this.persistLocal();
+    renderSoon();
+    return rec;
+  },
+
+  async remove(coll, id) {
+    this.cache[coll] = this.all(coll).filter((x) => x.id !== id);
+    if (this.mode === "db") { this.db.collection(coll).doc(id).delete().catch(dbError); }
+    else this.persistLocal();
+    renderSoon();
+  },
+
+  async saveSettings(patch) {
+    this.settings = mergeSettings({ ...this.settings, ...patch });
+    if (this.mode === "db") { this.db.doc("settings/main").set({ ...this.settings, updatedAt: new Date().toISOString() }).catch(dbError); }
+    else this.persistLocal();
+    renderSoon();
+  },
+
+  async resetContenuDepart() {
+    await Promise.all([
+      ...this.all("channels").map((c) => this.remove("channels", c.id)),
+      ...this.all("checklist").map((c) => this.remove("checklist", c.id))
+    ]);
+    await this.seedSansBail();
+  },
+
+  async seedSansBail() {
+    const now = new Date().toISOString();
+    const chans = CANAUX_DEPART.map(([nom, categorie], i) => ({ id: uid(), nom, categorie, ordre: i, updatedAt: now }));
+    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien], i) => ({
+      id: uid(), phase, titre, organisme, lien, fait: false, echeance: "", note: "", ordre: i, updatedAt: now
+    }));
+    for (const c of chans) await this.put("channels", c);
+    for (const c of checks) await this.put("checklist", c);
+    toast("Contenu de départ restauré");
+  },
+
+  exportJSON() {
+    const payload = { _app: "cockpit-freelance", _date: new Date().toISOString(), settings: this.settings };
+    COLLECTIONS.forEach((c) => { payload[c] = this.all(c); });
+    return JSON.stringify(payload, null, 2);
+  },
+
+  async importJSON(text) {
+    const d = JSON.parse(text);
+    if (!d || typeof d !== "object") throw new Error("format");
+    for (const c of COLLECTIONS) {
+      if (!Array.isArray(d[c])) continue;
+      for (const old of this.all(c).slice()) await this.remove(c, old.id);
+      for (const rec of d[c]) await this.put(c, rec);
+    }
+    if (d.settings) await this.saveSettings(d.settings);
+    toast("Données importées");
+  }
+};
+
+function mergeSettings(s) {
+  const out = { ...DEFAULT_SETTINGS, ...(s || {}) };
+  out.params = deepMerge(structuredCloneSafe(PARAMS_2026), (s && s.params) || {});
+  return out;
+}
+function structuredCloneSafe(o) { return JSON.parse(JSON.stringify(o)); }
+function deepMerge(base, over) {
+  for (const k of Object.keys(over || {})) {
+    if (over[k] && typeof over[k] === "object" && !Array.isArray(over[k]) && base[k] && typeof base[k] === "object") deepMerge(base[k], over[k]);
+    else if (over[k] !== undefined) base[k] = over[k];
+  }
+  return base;
+}
+function dbError(e) {
+  const code = (e && e.code) || "unavailable";
+  if (code === "revoked" || code === "not_granted") { Store.mode = "local"; toast("Accès aux données retiré — passage en mode local."); return; }
+  if (code === "quota_exceeded") { toast("Base pleine : supprimez d'anciens enregistrements."); return; }
+  if (code === "invalid_argument") { toast("Enregistrement refusé (donnée invalide)."); return; }
+  toast("Enregistrement momentanément indisponible — réessayez.");
+}
+
+/* ============================================================================
+   Calculs — simulateur, provisions, échéances
+   ========================================================================== */
+function irBareme(revenuImposable, parts, bareme) {
+  const q = Math.max(0, revenuImposable) / Math.max(1, parts);
+  let ir = 0;
+  for (const t of bareme) {
+    if (q > t.de) ir += (Math.min(q, t.a === null ? Infinity : t.a) - t.de) * t.taux;
+  }
+  return ir * Math.max(1, parts);
+}
+/** IR imputable à mon activité : IR du foyer avec, moins IR du foyer sans. */
+function irMarginal(revenuImposablePerso, S) {
+  const P = S.params, parts = Math.max(1, nz(S.partsFiscales, 1));
+  const baseConjoint = Math.max(0, nz(S.revenusConjoint, 0)) * (1 - P.ir.abattementSalaire);
+  return Math.max(0, irBareme(baseConjoint + revenuImposablePerso, parts, P.ir.bareme) - irBareme(baseConjoint, parts, P.ir.bareme));
+}
+function impotSocietes(benefice, P) {
+  if (benefice <= 0) return 0;
+  return benefice <= P.is.seuil ? benefice * P.is.taux1 : P.is.seuil * P.is.taux1 + (benefice - P.is.seuil) * P.is.taux2;
+}
+
+function simulate(S) {
+  const P = S.params;
+  const CA = nz(S.tjm) * nz(S.joursFactures);
+  const frais = nz(S.fraisProAnnuels);
+  const out = { CA, frais, statuts: {} };
+
+  /* --- Micro-entreprise (BNC) --- */
+  {
+    const tauxCot = P.micro.cotisations * (S.acrePremiereAnnee ? 1 - P.micro.acreExoneration : 1);
+    const social = CA * tauxCot + CA * P.micro.cfp;
+    const baseIR = CA * (1 - P.micro.abattementFiscal);
+    const ir = S.versementLiberatoire ? CA * P.micro.versementLiberatoire : irMarginal(baseIR, S);
+    const net = CA - social - frais - ir;
+    out.statuts.micro = {
+      nom: P.micro._libelle, CA, social, is: 0, ir, net,
+      depassePlafond: CA > P.micro.plafondCA,
+      hypotheses: [
+        "Cotisations sociales : " + pct(tauxCot, 1) + " du CA" + (S.acrePremiereAnnee ? " (ACRE : −" + pct(P.micro.acreExoneration, 0) + ")" : "") + " + CFP " + pct(P.micro.cfp, 1) + ".",
+        S.versementLiberatoire
+          ? "Impôt : versement libératoire " + pct(P.micro.versementLiberatoire, 1) + " du CA (sur option, sous condition de RFR)."
+          : "Impôt : barème progressif sur " + pct(1 - P.micro.abattementFiscal, 0) + " du CA (abattement forfaitaire " + pct(P.micro.abattementFiscal, 0) + ").",
+        "Les frais professionnels ne sont pas déductibles : ils sortent du net sans réduire l'impôt.",
+        CA > P.micro.plafondCA ? "⚠ CA au-dessus du plafond " + eur(P.micro.plafondCA) + " : le régime ne tient pas sur l'année pleine." : null
+      ].filter(Boolean)
+    };
+  }
+
+  /* --- Sociétés à l'IS : hypothèse commune --- */
+  const partDiv = clamp(nz(S.partDividendes, 0) / 100, 0, 1);
+  const dispo = Math.max(0, CA - frais);
+
+  function societe(kind) {
+    const cfg = kind === "eurl" ? P.eurl : P.sasu;
+    const dispoRem = dispo * (1 - partDiv);
+    const dispoDiv = dispo * partDiv;
+    let remNette = dispoRem / (1 + cfg.cotisationsSurNet);
+    let social = remNette * cfg.cotisationsSurNet;
+    if (kind === "eurl" && social < P.eurl.cotisationsMin) {
+      social = P.eurl.cotisationsMin;
+      remNette = Math.max(0, dispoRem - social);
+    }
+    const benefice = Math.max(0, dispoDiv);
+    const is = impotSocietes(benefice, P);
+    const divBrut = Math.max(0, benefice - is);
+    let cotDiv = 0;
+    if (kind === "eurl") {
+      const seuil = P.eurl.seuilDividendes * nz(S.capitalSocial, 0);
+      cotDiv = Math.max(0, divBrut - seuil) * P.eurl.cotisationsDividendes;
+    }
+    const pfu = Math.max(0, divBrut - cotDiv) * P.pfu;
+    const divNet = Math.max(0, divBrut - cotDiv - pfu);
+    const irRem = irMarginal(remNette * (1 - P.ir.abattementSalaire), S);
+    const net = remNette - irRem + divNet;
+    return {
+      nom: cfg._libelle, CA, social: social + cotDiv, is,
+      ir: irRem + pfu, net,
+      hypotheses: [
+        "Disponible après frais professionnels : " + eur(dispo) + ".",
+        partDiv > 0 ? pct(1 - partDiv, 0) + " en rémunération, " + pct(partDiv, 0) + " en dividendes." : "Tout le disponible est versé en rémunération, aucun dividende.",
+        "Cotisations ≈ " + pct(cfg.cotisationsSurNet, 0) + " de la rémunération nette" + (kind === "eurl" ? " (plancher " + eur(P.eurl.cotisationsMin) + "/an)" : "") + ".",
+        partDiv > 0 ? "IS " + pct(P.is.taux1, 0) + " jusqu'à " + eur(P.is.seuil) + " puis " + pct(P.is.taux2, 0) + ", puis PFU " + pct(P.pfu, 1) + " sur les dividendes." : null,
+        (kind === "eurl" && partDiv > 0) ? "Cotisations TNS " + pct(P.eurl.cotisationsDividendes, 0) + " sur la part de dividendes dépassant " + pct(P.eurl.seuilDividendes, 0) + " du capital (" + eur(nz(S.capitalSocial)) + ") — approximation." : null,
+        "IR au barème sur la rémunération après abattement " + pct(P.ir.abattementSalaire, 0) + "."
+      ].filter(Boolean)
+    };
+  }
+  out.statuts.eurl = societe("eurl");
+  out.statuts.sasu = societe("sasu");
+
+  /* --- Portage salarial --- */
+  {
+    const rMin = P.portage.restitutionMin, rMax = P.portage.restitutionMax;
+    const rMid = (rMin + rMax) / 2;
+    const fraisGestion = CA * nz(S.fraisGestionPortage, P.portage.fraisGestionDefaut);
+    const restitue = CA * rMid;
+    const imposable = Math.max(0, restitue - frais) * (1 - P.ir.abattementSalaire);
+    const ir = irMarginal(imposable, S);
+    const net = restitue - frais - ir;
+    out.statuts.portage = {
+      nom: P.portage._libelle, CA,
+      social: Math.max(0, CA - restitue - fraisGestion), is: 0, ir, net,
+      fourchette: [CA * rMin - frais, CA * rMax - frais],
+      hypotheses: [
+        "Taux de restitution net observé " + pct(rMin, 0) + " à " + pct(rMax, 0) + " du CA HT ; le tableau retient la médiane " + pct(rMid, 1) + ".",
+        "Frais de gestion " + pct(nz(S.fraisGestionPortage), 1) + " du CA (" + eur(fraisGestion) + ") — inclus dans le taux de restitution observé.",
+        "La ligne « prélèvements sociaux » est un résidu déduit du taux de restitution, pas un taux officiel.",
+        "IR au barème sur le salaire net après abattement " + pct(P.ir.abattementSalaire, 0) + "."
+      ]
+    };
+  }
+
+  /* --- Référence salariée --- */
+  const refBrutNet = nz(S.salaireNetMensuel) * 12;
+  const refIR = irMarginal(refBrutNet * (1 - P.ir.abattementSalaire), S);
+  out.reference = { netAvantIR: refBrutNet, ir: refIR, net: refBrutNet - refIR };
+  for (const k of Object.keys(out.statuts)) {
+    const s = out.statuts[k];
+    s.mensuel = s.net / 12;
+    s.ecart = out.reference.net > 0 ? (s.net - out.reference.net) / out.reference.net : null;
+    s.tauxPrelevement = CA > 0 ? (s.social + s.is + s.ir) / CA : 0;
+  }
+  return out;
+}
+
+/** Taux à provisionner sur chaque encaissement, dérivé du simulateur. */
+function tauxProvision(S) {
+  if (S.statut === "undecided") return null;
+  const sim = simulate(S);
+  const s = sim.statuts[S.statut];
+  return s ? clamp(s.tauxPrelevement, 0, 0.9) : null;
+}
+
+/* ---- échéances générées sur 12 mois glissants ---- */
+function genEcheances(S) {
+  const out = [];
+  const start = new Date(); start.setDate(1);
+  const st = S.statut;
+  const societe = st === "eurl" || st === "sasu";
+  const push = (key, date, libelle, cat) => out.push({ key, date, libelle, cat, genere: true });
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
+    const y = d.getFullYear(), m = d.getMonth();
+    const iso = (yy, mm, dd) => new Date(Date.UTC(yy, mm, dd)).toISOString().slice(0, 10);
+    const mm2 = String(m + 1).padStart(2, "0");
+    if (st === "micro") {
+      if (S.periodiciteUrssaf === "mensuelle") push("urssaf-" + y + "-" + mm2, iso(y, m, 30), "Déclaration et paiement URSSAF (mensuel)", "URSSAF");
+      else if ([0, 3, 6, 9].includes(m)) push("urssaf-" + y + "-" + mm2, iso(y, m, 30), "Déclaration et paiement URSSAF (trimestriel)", "URSSAF");
+    } else if (st === "portage") {
+      // rien à déclarer : la société de portage s'en charge
+    } else if (societe) {
+      if ([2, 5, 8, 11].includes(m)) push("is-ac-" + y + "-" + mm2, iso(y, m, 15), "Acompte d'impôt sur les sociétés", "IS");
+      if (m === 4) push("liasse-" + y, iso(y, 4, 15), "Liasse fiscale (clôture au 31/12)", "IS");
+      push("cot-" + y + "-" + mm2, iso(y, m, 5), "Cotisations sociales du dirigeant", "URSSAF");
+    }
+    if (S.assujettiTVA) push("tva-" + y + "-" + mm2, iso(y, m, 20), "Déclaration de TVA (CA3)", "TVA");
+    if (m === 11 && st !== "portage") push("cfe-" + y, iso(y, 11, 15), "CFE — cotisation foncière des entreprises", "CFE");
+    if (m === 4) push("ir-" + y, iso(y, 4, 31), "Déclaration de revenus (mai–juin selon département)", "IR");
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/* ============================================================================
+   État de l'interface
+   ========================================================================== */
+const state = {
+  tab: "prospection",
+  theme: null,
+  drawerOpen: false,
+  chat: [],           // {role, content}
+  proposals: null,    // pistes proposées par Claude, en attente de validation
+  busy: false,
+  abort: null,
+  sample: null,
+  selectedLead: null
+};
+
+let renderQueued = false;
+function renderSoon() {
+  if (renderQueued) return;
+  renderQueued = true;
+  requestAnimationFrame(() => { renderQueued = false; render(); });
+}
+
+/* ============================================================================
+   Rendu
+   ========================================================================== */
+function render() {
+  const S = Store.settings || DEFAULT_SETTINGS;
+  const chip = $("#statutChip");
+  const st = STATUTS.find((s) => s.id === S.statut) || STATUTS[0];
+  chip.textContent = st.nom;
+  chip.className = "statut-chip" + (S.statut === "undecided" ? " undecided" : "");
+  $("#tabs").innerHTML = TABS.map((t) =>
+    '<button role="tab" data-tab="' + t.id + '" aria-selected="' + (state.tab === t.id) + '">' + esc(t.nom) + "</button>").join("");
+  $("#view").innerHTML = (VIEWS[state.tab] || (() => ""))(S);
+  $("#drawerCtx").textContent = (TABS.find((t) => t.id === state.tab) || {}).nom || "";
+  renderDrawer();
+}
+
+const VIEWS = {};
+
+/* ---------------------------------------------------------------- 1. PROSPECTION */
+function leadFlags(l, S) {
+  const t = todayISO();
+  const closed = l.stage === "gagne" || l.stage === "perdu";
+  const retard = !closed && l.prochaineRelance ? daysDiff(t, l.prochaineRelance) : null;
+  const dormant = !closed && l.dernierContact && daysDiff(t, l.dernierContact) >= nz(S.seuilDormance, 7);
+  return { closed, retard, due: retard !== null && retard >= 0, late: retard !== null && retard > 0, dormant };
+}
+
+function metriques(leads) {
+  const mois = monthISO(new Date());
+  const reached = (l, stage) => {
+    const sd = l.stageDates || {};
+    if (sd[stage]) return true;
+    return STAGE_IDX[l.stage] >= STAGE_IDX[stage] && l.stage !== "perdu" ? true : (STAGE_IDX[l.stage] >= STAGE_IDX[stage]);
+  };
+  const envoyeesCeMois = leads.filter((l) => (l.stageDates || {}).envoyee && (l.stageDates.envoyee || "").slice(0, 7) === mois).length;
+  const nbEnvoyees = leads.filter((l) => reached(l, "envoyee")).length;
+  const nbEchange = leads.filter((l) => reached(l, "echange")).length;
+  const nbProp = leads.filter((l) => reached(l, "proposition")).length;
+  const proposes = leads.map((l) => nz(l.tjmPropose)).filter((v) => v > 0);
+  return {
+    envoyeesCeMois,
+    tauxReponse: nbEnvoyees ? nbEchange / nbEnvoyees : null,
+    tauxProposition: nbEchange ? nbProp / nbEchange : null,
+    tjmMoyen: proposes.length ? proposes.reduce((a, b) => a + b, 0) / proposes.length : null
+  };
+}
+
+VIEWS.prospection = function (S) {
+  const leads = Store.all("leads");
+  const m = metriques(leads);
+  const aFaire = leads.map((l) => ({ l, f: leadFlags(l, S) }))
+    .filter((x) => !x.f.closed && (x.f.due || x.f.dormant))
+    .sort((a, b) => (b.f.retard === null ? -1 : b.f.retard) - (a.f.retard === null ? -1 : a.f.retard));
+  const hasExemples = leads.some((l) => l.exemple);
+
+  const bandeau = '<section class="today">'
+    + '<div class="panel-h" style="border-bottom:0">'
+    + '<h2>À faire aujourd\'hui</h2>'
+    + '<span class="pill ' + (aFaire.length ? "warn" : "ok") + '">' + aFaire.length + "</span>"
+    + '<div style="flex:1"></div>'
+    + '<button class="btn sm primary" data-act="lead-new">+ Piste</button>'
+    + "</div>"
+    + (aFaire.length
+      ? aFaire.slice(0, 6).map(({ l, f }) =>
+        '<button class="today-row" data-act="lead-edit" data-id="' + l.id + '">'
+        + '<span class="pill ' + (f.late ? "bad" : f.due ? "warn" : "") + '">'
+        + (f.late ? "+" + f.retard + " j" : f.due ? "aujourd\'hui" : "dormante") + "</span>"
+        + '<span class="nm">' + esc(l.nom) + "</span>"
+        + '<span class="xs dim">' + esc((STAGES.find((s) => s.id === l.stage) || {}).nom || "") + "</span>"
+        + "</button>").join("")
+      : '<div class="empty" style="border-top:1px solid var(--line)">Aucune relance due. Les pistes sans mouvement depuis '
+        + nz(S.seuilDormance, 7) + " jours apparaîtront ici comme dormantes.</div>")
+    + (aFaire.length > 6 ? '<div class="xs dim" style="padding:6px 12px;border-top:1px solid var(--line)">+ ' + (aFaire.length - 6) + " autres</div>" : "")
+    + "</section>";
+
+  const kpis = '<div class="kpis">'
+    + kpi(String(m.envoyeesCeMois), "Candidatures ce mois", "")
+    + kpi(m.tauxReponse === null ? "—" : pct(m.tauxReponse, 0), "Taux de réponse", "envoyée → échange")
+    + kpi(m.tauxProposition === null ? "—" : pct(m.tauxProposition, 0), "Échange → proposition", "")
+    + kpi(m.tjmMoyen === null ? "—" : eur(m.tjmMoyen), "TJM moyen proposé", "cible " + eur(nz(S.tjm)))
+    + "</div>";
+
+  const kanban = '<div class="kanban">' + STAGES.map((st) => {
+    const items = leads.filter((l) => l.stage === st.id);
+    return '<div class="col" data-stage="' + st.id + '">'
+      + '<div class="col-h"><span class="t">' + esc(st.nom) + '</span><span class="pill">' + items.length + "</span></div>"
+      + '<div class="col-b">'
+      + items.map((l) => {
+        const f = leadFlags(l, S);
+        const cls = f.closed ? "" : f.late ? " late" : f.due ? " due" : f.dormant ? " dormant" : "";
+        const i = STAGE_IDX[l.stage];
+        return '<div class="card' + cls + '" draggable="true" data-id="' + l.id + '">'
+          + '<div class="n" data-act="lead-edit" data-id="' + l.id + '">' + esc(l.nom) + "</div>"
+          + (l.poste ? '<div class="xs dim">' + esc(l.poste) + "</div>" : "")
+          + '<div class="m">'
+          + (l.canal ? '<span class="pill">' + esc(l.canal) + "</span>" : "")
+          + (nz(l.tjmPropose) > 0 ? '<span class="pill acc">' + eur(l.tjmPropose) + "</span>"
+            : nz(l.tjmVise) > 0 ? '<span class="pill">cible ' + eur(l.tjmVise) + "</span>" : "")
+          + (!f.closed && f.dormant && !f.due ? '<span class="pill">dormante</span>' : "")
+          + '<span class="card-nav">'
+          + '<button data-act="lead-move" data-id="' + l.id + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Reculer">&#8249;</button>'
+          + '<button data-act="lead-move" data-id="' + l.id + '" data-dir="1"' + (i === STAGES.length - 1 ? " disabled" : "") + ' aria-label="Avancer">&#8250;</button>'
+          + "</span></div>"
+          + (l.prochaineRelance && !f.closed ? '<div class="xs dim num">relance ' + fmtDate(l.prochaineRelance) + "</div>" : "")
+          + "</div>";
+      }).join("")
+      + (items.length ? "" : '<div class="xs dim" style="padding:6px 2px">—</div>')
+      + "</div></div>";
+  }).join("") + "</div>";
+
+  const canaux = Store.all("channels").slice().sort((a, b) => (a.categorie || "").localeCompare(b.categorie || "") || nz(a.ordre) - nz(b.ordre));
+  const parCat = {};
+  canaux.forEach((c) => { (parCat[c.categorie || "Autres"] = parCat[c.categorie || "Autres"] || []).push(c); });
+  const registre = '<details class="panel" id="regCanaux"' + (localStorage_get("regOpen") === "1" ? " open" : "") + ">"
+    + '<summary class="panel-h"><span class="chev">&#9656;</span><h2>Registre des canaux</h2>'
+    + '<span class="xs dim" style="flex:1">où investir mon temps — à valider par mes propres chiffres</span>'
+    + '<span class="btn sm" data-act="canal-new">+ Canal</span></summary>'
+    + '<div class="scroll-x"><table><thead><tr><th>Canal</th><th>Catégorie</th><th class="tnum">Pistes</th><th class="tnum">Gagnées</th><th class="tnum">Taux</th><th></th></tr></thead><tbody>'
+    + Object.keys(parCat).map((cat) => parCat[cat].map((c) => {
+      const li = Store.all("leads").filter((l) => l.canal === c.nom);
+      const g = li.filter((l) => l.stage === "gagne").length;
+      return "<tr>"
+        + "<td>" + esc(c.nom) + "</td>"
+        + '<td class="xs dim">' + esc(c.categorie || "") + "</td>"
+        + '<td class="tnum">' + li.length + "</td>"
+        + '<td class="tnum">' + g + "</td>"
+        + '<td class="tnum">' + (li.length ? pct(g / li.length, 0) : "—") + "</td>"
+        + '<td class="tnum"><button class="btn sm ghost" data-act="canal-edit" data-id="' + c.id + '">Modifier</button></td>'
+        + "</tr>";
+    }).join("")).join("")
+    + "</tbody></table></div>"
+    + '<div class="panel-b"><p class="note">Ces canaux sont des entrées à mesurer, pas des recommandations. Avant de solliciter les clients de votre employeur actuel, vérifiez les clauses de non-concurrence et de non-sollicitation de votre contrat — l\'item est en phase 1 des Démarches.</p></div>'
+    + "</details>";
+
+  return '<div class="stack">'
+    + (hasExemples ? '<div class="panel" style="border-color:var(--accent-line);background:var(--accent-soft)"><div class="panel-b row wrap" style="gap:10px"><span class="small" style="flex:1">Trois pistes d\'exemple sont chargées pour montrer le fonctionnement du kanban.</span><button class="btn sm" data-act="del-exemples">Supprimer les exemples</button></div></div>' : "")
+    + bandeau + kpis + kanban + registre
+    + "</div>";
+};
+
+function kpi(v, k, d) {
+  return '<div class="kpi"><div class="v">' + esc(v) + '</div><div class="k">' + esc(k) + "</div>"
+    + (d ? '<div class="d">' + esc(d) + "</div>" : "") + "</div>";
+}
+function localStorage_get(k) { try { return localStorage.getItem("cf-ui-" + k); } catch (_) { return null; } }
+function localStorage_set(k, v) { try { localStorage.setItem("cf-ui-" + k, v); } catch (_) { } }
+
+/* ---------------------------------------------------------------- 2. SIMULATEUR */
+VIEWS.simulateur = function (S) {
+  const sim = simulate(S);
+  const P = S.params;
+  const ordre = ["micro", "eurl", "sasu", "portage"];
+  const cols = ordre.map((k) => sim.statuts[k]);
+
+  const gauche = '<div class="panel"><div class="panel-h"><h2>Mes hypothèses</h2></div><div class="panel-b fields">'
+    + field("tjm", "TJM HT", "number", S.tjm, "€ / jour")
+    + field("joursFactures", "Jours facturés / an", "number", S.joursFactures, num(PARAMS_2026.reperes.joursFacturesPlafondTheorique) + " jours est un plafond théorique : il ignore l'intercontrat, les congés et l'administratif.")
+    + field("fraisProAnnuels", "Frais professionnels / an", "number", S.fraisProAnnuels, "matériel, logiciels, déplacements, assurances")
+    + field("salaireNetMensuel", "Salaire net mensuel actuel", "number", S.salaireNetMensuel, "référence de comparaison")
+    + '<details class="fold"><summary>Affiner l\'impôt et les sociétés</summary><div class="fold-b">'
+    + field("partsFiscales", "Parts fiscales", "number", S.partsFiscales, "marié sans enfant = 2")
+    + field("revenusConjoint", "Revenus nets annuels du conjoint", "number", S.revenusConjoint, "0 = l'IR est calculé sur mes seuls revenus")
+    + field("partDividendes", "Part versée en dividendes", "number", S.partDividendes, "% du disponible — EURL et SASU")
+    + field("capitalSocial", "Capital social", "number", S.capitalSocial, "EURL : seuil de cotisation des dividendes")
+    + field("fraisGestionPortage", "Frais de gestion portage", "number", S.fraisGestionPortage, "part du CA HT — fourchette " + pct(P.portage.fraisGestionMin, 0) + " à " + pct(P.portage.fraisGestionMax, 0), 0.005)
+    + '<label class="f"><span>Options micro</span>'
+    + '<label class="row small"><input type="checkbox" data-sfield="acrePremiereAnnee"' + (S.acrePremiereAnnee ? " checked" : "") + '> ACRE (1re année)</label>'
+    + '<label class="row small"><input type="checkbox" data-sfield="versementLiberatoire"' + (S.versementLiberatoire ? " checked" : "") + '> Versement libératoire</label>'
+    + "</label>"
+    + "</div></details>"
+    + "</div></div>";
+
+  const ligne = (lab, get, cls) => "<tr" + (cls ? ' class="' + cls + '"' : "") + '><td class="lab">' + lab + "</td>"
+    + cols.map((c) => '<td class="tnum">' + get(c) + "</td>").join("") + "</tr>";
+
+  const tableau = '<div class="panel"><div class="panel-h"><h2>Comparaison des 4 statuts</h2>'
+    + '<span class="xs dim" style="flex:1">CA HT ' + eur(sim.CA) + " · " + num(nz(S.joursFactures)) + " j × " + eur(nz(S.tjm)) + "</span></div>"
+    + '<div class="scroll-x"><table class="cmp"><thead><tr><th></th>'
+    + cols.map((c) => "<th>" + esc(c.nom) + "</th>").join("") + "</tr></thead><tbody>"
+    + ligne("CA HT annuel", (c) => eur(c.CA))
+    + ligne("Prélèvements sociaux", (c) => "− " + eur(c.social))
+    + ligne("Impôt sur les sociétés", (c) => c.is > 0 ? "− " + eur(c.is) : "—")
+    + ligne("Impôt estimé (IR / PFU)", (c) => "− " + eur(c.ir))
+    + ligne("Frais professionnels", () => "− " + eur(sim.frais))
+    + ligne("Revenu net annuel", (c) => eur(c.net), "hi")
+    + ligne("Revenu net mensuel", (c) => eur(c.mensuel), "hi")
+    + ligne("Écart vs salaire actuel", (c) => c.ecart === null ? "—"
+      : '<span class="delta ' + (c.ecart >= 0 ? "pos" : "neg") + '">' + (c.ecart >= 0 ? "+" : "−") + pct(Math.abs(c.ecart), 0) + "</span>")
+    + ligne("Taux de prélèvement / CA", (c) => pct(c.tauxPrelevement, 1))
+    + "<tr><td class=\"lab\">Protection chômage</td>" + ordre.map((k) => '<td class="q">' + esc(QUALITATIF[k].chomage) + "</td>").join("") + "</tr>"
+    + "<tr><td class=\"lab\">Complexité administrative</td>" + ordre.map((k) => '<td class="q">' + esc(QUALITATIF[k].complexite) + "</td>").join("") + "</tr>"
+    + "</tbody></table></div>"
+    + '<div class="panel-b" style="border-top:1px solid var(--line);display:flex;flex-direction:column;gap:9px">'
+    + '<p class="note warn"><b>Ordres de grandeur, pas des montants certains.</b> L\'impôt sur le revenu dépend de votre foyer fiscal : vous êtes marié, donc le quotient familial et les revenus de votre conjoint entrent en jeu. '
+    + (nz(S.revenusConjoint) > 0
+      ? "L'IR affiché est l'écart d'impôt du foyer causé par cette activité, avec " + eur(nz(S.revenusConjoint)) + " de revenus conjoint et " + num(nz(S.partsFiscales)) + " parts."
+      : "Aucun revenu de conjoint saisi : <b>l'IR est calculé sur vos seuls revenus</b>, avec " + num(nz(S.partsFiscales)) + " parts.")
+    + " Une simulation d'expert-comptable reste nécessaire avant de décider.</p>"
+    + '<p class="note">Le barème de l\'IR utilisé est le dernier barème publié connu ; il est indexé chaque année en loi de finances et <b>n\'est pas confirmé pour 2026</b>. Modifiable dans les réglages.</p>'
+    + '<p class="note">Référence salariée : ' + eur(sim.reference.netAvantIR) + " net avant impôt, soit " + eur(sim.reference.net) + " après un IR estimé de " + eur(sim.reference.ir) + ". La comparaison se fait après impôt des deux côtés.</p>"
+    + (sim.statuts.micro.depassePlafond ? '<p class="note warn">Le CA simulé dépasse le plafond micro de ' + eur(P.micro.plafondCA) + " : la colonne micro-entreprise n'est pas tenable sur une année pleine.</p>" : "")
+    + "</div></div>";
+
+  const hyp = '<details class="panel"><summary class="panel-h"><span class="chev">&#9656;</span><h2>Comment chaque colonne est calculée</h2></summary>'
+    + '<div class="panel-b" style="display:flex;flex-direction:column;gap:12px">'
+    + ordre.map((k) => '<div><div class="eyebrow" style="margin-bottom:4px">' + esc(sim.statuts[k].nom) + "</div>"
+      + '<ul style="margin:0;padding-left:17px;font-size:12.5px;color:var(--ink-2);line-height:1.5">'
+      + sim.statuts[k].hypotheses.map((h) => "<li>" + h + "</li>").join("") + "</ul></div>").join("")
+    + '<p class="note">Paramètres vérifiés en ' + esc(P._verifie) + " — à réviser chaque janvier. Tous modifiables depuis les réglages.</p>"
+    + "</div></details>";
+
+  const marche = '<div class="panel"><div class="panel-h"><h2>Repères marché</h2><span class="pill">lecture seule</span></div>'
+    + '<div class="panel-b" style="display:flex;flex-direction:column;gap:10px">'
+    + '<div class="kpis" style="border:0">'
+    + kpi(eur(P.marche.fullstackDirect), "TJM moyen — direct", "développeur fullstack")
+    + kpi(eur(P.marche.fullstackIntermediaire), "TJM moyen — intermédiaire", "développeur fullstack")
+    + "</div>"
+    + '<div class="scroll-x"><table><thead><tr><th>Île-de-France — ancienneté</th><th class="tnum">TJM</th><th class="tnum">Écart avec mon TJM</th></tr></thead><tbody>'
+    + P.marche.idf.map((r) => {
+      const e = nz(S.tjm) > 0 ? (nz(S.tjm) - r.tjm) / r.tjm : null;
+      return "<tr><td>" + esc(r.label) + '</td><td class="tnum">' + eur(r.tjm) + '</td><td class="tnum">'
+        + (e === null ? "—" : '<span class="delta ' + (e >= 0 ? "pos" : "neg") + '">' + (e >= 0 ? "+" : "−") + pct(Math.abs(e), 0) + "</span>") + "</td></tr>";
+    }).join("")
+    + "</tbody></table></div>"
+    + '<p class="note">' + esc(P.marche.source) + '. Données déclaratives d\'un baromètre, pas une garantie de marché. <a href="' + esc(P.marche.url) + '" target="_blank" rel="noopener">Source</a></p>'
+    + "</div></div>";
+
+  return '<div class="sim">' + gauche + '<div class="stack">' + tableau + hyp + marche + "</div></div>";
+};
+
+function field(name, label, type, value, hint, step) {
+  return '<label class="f"><span>' + esc(label) + "</span>"
+    + '<input type="' + type + '" data-sfield="' + name + '" value="' + esc(value) + '"'
+    + (step ? ' step="' + step + '"' : "") + ">"
+    + (hint ? '<span class="hint">' + hint + "</span>" : "") + "</label>";
+}
+
+/* ---------------------------------------------------------------- 3. DÉMARCHES */
+VIEWS.demarches = function (S) {
+  const items = Store.all("checklist").slice().sort((a, b) => nz(a.ordre) - nz(b.ordre));
+  const total = items.length, faits = items.filter((i) => i.fait).length;
+  return '<div class="stack">'
+    + '<div class="panel"><div class="panel-b row wrap" style="gap:12px">'
+    + '<div style="flex:1;min-width:180px"><div class="eyebrow">Avancement</div>'
+    + '<div class="row" style="margin-top:5px"><div class="bar" style="flex:1"><i class="ok" style="width:' + (total ? Math.round(faits / total * 100) : 0) + '%"></i></div>'
+    + '<span class="num small">' + faits + " / " + total + "</span></div></div>"
+    + '<button class="btn sm" data-act="check-new">+ Ligne</button>'
+    + "</div></div>"
+    + PHASES.map((ph) => {
+      const li = items.filter((i) => nz(i.phase) === ph.n);
+      const f = li.filter((i) => i.fait).length;
+      const open = localStorage_get("ph" + ph.n) !== "0";
+      return '<details class="phase" data-phase="' + ph.n + '"' + (open ? " open" : "") + ">"
+        + '<summary><span class="chev">&#9656;</span>'
+        + '<span class="eyebrow">Phase ' + ph.n + "</span>"
+        + '<span class="pt">' + esc(ph.titre) + "</span>"
+        + '<span class="pill' + (li.length && f === li.length ? " ok" : "") + '">' + f + " / " + li.length + "</span></summary>"
+        + (ph.note ? '<div style="padding:10px 13px;border-top:1px solid var(--line)"><p class="note warn">' + esc(ph.note) + "</p></div>" : "")
+        + li.map((i) => '<div class="ck' + (i.fait ? " done" : "") + '">'
+          + '<input type="checkbox" data-act="check-toggle" data-id="' + i.id + '"' + (i.fait ? " checked" : "") + ' aria-label="Fait">'
+          + '<div class="b"><div class="t">' + esc(i.titre) + "</div>"
+          + '<div class="meta">'
+          + (i.lien ? '<a class="xs" href="' + esc(i.lien) + '" target="_blank" rel="noopener">' + esc(i.organisme || "Lien officiel") + "</a>"
+            : i.organisme ? '<span class="xs dim">' + esc(i.organisme) + "</span>" : "")
+          + (i.echeance ? '<span class="pill num' + (daysDiff(todayISO(), i.echeance) > 0 && !i.fait ? " bad" : "") + '">' + fmtDate(i.echeance) + "</span>" : "")
+          + (i.note ? '<span class="xs dim">' + esc(i.note) + "</span>" : "")
+          + '<button class="btn sm ghost" data-act="check-edit" data-id="' + i.id + '">Modifier</button>'
+          + "</div></div></div>").join("")
+        + (li.length ? "" : '<div class="empty">Aucune ligne dans cette phase.</div>')
+        + "</details>";
+    }).join("")
+    + '<p class="note">Les liens pointent vers les sites officiels des organismes. Lorsqu\'aucun lien certain n\'existe pour une démarche précise, seul le nom de l\'organisme est indiqué.</p>'
+    + "</div>";
+};
+
+/* ---------------------------------------------------------------- 4. MISSIONS */
+function joursConsommes(missionId) {
+  return Store.all("workdays").filter((w) => w.missionId === missionId).reduce((a, w) => a + nz(w.jours), 0);
+}
+function caFacture(year) {
+  return Store.all("invoices").filter((i) => (i.dateEmission || "").slice(0, 4) === String(year)).reduce((a, i) => a + nz(i.montantHT), 0);
+}
+function caEncaisse(year) {
+  return Store.all("invoices").filter((i) => i.dateEncaissement && i.dateEncaissement.slice(0, 4) === String(year)).reduce((a, i) => a + nz(i.montantHT), 0);
+}
+
+VIEWS.missions = function (S) {
+  const year = new Date().getFullYear();
+  const missions = Store.all("missions");
+  const invoices = Store.all("invoices").slice().sort((a, b) => (b.dateEmission || "").localeCompare(a.dateEmission || ""));
+  const factured = caFacture(year), encaisse = caEncaisse(year);
+  const attente = invoices.filter((i) => !i.dateEncaissement).reduce((a, i) => a + nz(i.montantHT), 0);
+  const echues = invoices.filter((i) => !i.dateEncaissement && i.dateEcheance && daysDiff(todayISO(), i.dateEcheance) > 0);
+  const P = S.params;
+
+  const alerte = echues.length
+    ? '<div class="panel" style="border-color:var(--bad)"><div class="panel-h" style="background:var(--bad-soft)">'
+      + '<h2 style="color:var(--bad)">Factures échues non payées</h2><span class="pill bad">' + echues.length + "</span>"
+      + '<span class="num small" style="margin-left:auto;color:var(--bad)">' + eur(echues.reduce((a, i) => a + nz(i.montantHT), 0)) + "</span></div>"
+      + '<div class="scroll-x"><table><tbody>'
+      + echues.map((i) => "<tr><td>" + esc(i.numero || "—") + '</td><td class="xs dim">' + esc(clientOf(i)) + "</td>"
+        + '<td class="tnum">' + eur(nz(i.montantHT)) + '</td><td class="tnum"><span class="pill bad">+' + daysDiff(todayISO(), i.dateEcheance) + " j</span></td>"
+        + '<td class="tnum"><button class="btn sm" data-act="inv-paid" data-id="' + i.id + '">Encaissée</button></td></tr>').join("")
+      + "</tbody></table></div></div>"
+    : "";
+
+  const kpis = '<div class="kpis">'
+    + kpi(eur(factured), "CA facturé " + year, "")
+    + kpi(eur(encaisse), "CA encaissé " + year, "")
+    + kpi(eur(attente), "En attente d'encaissement", echues.length ? echues.length + " facture(s) échue(s)" : "")
+    + "</div>";
+
+  let jauges = "";
+  if (S.statut === "micro") {
+    const moisEcoules = new Date().getMonth() + 1;
+    const rythme = moisEcoules > 0 ? factured / moisEcoules : 0;
+    const proj = (seuil) => {
+      if (rythme <= 0) return "—";
+      if (factured >= seuil) return "seuil déjà dépassé";
+      const moisNeeded = seuil / rythme;
+      if (moisNeeded > 12) return "non atteint au rythme actuel";
+      const d = new Date(year, Math.ceil(moisNeeded) - 1, 1);
+      return "vers " + d.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+    };
+    const g = (label, seuil, desc) => {
+      const p = seuil > 0 ? clamp(factured / seuil, 0, 1) : 0;
+      const cls = p >= 1 ? "bad" : p >= 0.8 ? "warn" : "ok";
+      return '<div style="flex:1 1 260px;display:flex;flex-direction:column;gap:5px">'
+        + '<div class="row"><span class="small" style="flex:1">' + esc(label) + '</span><span class="num small">' + eur(factured) + " / " + eur(seuil) + "</span></div>"
+        + '<div class="bar"><i class="' + cls + '" style="width:' + Math.round(p * 100) + '%"></i></div>'
+        + '<div class="xs dim">' + esc(desc) + " · " + proj(seuil) + "</div></div>";
+    };
+    jauges = '<div class="panel"><div class="panel-h"><h2>Plafonds micro-entreprise</h2>'
+      + '<span class="xs dim">projection au rythme du CA facturé depuis janvier</span></div>'
+      + '<div class="panel-b row wrap" style="gap:20px">'
+      + g("Franchise en base de TVA", P.micro.tvaFranchiseBase, "seuil majoré " + eur(P.micro.tvaFranchiseMajore))
+      + g("Plafond du régime micro", P.micro.plafondCA, "sortie du régime au-delà")
+      + "</div></div>";
+  }
+
+  const tblMissions = '<div class="panel"><div class="panel-h"><h2>Missions</h2><div style="flex:1"></div>'
+    + '<button class="btn sm" data-act="mission-new">+ Mission</button></div>'
+    + (missions.length ? '<div class="scroll-x"><table><thead><tr><th>Client</th><th class="tnum">TJM</th><th>Période</th><th style="min-width:150px">Avancement</th><th>Statut</th><th></th></tr></thead><tbody>'
+      + missions.map((m) => {
+        const cons = joursConsommes(m.id), vend = nz(m.joursVendus);
+        const p = vend > 0 ? clamp(cons / vend, 0, 1) : 0;
+        return "<tr><td>" + esc(m.client) + '</td><td class="tnum">' + eur(nz(m.tjm)) + "</td>"
+          + '<td class="xs dim num">' + fmtDate(m.dateDebut) + " → " + fmtDate(m.dateFinPrevue) + "</td>"
+          + '<td><div class="bar"><i class="' + (p >= 1 ? "warn" : "") + '" style="width:' + Math.round(p * 100) + '%"></i></div>'
+          + '<div class="xs dim num">' + num(cons) + " / " + num(vend) + " j</div></td>"
+          + '<td><span class="pill' + (m.statut === "en_cours" ? " ok" : "") + '">' + esc(labelStatutMission(m.statut)) + "</span></td>"
+          + '<td class="tnum"><button class="btn sm ghost" data-act="mission-edit" data-id="' + m.id + '">Modifier</button></td></tr>';
+      }).join("") + "</tbody></table></div>"
+      : '<div class="empty">Aucune mission. Ajoutez-en une quand une piste passe en « Gagné ».</div>')
+    + "</div>";
+
+  const moisList = derniersMois(6);
+  const grille = missions.length ? '<details class="panel"' + (localStorage_get("grilleOpen") === "1" ? " open" : "") + ' id="grilleJours">'
+    + '<summary class="panel-h"><span class="chev">&#9656;</span><h2>Jours travaillés par mois</h2><span class="xs dim">saisie mensuelle, pas de timesheet</span></summary>'
+    + '<div class="scroll-x"><table><thead><tr><th>Mission</th>' + moisList.map((m) => '<th class="tnum">' + fmtMonth(m) + "</th>").join("") + '<th class="tnum">Total</th></tr></thead><tbody>'
+    + missions.map((m) => "<tr><td>" + esc(m.client) + "</td>"
+      + moisList.map((mo) => {
+        const w = Store.all("workdays").find((x) => x.missionId === m.id && x.mois === mo);
+        return '<td class="tnum"><input type="number" min="0" max="31" step="0.5" style="width:62px;text-align:right" data-act="wd" data-mission="' + m.id + '" data-mois="' + mo + '" value="' + (w ? esc(w.jours) : "") + '"></td>';
+      }).join("")
+      + '<td class="tnum num">' + num(joursConsommes(m.id)) + "</td></tr>").join("")
+    + "</tbody></table></div></details>" : "";
+
+  const tblFactures = '<div class="panel"><div class="panel-h"><h2>Factures</h2><div style="flex:1"></div>'
+    + '<button class="btn sm" data-act="inv-new">+ Facture</button></div>'
+    + (invoices.length ? '<div class="scroll-x"><table><thead><tr><th>N°</th><th>Mission</th><th class="tnum">HT</th><th class="tnum">TVA</th><th class="tnum">TTC</th><th>Émission</th><th>Échéance</th><th>Encaissement</th><th></th></tr></thead><tbody>'
+      + invoices.map((i) => {
+        const ht = nz(i.montantHT), tva = ht * nz(i.tauxTVA) / 100;
+        const late = !i.dateEncaissement && i.dateEcheance && daysDiff(todayISO(), i.dateEcheance) > 0;
+        return "<tr><td>" + esc(i.numero || "—") + '</td><td class="xs dim">' + esc(clientOf(i)) + "</td>"
+          + '<td class="tnum">' + eur(ht) + '</td><td class="tnum">' + (tva ? eur(tva) : "—") + '</td><td class="tnum">' + eur(ht + tva) + "</td>"
+          + '<td class="xs num dim">' + fmtDate(i.dateEmission) + '</td><td class="xs num' + (late ? "" : " dim") + '">' + (late ? '<span class="pill bad">' + fmtDate(i.dateEcheance) + "</span>" : fmtDate(i.dateEcheance)) + "</td>"
+          + '<td class="xs num">' + (i.dateEncaissement ? '<span class="pill ok">' + fmtDate(i.dateEncaissement) + "</span>" : '<button class="btn sm" data-act="inv-paid" data-id="' + i.id + '">Marquer</button>') + "</td>"
+          + '<td class="tnum"><button class="btn sm ghost" data-act="inv-edit" data-id="' + i.id + '">Modifier</button></td></tr>';
+      }).join("") + "</tbody></table></div>"
+      : '<div class="empty">Aucune facture enregistrée.</div>')
+    + "</div>";
+
+  return '<div class="stack">' + alerte + kpis + jauges + tblMissions + grille + tblFactures + "</div>";
+};
+
+function labelStatutMission(s) {
+  return ({ prevue: "Prévue", en_cours: "En cours", terminee: "Terminée" })[s] || "En cours";
+}
+function clientOf(inv) {
+  const m = Store.get("missions", inv.missionId);
+  return m ? m.client : (inv.client || "—");
+}
+function derniersMois(n) {
+  const out = [], d = new Date();
+  d.setDate(1); d.setMonth(d.getMonth() - (n - 2));
+  for (let i = 0; i < n; i++) { out.push(monthISO(d)); d.setMonth(d.getMonth() + 1); }
+  return out;
+}
+function prochainsMois(n) {
+  const out = [], d = new Date(); d.setDate(1);
+  for (let i = 0; i < n; i++) { out.push(monthISO(d)); d.setMonth(d.getMonth() + 1); }
+  return out;
+}
+
+/* ---------------------------------------------------------------- 5. ÉCHÉANCES */
+VIEWS.echeances = function (S) {
+  const taux = tauxProvision(S);
+  const gen = genEcheances(S);
+  const custom = Store.all("deadlines");
+  const marks = {};
+  custom.forEach((d) => { if (d.key) marks[d.key] = d; });
+  const liste = gen.map((g) => ({ ...g, fait: !!(marks[g.key] && marks[g.key].fait), montant: marks[g.key] ? nz(marks[g.key].montant) : 0, docId: marks[g.key] ? marks[g.key].id : null }))
+    .concat(custom.filter((d) => !d.key).map((d) => ({ key: null, date: d.date, libelle: d.libelle, cat: d.cat || "Perso", fait: !!d.fait, montant: nz(d.montant), docId: d.id, genere: false })))
+    .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+
+  const encaissements = Store.all("invoices").filter((i) => i.dateEncaissement);
+  const encaisseAnnee = encaissements.filter((i) => i.dateEncaissement.slice(0, 4) === String(new Date().getFullYear()))
+    .reduce((a, i) => a + nz(i.montantHT), 0);
+  const provision = taux === null ? null : encaisseAnnee * taux;
+
+  const blocProvision = '<div class="panel"><div class="panel-h"><h2>Provision automatique</h2>'
+    + (taux === null ? '<span class="pill">statut non arrêté</span>' : '<span class="pill acc">' + pct(taux, 1) + " du CA encaissé</span>") + "</div>"
+    + '<div class="panel-b">'
+    + (taux === null
+      ? '<p class="note warn">Choisissez un statut dans les réglages pour calculer ce que vous devez mettre de côté à chaque encaissement. C\'est le point qui fait échouer la plupart des débuts en freelance.</p>'
+      : '<div class="kpis" style="border:0">'
+        + kpi(eur(encaisseAnnee), "Encaissé cette année", "")
+        + kpi(eur(provision), "À mettre de côté", "cotisations + impôt estimés")
+        + kpi(eur(encaisseAnnee - provision), "Réellement disponible", "")
+        + "</div>"
+        + '<p class="note" style="margin-top:10px">Taux dérivé du simulateur pour le statut actif : (prélèvements sociaux + IS + impôt) ÷ CA HT. C\'est une estimation, pas un montant dû : les appels de cotisations et l\'impôt réel peuvent différer.</p>'
+        + '<div class="row wrap" style="margin-top:9px;gap:8px">'
+        + '<span class="xs dim">Sur un encaissement de</span>'
+        + '<input type="number" id="provTest" value="10000" style="width:110px">'
+        + '<span class="xs dim">je mets de côté</span><b class="num" id="provOut">' + eur(10000 * taux) + "</b></div>")
+    + "</div></div>";
+
+  const tblEch = '<div class="panel"><div class="panel-h"><h2>Échéances — 12 mois glissants</h2>'
+    + '<span class="xs dim" style="flex:1">' + (S.statut === "undecided" ? "générées après le choix du statut" : "selon le statut actif") + "</span>"
+    + '<button class="btn sm" data-act="ech-new">+ Échéance</button></div>'
+    + (liste.length ? '<div class="scroll-x"><table><thead><tr><th></th><th>Date</th><th>Échéance</th><th>Type</th><th class="tnum">Montant</th><th></th></tr></thead><tbody>'
+      + liste.map((e) => {
+        const late = !e.fait && e.date && daysDiff(todayISO(), e.date) > 0;
+        const soon = !e.fait && e.date && daysDiff(todayISO(), e.date) >= -14 && daysDiff(todayISO(), e.date) <= 0;
+        return "<tr>"
+          + '<td><input type="checkbox" data-act="ech-toggle" data-key="' + esc(e.key || "") + '" data-doc="' + esc(e.docId || "") + '"' + (e.fait ? " checked" : "") + ' aria-label="Fait"></td>'
+          + '<td class="xs num' + (late ? "" : " dim") + '">' + (late ? '<span class="pill bad">' + fmtDate(e.date) + "</span>" : soon ? '<span class="pill warn">' + fmtDate(e.date) + "</span>" : fmtDate(e.date)) + "</td>"
+          + '<td class="small"' + (e.fait ? ' style="color:var(--ink-3);text-decoration:line-through"' : "") + ">" + esc(e.libelle) + "</td>"
+          + '<td><span class="pill">' + esc(e.cat) + "</span></td>"
+          + '<td class="tnum">' + (e.montant ? eur(e.montant) : "—") + "</td>"
+          + '<td class="tnum">' + (e.genere ? "" : '<button class="btn sm ghost" data-act="ech-del" data-doc="' + esc(e.docId) + '">Supprimer</button>') + "</td></tr>";
+      }).join("") + "</tbody></table></div>"
+      : '<div class="empty">Aucune échéance générée — choisissez un statut, ou ajoutez vos propres échéances.</div>')
+    + '<div class="panel-b" style="border-top:1px solid var(--line)"><p class="note">Dates indicatives. Les dates exactes qui vous engagent figurent sur votre espace URSSAF et sur impots.gouv.fr.</p></div>'
+    + "</div>";
+
+  // Trésorerie 6 mois
+  const mois = prochainsMois(6);
+  const fixes = Store.all("fixedCosts").reduce((a, c) => a + nz(c.montantMensuel), 0);
+  const rows = mois.map((mo) => {
+    const inFactures = Store.all("invoices")
+      .filter((i) => !i.dateEncaissement && (i.dateEcheance || "").slice(0, 7) === mo)
+      .reduce((a, i) => a + nz(i.montantHT), 0);
+    const inMissions = Store.all("missions").filter((m) => m.statut !== "terminee").reduce((a, m) => {
+      const reste = Math.max(0, nz(m.joursVendus) - joursConsommes(m.id));
+      if (reste <= 0 || !m.dateFinPrevue) return a;
+      const finM = m.dateFinPrevue.slice(0, 7);
+      const restants = mois.filter((x) => x >= monthISO(new Date()) && x <= finM);
+      if (!restants.length || !restants.includes(mo)) return a;
+      return a + (reste * nz(m.tjm)) / restants.length;
+    }, 0);
+    const out = liste.filter((e) => !e.fait && (e.date || "").slice(0, 7) === mo).reduce((a, e) => a + nz(e.montant), 0);
+    return { mo, in: inFactures + inMissions, out: out + fixes, net: inFactures + inMissions - out - fixes };
+  });
+  let cumul = 0;
+  const tresorerie = '<div class="panel"><div class="panel-h"><h2>Trésorerie — 6 mois</h2>'
+    + '<span class="xs dim" style="flex:1">encaissements prévus − échéances connues − charges fixes</span>'
+    + '<button class="btn sm" data-act="fc-new">+ Charge fixe</button></div>'
+    + '<div class="scroll-x"><table><thead><tr><th>Mois</th><th class="tnum">Entrées prévues</th><th class="tnum">Sorties connues</th><th class="tnum">Solde du mois</th><th class="tnum">Cumul</th></tr></thead><tbody>'
+    + rows.map((r) => {
+      cumul += r.net;
+      return "<tr><td>" + esc(fmtMonth(r.mo)) + '</td><td class="tnum">' + eur(r.in) + '</td><td class="tnum">− ' + eur(r.out) + "</td>"
+        + '<td class="tnum"><span class="delta ' + (r.net >= 0 ? "pos" : "neg") + '">' + eur(r.net) + '</span></td>'
+        + '<td class="tnum"><span class="delta ' + (cumul >= 0 ? "pos" : "neg") + '">' + eur(cumul) + "</span></td></tr>";
+    }).join("")
+    + "</tbody></table></div>"
+    + (Store.all("fixedCosts").length
+      ? '<div class="panel-b" style="border-top:1px solid var(--line)"><div class="eyebrow" style="margin-bottom:6px">Charges fixes mensuelles — ' + eur(fixes) + "</div>"
+        + '<div class="row wrap">' + Store.all("fixedCosts").map((c) =>
+          '<span class="pill" style="padding:3px 9px">' + esc(c.libelle) + " · " + eur(nz(c.montantMensuel))
+          + ' <button class="btn sm ghost" style="padding:0 3px" data-act="fc-del" data-id="' + c.id + '" aria-label="Supprimer">&#10005;</button></span>').join("")
+        + "</div></div>"
+      : '<div class="panel-b" style="border-top:1px solid var(--line)"><p class="note">Aucune charge fixe saisie — le solde ne tient donc pas compte de votre loyer professionnel, de vos abonnements ou de vos assurances.</p></div>')
+    + "</div>";
+
+  return '<div class="stack">' + blocProvision + tblEch + tresorerie + "</div>";
+};
+
+/* ============================================================================
+   Formulaires — 4 champs visibles maximum, le reste replié
+   ========================================================================== */
+function closeModal() { $("#modalRoot").innerHTML = ""; }
+
+function formModal(cfg) {
+  const vals = cfg.values || {};
+  const main = cfg.fields.filter((f) => !f.fold);
+  const extra = cfg.fields.filter((f) => f.fold);
+  const html = '<div class="scrim" data-close="1"><div class="modal' + (cfg.wide ? " wide" : "") + '" role="dialog" aria-modal="true">'
+    + '<div class="modal-h"><h2>' + esc(cfg.title) + '</h2><button class="icon-btn" data-close="1" aria-label="Fermer">&#10005;</button></div>'
+    + '<form class="modal-b" id="mform">'
+    + main.map((f) => fieldHTML(f, vals[f.name])).join("")
+    + (extra.length ? '<details class="fold"><summary>Champs optionnels</summary><div class="fold-b">'
+      + extra.map((f) => fieldHTML(f, vals[f.name])).join("") + "</div></details>" : "")
+    + (cfg.note ? '<p class="note">' + cfg.note + "</p>" : "")
+    + "</form>"
+    + '<div class="modal-f">'
+    + (cfg.onDelete ? '<button class="btn danger" id="mdel">Supprimer</button><div style="flex:1"></div>' : "")
+    + '<button class="btn" data-close="1">Annuler</button>'
+    + '<button class="btn primary" id="msave">' + esc(cfg.submitLabel || "Enregistrer") + "</button>"
+    + "</div></div></div>";
+  $("#modalRoot").innerHTML = html;
+
+  const root = $("#modalRoot");
+  root.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close]") && (e.target.dataset.close || e.target.closest("[data-close]") === e.target || e.target.classList.contains("scrim"))) {
+      if (e.target.classList.contains("scrim") || e.target.closest("button[data-close]")) closeModal();
+    }
+  });
+  $("#msave").addEventListener("click", () => {
+    const out = {};
+    for (const f of cfg.fields) {
+      const el = $('[name="' + f.name + '"]', root);
+      if (!el) continue;
+      out[f.name] = f.type === "checkbox" ? el.checked : (f.type === "number" ? (el.value === "" ? 0 : Number(el.value)) : el.value);
+    }
+    if (cfg.required) {
+      for (const r of cfg.required) {
+        if (!String(out[r] ?? "").trim()) { toast("Champ obligatoire manquant"); return; }
+      }
+    }
+    cfg.onSubmit(out);
+    closeModal();
+  });
+  if (cfg.onDelete) {
+    $("#mdel").addEventListener("click", () => { cfg.onDelete(); closeModal(); });
+  }
+  const first = $("#mform input, #mform select, #mform textarea", root);
+  if (first) first.focus();
+}
+
+function fieldHTML(f, v) {
+  const val = v === undefined || v === null ? (f.default ?? "") : v;
+  let ctrl;
+  if (f.type === "select") {
+    ctrl = '<select name="' + f.name + '">' + f.options.map((o) =>
+      '<option value="' + esc(o.v) + '"' + (String(o.v) === String(val) ? " selected" : "") + ">" + esc(o.l) + "</option>").join("") + "</select>";
+  } else if (f.type === "textarea") {
+    ctrl = '<textarea name="' + f.name + '">' + esc(val) + "</textarea>";
+  } else if (f.type === "checkbox") {
+    ctrl = '<label class="row small"><input type="checkbox" name="' + f.name + '"' + (val ? " checked" : "") + "> " + esc(f.checkLabel || "") + "</label>";
+  } else {
+    ctrl = '<input type="' + f.type + '" name="' + f.name + '" value="' + esc(val) + '"'
+      + (f.step ? ' step="' + f.step + '"' : "") + (f.min !== undefined ? ' min="' + f.min + '"' : "") + ">";
+  }
+  return '<label class="f"><span>' + esc(f.label) + "</span>" + ctrl
+    + (f.hint ? '<span class="hint">' + f.hint + "</span>" : "") + "</label>";
+}
+
+const canalOptions = () => [{ v: "", l: "—" }].concat(Store.all("channels").map((c) => ({ v: c.nom, l: c.nom })));
+
+function leadModal(id) {
+  const S = Store.settings, l = id ? Store.get("leads", id) : null;
+  formModal({
+    title: l ? "Modifier la piste" : "Nouvelle piste",
+    values: l || { stage: "a_contacter", dernierContact: todayISO(), prochaineRelance: addDays(todayISO(), nz(S.delaiRelance, 7)), tjmVise: nz(S.tjm) },
+    required: ["nom"],
+    fields: [
+      { name: "nom", label: "Client final ou intermédiaire", type: "text" },
+      { name: "canal", label: "Source", type: "select", options: canalOptions() },
+      { name: "poste", label: "Poste", type: "text" },
+      { name: "tjmVise", label: "TJM visé", type: "number" },
+      { name: "stage", label: "Colonne", type: "select", fold: true, options: STAGES.map((s) => ({ v: s.id, l: s.nom })) },
+      { name: "tjmPropose", label: "TJM proposé", type: "number", fold: true },
+      { name: "dernierContact", label: "Dernier contact", type: "date", fold: true },
+      { name: "prochaineRelance", label: "Prochaine relance", type: "date", fold: true },
+      { name: "note", label: "Note", type: "textarea", fold: true }
+    ],
+    onSubmit: (v) => {
+      const base = l || { stageDates: {} };
+      const rec = { ...base, ...v };
+      rec.stageDates = { ...(base.stageDates || {}) };
+      if (!rec.stageDates[rec.stage]) rec.stageDates[rec.stage] = todayISO();
+      delete rec.exemple;
+      Store.put("leads", rec);
+    },
+    onDelete: l ? () => Store.remove("leads", l.id) : null
+  });
+}
+
+function moveLead(id, dir) {
+  const l = Store.get("leads", id); if (!l) return;
+  const i = clamp(STAGE_IDX[l.stage] + dir, 0, STAGES.length - 1);
+  setLeadStage(l, STAGES[i].id);
+}
+function setLeadStage(l, stage) {
+  if (l.stage === stage) return;
+  const sd = { ...(l.stageDates || {}) };
+  if (!sd[stage]) sd[stage] = todayISO();
+  const S = Store.settings;
+  const rec = { ...l, stage, stageDates: sd, dernierContact: todayISO() };
+  if (stage !== "gagne" && stage !== "perdu") rec.prochaineRelance = addDays(todayISO(), nz(S.delaiRelance, 7));
+  delete rec.exemple;
+  Store.put("leads", rec);
+}
+
+function canalModal(id) {
+  const c = id ? Store.get("channels", id) : null;
+  formModal({
+    title: c ? "Modifier le canal" : "Nouveau canal",
+    values: c || { categorie: "Plateformes" },
+    required: ["nom"],
+    fields: [
+      { name: "nom", label: "Nom du canal", type: "text" },
+      { name: "categorie", label: "Catégorie", type: "select", options: ["Plateformes", "Intermédiaires", "Réseau direct", "Communautés", "Autres"].map((v) => ({ v, l: v })) }
+    ],
+    onSubmit: (v) => Store.put("channels", { ...(c || {}), ...v }),
+    onDelete: c ? () => Store.remove("channels", c.id) : null
+  });
+}
+
+function checkModal(id) {
+  const c = id ? Store.get("checklist", id) : null;
+  formModal({
+    title: c ? "Modifier la ligne" : "Nouvelle ligne",
+    values: c || { phase: 1, ordre: 999 },
+    required: ["titre"],
+    fields: [
+      { name: "titre", label: "Intitulé", type: "text" },
+      { name: "phase", label: "Phase", type: "select", options: PHASES.map((p) => ({ v: p.n, l: "Phase " + p.n + " — " + p.titre })) },
+      { name: "echeance", label: "Échéance", type: "date" },
+      { name: "note", label: "Note", type: "textarea", fold: true },
+      { name: "organisme", label: "Organisme", type: "text", fold: true },
+      { name: "lien", label: "Lien", type: "text", fold: true, hint: "laissez vide si vous n'êtes pas certain de l'URL" }
+    ],
+    onSubmit: (v) => Store.put("checklist", { ...(c || { fait: false }), ...v, phase: Number(v.phase) }),
+    onDelete: c ? () => Store.remove("checklist", c.id) : null
+  });
+}
+
+function missionModal(id) {
+  const m = id ? Store.get("missions", id) : null;
+  const S = Store.settings;
+  formModal({
+    title: m ? "Modifier la mission" : "Nouvelle mission",
+    values: m || { statut: "en_cours", dateDebut: todayISO(), tjm: nz(S.tjm), joursVendus: 20 },
+    required: ["client"],
+    fields: [
+      { name: "client", label: "Client", type: "text" },
+      { name: "tjm", label: "TJM négocié", type: "number" },
+      { name: "joursVendus", label: "Jours vendus", type: "number", step: "0.5" },
+      { name: "dateDebut", label: "Date de début", type: "date" },
+      { name: "dateFinPrevue", label: "Date de fin prévue", type: "date", fold: true },
+      { name: "statut", label: "Statut", type: "select", fold: true, options: [{ v: "prevue", l: "Prévue" }, { v: "en_cours", l: "En cours" }, { v: "terminee", l: "Terminée" }] }
+    ],
+    onSubmit: (v) => Store.put("missions", { ...(m || {}), ...v }),
+    onDelete: m ? () => Store.remove("missions", m.id) : null
+  });
+}
+
+function invoiceModal(id) {
+  const i = id ? Store.get("invoices", id) : null;
+  const S = Store.settings;
+  const missions = Store.all("missions");
+  formModal({
+    title: i ? "Modifier la facture" : "Nouvelle facture",
+    values: i || {
+      numero: "F-" + new Date().getFullYear() + "-" + String(Store.all("invoices").length + 1).padStart(3, "0"),
+      dateEmission: todayISO(), dateEcheance: addDays(todayISO(), 30), tauxTVA: S.assujettiTVA ? 20 : 0
+    },
+    fields: [
+      { name: "numero", label: "Numéro", type: "text" },
+      { name: "missionId", label: "Mission", type: "select", options: [{ v: "", l: "—" }].concat(missions.map((m) => ({ v: m.id, l: m.client }))) },
+      { name: "montantHT", label: "Montant HT", type: "number", step: "0.01" },
+      { name: "dateEcheance", label: "Date d'échéance", type: "date" },
+      { name: "tauxTVA", label: "Taux de TVA (%)", type: "number", fold: true, step: "0.1", hint: "0 si franchise en base de TVA" },
+      { name: "dateEmission", label: "Date d'émission", type: "date", fold: true },
+      { name: "dateEncaissement", label: "Date d'encaissement", type: "date", fold: true }
+    ],
+    onSubmit: (v) => Store.put("invoices", { ...(i || {}), ...v }),
+    onDelete: i ? () => Store.remove("invoices", i.id) : null
+  });
+}
+
+function echeanceModal() {
+  formModal({
+    title: "Nouvelle échéance",
+    values: { date: todayISO(), cat: "Perso" },
+    required: ["libelle"],
+    fields: [
+      { name: "libelle", label: "Intitulé", type: "text" },
+      { name: "date", label: "Date", type: "date" },
+      { name: "montant", label: "Montant", type: "number" },
+      { name: "cat", label: "Type", type: "select", options: ["URSSAF", "TVA", "IS", "CFE", "IR", "Perso"].map((v) => ({ v, l: v })) }
+    ],
+    onSubmit: (v) => Store.put("deadlines", { ...v, fait: false })
+  });
+}
+
+function fixedCostModal() {
+  formModal({
+    title: "Charge fixe mensuelle",
+    values: {},
+    required: ["libelle"],
+    fields: [
+      { name: "libelle", label: "Intitulé", type: "text", hint: "RC Pro, mutuelle, logiciels, comptable…" },
+      { name: "montantMensuel", label: "Montant mensuel", type: "number", step: "0.01" }
+    ],
+    onSubmit: (v) => Store.put("fixedCosts", v)
+  });
+}
+
+/* ---- réglages ---- */
+const PARAM_FIELDS = [
+  ["micro.plafondCA", "Micro — plafond de CA", 1],
+  ["micro.cotisations", "Micro — cotisations (part du CA)", 0.001],
+  ["micro.cfp", "Micro — CFP", 0.0001],
+  ["micro.abattementFiscal", "Micro — abattement fiscal", 0.01],
+  ["micro.versementLiberatoire", "Micro — versement libératoire", 0.001],
+  ["micro.tvaFranchiseBase", "TVA — seuil de base", 1],
+  ["micro.tvaFranchiseMajore", "TVA — seuil majoré", 1],
+  ["micro.acreExoneration", "ACRE — exonération", 0.01],
+  ["eurl.cotisationsSurNet", "EURL — cotisations / net", 0.01],
+  ["eurl.cotisationsMin", "EURL — cotisations minimales", 1],
+  ["eurl.cotisationsDividendes", "EURL — cotisations dividendes", 0.01],
+  ["sasu.cotisationsSurNet", "SASU — cotisations / net", 0.01],
+  ["is.taux1", "IS — taux réduit", 0.01],
+  ["is.seuil", "IS — seuil du taux réduit", 1],
+  ["is.taux2", "IS — taux normal", 0.01],
+  ["pfu", "PFU (flat tax)", 0.001],
+  ["portage.restitutionMin", "Portage — restitution min.", 0.01],
+  ["portage.restitutionMax", "Portage — restitution max.", 0.01]
+];
+const getPath = (o, p) => p.split(".").reduce((a, k) => (a == null ? a : a[k]), o);
+const setPath = (o, p, v) => { const ks = p.split("."); const last = ks.pop(); const t = ks.reduce((a, k) => (a[k] = a[k] || {}), o); t[last] = v; };
+
+function settingsModal() {
+  const S = Store.settings;
+  const html = '<div class="scrim"><div class="modal wide" role="dialog" aria-modal="true">'
+    + '<div class="modal-h"><h2>Réglages</h2><span class="pill">' + (Store.mode === "db" ? "données synchronisées" : "stockage local") + "</span>"
+    + '<button class="icon-btn" data-close="1" aria-label="Fermer">&#10005;</button></div>'
+    + '<div class="modal-b">'
+    + '<div class="grid-2">'
+    + fieldHTML({ name: "statut", label: "Statut actif", type: "select", options: STATUTS.map((s) => ({ v: s.id, l: s.nom })), hint: "pilote les échéances, la provision et les jauges de plafonds" }, S.statut)
+    + fieldHTML({ name: "tjm", label: "TJM cible", type: "number" }, S.tjm)
+    + fieldHTML({ name: "joursFactures", label: "Jours facturés / an", type: "number" }, S.joursFactures)
+    + fieldHTML({ name: "salaireNetMensuel", label: "Salaire net mensuel de référence", type: "number" }, S.salaireNetMensuel)
+    + fieldHTML({ name: "fraisProAnnuels", label: "Frais professionnels / an", type: "number" }, S.fraisProAnnuels)
+    + fieldHTML({ name: "fraisGestionPortage", label: "Frais de gestion portage", type: "number", step: "0.005" }, S.fraisGestionPortage)
+    + fieldHTML({ name: "delaiRelance", label: "Délai de relance par défaut (jours)", type: "number" }, S.delaiRelance)
+    + fieldHTML({ name: "seuilDormance", label: "Piste dormante après (jours)", type: "number" }, S.seuilDormance)
+    + fieldHTML({ name: "periodiciteUrssaf", label: "Déclaration URSSAF", type: "select", options: [{ v: "mensuelle", l: "Mensuelle" }, { v: "trimestrielle", l: "Trimestrielle" }] }, S.periodiciteUrssaf)
+    + fieldHTML({ name: "assujettiTVA", label: "TVA", type: "checkbox", checkLabel: "Assujetti à la TVA" }, S.assujettiTVA)
+    + "</div>"
+    + '<details class="fold"><summary>Paramètres de calcul — vérifiés ' + esc(S.params._verifie) + "</summary><div class=\"fold-b\">"
+    + '<p class="note warn">Ces valeurs changent chaque année et certaines proviennent de baromètres, pas de textes officiels. Les taux sont exprimés en décimal (0,256 = 25,6 %).</p>'
+    + '<div class="grid-2">' + PARAM_FIELDS.map(([p, lab, step]) =>
+      fieldHTML({ name: "P:" + p, label: lab, type: "number", step: String(step) }, getPath(S.params, p))).join("") + "</div>"
+    + '<label class="f"><span>Barème de l\'impôt sur le revenu (JSON)</span>'
+    + '<textarea name="P:ir.bareme" style="font-family:var(--mono);font-size:11.5px;min-height:96px">' + esc(JSON.stringify(S.params.ir.bareme)) + "</textarea>"
+    + '<span class="hint">Fiabilité faible : barème indexé chaque année en loi de finances, non confirmé pour 2026.</span></label>'
+    + "</div></details>"
+    + '<details class="fold"><summary>Données</summary><div class="fold-b">'
+    + '<div class="row wrap">'
+    + '<button class="btn" id="btnExport">Exporter en JSON</button>'
+    + '<button class="btn" id="btnImport">Importer un JSON</button>'
+    + '<button class="btn" id="btnRestore">Restaurer le contenu de départ</button>'
+    + "</div>"
+    + '<span class="hint">L\'import remplace les collections présentes dans le fichier. La restauration recharge les canaux et la checklist d\'origine et supprime les vôtres.</span>'
+    + '<input type="file" id="fileImport" accept="application/json,.json" hidden>'
+    + "</div></details>"
+    + "</div>"
+    + '<div class="modal-f"><button class="btn" data-close="1">Annuler</button><button class="btn primary" id="sSave">Enregistrer</button></div>'
+    + "</div></div>";
+  $("#modalRoot").innerHTML = html;
+  const root = $("#modalRoot");
+  root.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", closeModal));
+  root.querySelector(".scrim").addEventListener("click", (e) => { if (e.target.classList.contains("scrim")) closeModal(); });
+
+  $("#sSave").addEventListener("click", () => {
+    const patch = {};
+    ["statut", "periodiciteUrssaf"].forEach((k) => { patch[k] = $('[name="' + k + '"]', root).value; });
+    ["tjm", "joursFactures", "salaireNetMensuel", "fraisProAnnuels", "fraisGestionPortage", "delaiRelance", "seuilDormance"]
+      .forEach((k) => { patch[k] = Number($('[name="' + k + '"]', root).value) || 0; });
+    patch.assujettiTVA = $('[name="assujettiTVA"]', root).checked;
+    const params = structuredCloneSafe(Store.settings.params);
+    PARAM_FIELDS.forEach(([p]) => {
+      const el = $('[name="P:' + p + '"]', root);
+      if (el && el.value !== "") setPath(params, p, Number(el.value));
+    });
+    const bEl = $('[name="P:ir.bareme"]', root);
+    if (bEl) {
+      try {
+        const b = JSON.parse(bEl.value);
+        if (Array.isArray(b) && b.every((t) => typeof t.de === "number" && typeof t.taux === "number")) params.ir.bareme = b;
+        else throw new Error("shape");
+      } catch (_) { toast("Barème IR ignoré : JSON invalide"); }
+    }
+    patch.params = params;
+    Store.saveSettings(patch);
+    closeModal();
+    toast("Réglages enregistrés");
+  });
+  $("#btnExport").addEventListener("click", async () => {
+    const text = Store.exportJSON();
+    let saved = false;
+    try {
+      const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+      if (dl) { await dl.save({ filename: "cockpit-freelance.json", data: text }); saved = true; }
+    } catch (_) { saved = false; }
+    if (!saved) {
+      try { await navigator.clipboard.writeText(text); toast("JSON copié dans le presse-papiers"); }
+      catch (_) { toast("Export indisponible ici"); }
+    }
+  });
+  $("#btnImport").addEventListener("click", () => $("#fileImport").click());
+  $("#fileImport").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try { await Store.importJSON(await f.text()); closeModal(); }
+    catch (_) { toast("Fichier illisible"); }
+  });
+  $("#btnRestore").addEventListener("click", async () => {
+    await Store.resetContenuDepart(); closeModal();
+  });
+}
+
+/* ============================================================================
+   Panneau Claude
+   ========================================================================== */
+function contexteOnglet() {
+  const S = Store.settings;
+  const t = state.tab;
+  const base = { onglet: (TABS.find((x) => x.id === t) || {}).nom, statutActif: S.statut, tjmCible: S.tjm, joursFactures: S.joursFactures };
+  if (t === "prospection") {
+    const leads = Store.all("leads");
+    base.pistes = leads.map((l) => ({
+      nom: l.nom, colonne: (STAGES.find((s) => s.id === l.stage) || {}).nom, source: l.canal, poste: l.poste,
+      tjmVise: l.tjmVise, tjmPropose: l.tjmPropose, dernierContact: l.dernierContact, prochaineRelance: l.prochaineRelance
+    }));
+    base.metriques = metriques(leads);
+  } else if (t === "simulateur") {
+    const sim = simulate(S);
+    base.simulation = Object.fromEntries(Object.keys(sim.statuts).map((k) => [k, {
+      netAnnuel: Math.round(sim.statuts[k].net), netMensuel: Math.round(sim.statuts[k].mensuel),
+      ecartVsSalaire: sim.statuts[k].ecart === null ? null : Math.round(sim.statuts[k].ecart * 100) + "%"
+    }]));
+    base.referenceSalarieeNetteApresIR = Math.round(sim.reference.net);
+  } else if (t === "demarches") {
+    base.checklist = Store.all("checklist").map((c) => ({ phase: c.phase, titre: c.titre, fait: !!c.fait, echeance: c.echeance }));
+  } else if (t === "missions") {
+    base.missions = Store.all("missions").map((m) => ({ client: m.client, tjm: m.tjm, joursVendus: m.joursVendus, joursConsommes: joursConsommes(m.id), statut: m.statut }));
+    base.factures = Store.all("invoices").map((i) => ({ numero: i.numero, montantHT: i.montantHT, echeance: i.dateEcheance, encaissement: i.dateEncaissement || null }));
+  } else if (t === "echeances") {
+    base.echeances = genEcheances(S).slice(0, 12).map((e) => ({ date: e.date, libelle: e.libelle }));
+    base.tauxProvision = tauxProvision(S);
+    base.chargesFixesMensuelles = Store.all("fixedCosts").reduce((a, c) => a + nz(c.montantMensuel), 0);
+  }
+  return base;
+}
+
+const CHIPS = {
+  prospection: [
+    { l: "Que dois-je faire cette semaine ?", p: "semaine" },
+    { l: "Ajouter des pistes depuis un texte", p: "leads" },
+    { l: "Message d'approche pour une piste", p: "approche" }
+  ],
+  simulateur: [{ l: "Que dois-je faire cette semaine ?", p: "semaine" }, { l: "Explique-moi l'écart entre EURL et SASU", p: "libre", q: "Explique-moi en quelques phrases pourquoi l'écart entre EURL et SASU est ce qu'il est dans ma simulation." }],
+  demarches: [{ l: "Que dois-je faire cette semaine ?", p: "semaine" }, { l: "Qu'est-ce que la CFE ?", p: "libre", q: "Qu'est-ce que la CFE ? Réponse courte et factuelle." }],
+  missions: [{ l: "Que dois-je faire cette semaine ?", p: "semaine" }, { l: "Relancer une facture en retard", p: "libre", q: "Rédige un message de relance courtois mais ferme pour ma facture échue la plus ancienne." }],
+  echeances: [{ l: "Que dois-je faire cette semaine ?", p: "semaine" }, { l: "Explique-moi mes échéances", p: "libre", q: "Explique-moi brièvement à quoi correspond chacune de mes prochaines échéances." }]
+};
+
+function renderDrawer() {
+  $("#drawer").classList.toggle("open", state.drawerOpen);
+  const body = $("#drawerBody");
+  const chips = $("#drawerChips");
+  if (state.sample === null) {
+    body.innerHTML = '<p class="note warn">L\'intégration Claude n\'est pas disponible sur cette page. Le reste du cockpit fonctionne normalement.</p>';
+    chips.innerHTML = ""; $("#drawerSend").disabled = true; $("#drawerInput").disabled = true;
+    return;
+  }
+  chips.innerHTML = (CHIPS[state.tab] || []).map((c, i) =>
+    '<button class="chip" data-chip="' + i + '">' + esc(c.l) + "</button>").join("");
+  let html = state.chat.length ? "" :
+    '<p class="note acc">Claude voit les données de l\'onglet <b>' + esc((TABS.find((t) => t.id === state.tab) || {}).nom) + "</b>. "
+    + "Tout ce qu'il écrit passe par le même formulaire que la saisie manuelle et reste modifiable.</p>";
+  html += state.chat.map((m) =>
+    '<div class="msg ' + (m.role === "user" ? "me" : "ai") + '"' + (m.streaming ? ' id="streamBubble"' : "") + ">"
+    + esc(m.content || (m.streaming ? "Réflexion en cours…" : "")) + "</div>"
+    + (m.role === "assistant" && !m.streaming ? '<p class="xs dim" style="margin-top:-6px">Réponse générée — estimation à vérifier, pas une règle officielle.</p>' : "")).join("");
+  if (state.proposals && state.proposals.length) {
+    html += '<div class="prop"><div class="eyebrow">' + state.proposals.length + " piste(s) proposée(s)</div>"
+      + state.proposals.map((p, i) => '<div class="small"><b>' + esc(p.nom) + "</b>"
+        + (p.poste ? " — " + esc(p.poste) : "") + (p.canal ? ' <span class="pill">' + esc(p.canal) + "</span>" : "")
+        + (p.tjmVise ? ' <span class="pill acc">' + eur(nz(p.tjmVise)) + "</span>" : "") + "</div>").join("")
+      + '<div class="row"><button class="btn primary sm" id="propAdd">Ajouter au kanban</button>'
+      + '<button class="btn sm" id="propCancel">Écarter</button></div>'
+      + '<span class="xs dim">Ajoutées en « À contacter », modifiables ensuite comme n\'importe quelle piste.</span></div>';
+  }
+  body.innerHTML = html;
+  body.scrollTop = body.scrollHeight;
+  $("#drawerStop").hidden = !state.busy;
+  $("#drawerSend").disabled = state.busy;
+  $("#drawerHint").textContent = state.busy ? "Claude réfléchit…" : "";
+  const add = $("#propAdd");
+  if (add) {
+    add.addEventListener("click", async () => {
+      const S = Store.settings;
+      for (const p of state.proposals) {
+        await Store.put("leads", {
+          nom: p.nom, canal: p.canal || "", poste: p.poste || "", tjmVise: nz(p.tjmVise, nz(S.tjm)), tjmPropose: 0,
+          stage: "a_contacter", dernierContact: todayISO(), prochaineRelance: addDays(todayISO(), nz(S.delaiRelance, 7)),
+          note: p.note || "", stageDates: { a_contacter: todayISO() }
+        });
+      }
+      toast(state.proposals.length + " piste(s) ajoutée(s)");
+      state.proposals = null; renderSoon();
+    });
+    $("#propCancel").addEventListener("click", () => { state.proposals = null; renderDrawer(); });
+  }
+}
+
+function erreurClaude(code) {
+  switch (code) {
+    case "not_granted": return "Vous avez refusé l'accès à Claude pour cette page.";
+    case "rate_limited": return "Trop de demandes d'affilée. Réessayez dans quelques instants.";
+    case "prompt_too_large": return "Trop de données à transmettre — réduisez le texte collé.";
+    case "invalid_json": return "La réponse n'était pas exploitable. Reformulez en listant une piste par ligne.";
+    case "cancelled": return "";
+    case "refused": return "Claude n'a pas répondu à cette demande.";
+    case "sampling_disabled": case "not_declared": case "capability_disabled": return "L'intégration Claude n'est pas disponible ici.";
+    default: return "La réponse a été interrompue. Réessayez.";
+  }
+}
+
+async function askClaude(mode, texte) {
+  const s = state.sample;
+  if (!s || state.busy) return;
+  const S = Store.settings;
+  const ctx = JSON.stringify(contexteOnglet());
+  let prompt, wantJSON = false;
+
+  if (mode === "leads") {
+    wantJSON = true;
+    prompt = "Voici des annonces ou notes de prospection freelance en France.\n"
+      + "Réponds UNIQUEMENT par un tableau JSON d'objets {nom, poste, canal, tjmVise, note}.\n"
+      + 'Exemple : [{"nom":"ESN Alpha","poste":"Dev .NET","canal":"ESN / sociétés de conseil","tjmVise":550,"note":""}]\n'
+      + "`nom` = client final ou intermédiaire. `canal` doit être choisi parmi : "
+      + Store.all("channels").map((c) => c.nom).join(", ") + " — ou laissé vide.\n"
+      + "`tjmVise` = nombre en euros, 0 si absent. N'invente pas d'entreprise : n'extrais que ce qui figure dans le texte.\n\nTexte :\n" + texte;
+  } else if (mode === "semaine") {
+    prompt = "Tu es l'assistant d'un développeur qui prépare son passage en freelance en France.\n"
+      + "À partir de ces données, dis-lui ce qu'il doit faire cette semaine : relances dues, échéances proches, factures en retard.\n"
+      + "Réponse courte, en français, sous forme de liste d'actions concrètes. Pas de conseil juridique ou fiscal présenté comme certain.\n"
+      + "Date du jour : " + todayISO() + "\n\nDonnées :\n" + ctx;
+  } else if (mode === "approche") {
+    const l = state.selectedLead ? Store.get("leads", state.selectedLead) : null;
+    const cible = l || Store.all("leads").find((x) => x.stage === "a_contacter");
+    if (!cible) { toast("Aucune piste à contacter"); return; }
+    prompt = "Rédige un message d'approche court (8 lignes maximum) en français, à envoyer par LinkedIn ou e-mail, "
+      + "pour un développeur full-stack .NET Core / Angular / React / Flutter / Azure basé en Île-de-France qui passe en freelance.\n"
+      + "Ton : direct, professionnel, sans superlatif ni flatterie. Termine par une proposition d'échange de 15 minutes.\n"
+      + "Piste visée : " + JSON.stringify({ nom: cible.nom, poste: cible.poste, canal: cible.canal, tjmVise: cible.tjmVise, note: cible.note });
+  } else {
+    prompt = "Tu es l'assistant d'un développeur français qui prépare son passage en freelance.\n"
+      + "Réponds de façon courte et factuelle, en français, avec le vocabulaire exact des organismes (URSSAF, CFE, TJM, ARE, RC Pro).\n"
+      + "Si tu donnes un chiffre, précise qu'il doit être vérifié. Ne présente jamais une estimation comme une règle certaine.\n"
+      + "Date du jour : " + todayISO() + "\n\nContexte de l'onglet :\n" + ctx + "\n\nQuestion :\n" + texte;
+  }
+
+  state.busy = true;
+  state.abort = new AbortController();
+  state.chat.push({ role: "user", content: mode === "leads" ? "Ajouter ces pistes :\n" + texte : texte });
+  if (!wantJSON) state.chat.push({ role: "assistant", content: "", streaming: true });
+  renderDrawer();
+
+  try {
+    if (wantJSON) {
+      const data = await s.json(prompt, { signal: state.abort.signal, modelTier: "quick" });
+      const arr = Array.isArray(data) ? data : [];
+      const clean = arr.filter((x) => x && x.nom).slice(0, 25).map((x) => ({
+        nom: String(x.nom).slice(0, 120), poste: String(x.poste || "").slice(0, 120),
+        canal: String(x.canal || ""), tjmVise: nz(x.tjmVise, 0), note: String(x.note || "").slice(0, 400)
+      }));
+      state.chat.push({ role: "assistant", content: clean.length ? clean.length + " piste(s) extraite(s) — vérifiez avant d'ajouter." : "Aucune piste identifiable dans ce texte." });
+      state.proposals = clean.length ? clean : null;
+    } else {
+      const res = await s(prompt, {
+        signal: state.abort.signal,
+        onText: ({ text }) => { const el = $("#streamBubble"); if (el) el.textContent = text; }
+      });
+      const last = state.chat[state.chat.length - 1];
+      last.content = res.text + (res.truncated ? "\n\n(réponse tronquée)" : "");
+      delete last.streaming;
+    }
+  } catch (e) {
+    const msg = erreurClaude(e && e.code);
+    const last = state.chat[state.chat.length - 1];
+    if (last && last.streaming) {
+      last.content = (e && e.text) ? e.text + "\n\n— " + msg : msg;
+      delete last.streaming;
+      if (!last.content) state.chat.pop();
+    } else if (msg) state.chat.push({ role: "assistant", content: msg });
+  } finally {
+    state.busy = false; state.abort = null;
+    renderDrawer();
+  }
+}
+
+/* ============================================================================
+   Événements
+   ========================================================================== */
+function openDrawer(lead) {
+  state.selectedLead = lead || null;
+  state.drawerOpen = true;
+  renderDrawer();
+  setTimeout(() => $("#drawerInput").focus(), 180);
+}
+
+document.addEventListener("click", (e) => {
+  const tab = e.target.closest("[data-tab]");
+  if (tab) { state.tab = tab.dataset.tab; state.proposals = null; render(); return; }
+  const act = e.target.closest("[data-act]");
+  if (!act) return;
+  const id = act.dataset.id;
+  switch (act.dataset.act) {
+    case "lead-new": leadModal(null); break;
+    case "lead-edit": leadModal(id); break;
+    case "lead-move": moveLead(id, Number(act.dataset.dir)); break;
+    case "canal-new": canalModal(null); break;
+    case "canal-edit": canalModal(id); break;
+    case "check-new": checkModal(null); break;
+    case "check-edit": checkModal(id); break;
+    case "mission-new": missionModal(null); break;
+    case "mission-edit": missionModal(id); break;
+    case "inv-new": invoiceModal(null); break;
+    case "inv-edit": invoiceModal(id); break;
+    case "inv-paid": { const i = Store.get("invoices", id); if (i) Store.put("invoices", { ...i, dateEncaissement: todayISO() }); break; }
+    case "ech-new": echeanceModal(); break;
+    case "ech-del": Store.remove("deadlines", act.dataset.doc); break;
+    case "fc-new": fixedCostModal(); break;
+    case "fc-del": Store.remove("fixedCosts", id); break;
+    case "del-exemples":
+      Store.all("leads").filter((l) => l.exemple).forEach((l) => Store.remove("leads", l.id));
+      toast("Exemples supprimés"); break;
+  }
+});
+
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.dataset.sfield !== undefined) {
+    const k = t.dataset.sfield;
+    Store.saveSettings({ [k]: t.type === "checkbox" ? t.checked : Number(t.value) });
+    return;
+  }
+  const act = t.dataset.act;
+  if (act === "check-toggle") {
+    const c = Store.get("checklist", t.dataset.id);
+    if (c) Store.put("checklist", { ...c, fait: t.checked });
+  } else if (act === "wd") {
+    const { mission, mois } = t.dataset;
+    const existing = Store.all("workdays").find((w) => w.missionId === mission && w.mois === mois);
+    const v = t.value === "" ? 0 : Number(t.value);
+    if (existing) { if (v === 0) Store.remove("workdays", existing.id); else Store.put("workdays", { ...existing, jours: v }); }
+    else if (v > 0) Store.put("workdays", { missionId: mission, mois, jours: v });
+  } else if (act === "ech-toggle") {
+    const key = t.dataset.key, doc = t.dataset.doc;
+    if (doc) { const d = Store.get("deadlines", doc); if (d) Store.put("deadlines", { ...d, fait: t.checked }); }
+    else if (key) Store.put("deadlines", { key, fait: t.checked, montant: 0 });
+  }
+});
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "provTest") {
+    const taux = tauxProvision(Store.settings);
+    const out = $("#provOut");
+    if (out && taux !== null) out.textContent = eur(Number(e.target.value || 0) * taux);
+  }
+});
+
+document.addEventListener("toggle", (e) => {
+  const t = e.target;
+  if (t.id === "regCanaux") localStorage_set("regOpen", t.open ? "1" : "0");
+  else if (t.id === "grilleJours") localStorage_set("grilleOpen", t.open ? "1" : "0");
+  else if (t.dataset && t.dataset.phase) localStorage_set("ph" + t.dataset.phase, t.open ? "1" : "0");
+}, true);
+
+/* glisser-déposer du kanban */
+let dragId = null;
+document.addEventListener("dragstart", (e) => {
+  const c = e.target.closest(".card");
+  if (!c) return;
+  dragId = c.dataset.id;
+  e.dataTransfer.effectAllowed = "move";
+  try { e.dataTransfer.setData("text/plain", dragId); } catch (_) { }
+});
+document.addEventListener("dragover", (e) => {
+  const col = e.target.closest(".col");
+  if (!col || !dragId) return;
+  e.preventDefault();
+  $$(".col").forEach((c) => c.classList.toggle("drop", c === col));
+});
+document.addEventListener("drop", (e) => {
+  const col = e.target.closest(".col");
+  $$(".col").forEach((c) => c.classList.remove("drop"));
+  if (!col || !dragId) return;
+  e.preventDefault();
+  const l = Store.get("leads", dragId);
+  if (l) setLeadStage(l, col.dataset.stage);
+  dragId = null;
+});
+document.addEventListener("dragend", () => { $$(".col").forEach((c) => c.classList.remove("drop")); dragId = null; });
+
+$("#askBtn").addEventListener("click", () => openDrawer(null));
+$("#drawerClose").addEventListener("click", () => { state.drawerOpen = false; renderDrawer(); });
+$("#settingsBtn").addEventListener("click", settingsModal);
+$("#statutChip").addEventListener("click", settingsModal);
+$("#drawerSend").addEventListener("click", () => {
+  const v = $("#drawerInput").value.trim();
+  if (!v) return;
+  $("#drawerInput").value = "";
+  askClaude("libre", v);
+});
+$("#drawerInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); $("#drawerSend").click(); }
+});
+$("#drawerStop").addEventListener("click", () => { if (state.abort) state.abort.abort(); });
+$("#drawerChips").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-chip]");
+  if (!b) return;
+  const c = (CHIPS[state.tab] || [])[Number(b.dataset.chip)];
+  if (!c) return;
+  if (c.p === "leads") {
+    const v = $("#drawerInput").value.trim();
+    if (!v) { $("#drawerHint").textContent = "Collez d'abord les annonces dans le champ ci-dessous."; $("#drawerInput").focus(); return; }
+    $("#drawerInput").value = "";
+    askClaude("leads", v);
+  } else if (c.p === "libre") askClaude("libre", c.q);
+  else askClaude(c.p, c.q || c.l);
+});
+$("#themeBtn").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = cur === "dark" ? "light" : cur === "light" ? "" : (matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "dark");
+  if (next) document.documentElement.setAttribute("data-theme", next);
+  else document.documentElement.removeAttribute("data-theme");
+  localStorage_set("theme", next);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    if ($("#modalRoot").innerHTML) closeModal();
+    else if (state.drawerOpen) { state.drawerOpen = false; renderDrawer(); }
+  }
+});
+
+/* ============================================================================
+   Démarrage
+   ========================================================================== */
+(function boot() {
+  const th = localStorage_get("theme");
+  if (th) document.documentElement.setAttribute("data-theme", th);
+  render();
+  Store.init();
+  if (window.claude && window.claude.use) {
+    window.claude.use("sample").then((s) => { state.sample = s; renderDrawer(); }).catch(() => { state.sample = null; renderDrawer(); });
+  } else {
+    state.sample = null;
+  }
+})();
+</script>
