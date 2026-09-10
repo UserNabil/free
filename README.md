@@ -5,7 +5,7 @@ Outil personnel unique pour préparer et piloter un passage en freelance (dével
 Application web mono-page, sans dépendance, publiée comme Artifact Claude.
 Le fichier `cockpit-freelance.html` est autonome : il contient tout le code, le style et les paramètres.
 
-## Les 6 onglets
+## Les 7 onglets
 
 | Onglet | Ce qu'il sert à faire |
 |---|---|
@@ -15,6 +15,7 @@ Le fichier `cockpit-freelance.html` est autonome : il contient tout le code, le 
 | **Démarches** | Checklist en 4 phases à **trois états** (à faire / en attente d'un retour / fait), avec compte à rebours sur les délais |
 | **Missions & facturation** | Missions, jours consommés, factures, alerte sur les factures échues, jauges de plafonds micro |
 | **Échéances & trésorerie** | Échéances sur 12 mois glissants, provision automatique par encaissement, trésorerie à 6 mois |
+| **Vitrine** | Projets personnels, CV et portfolio composés par glisser-déposer, exportables en pages HTML autonomes |
 
 Les réglages (statut actif, hypothèses, droits ARE, paramètres de calcul) sont derrière l'icône ⚙.
 
@@ -39,6 +40,32 @@ explicitement. L'arbitrage bascule autour de 40 à 50 jours facturés la premiè
 
 Renseignez votre **ARE journalière** et vos **jours de droits** relevés sur France Travail : sans eux, l'application
 estime l'ARE à partir du salaire brut, ce qui est nettement moins fiable.
+
+## Simulateur ARE intégré
+
+L'onglet Simulateur reproduit la mécanique de France Travail : salaire journalier de référence, ARE brute et nette,
+durée d'indemnisation, puis les trois différés qui décalent le premier paiement (congés payés, part supra-légale de
+l'indemnité de rupture, délai d'attente de 7 jours). Le bouton « Reporter dans mes droits » alimente la projection
+pluriannuelle avec le résultat.
+
+Il calcule aussi le **plancher légal de l'indemnité de rupture conventionnelle** à partir de l'ancienneté, et met en
+évidence l'arbitrage caché de la négociation : chaque euro au-dessus de ce plancher repousse l'ARE d'un jour par
+tranche de 95,80 €, jusqu'à un plafond de 150 jours. Passé ce plafond, l'indemnité supplémentaire ne coûte plus rien
+en différé.
+
+Ce simulateur ne remplace pas la simulation officielle : les paramètres de l'ARE sont revalorisés chaque année et le
+salaire journalier de référence y est approché par le brut ÷ 365.
+
+## Vitrine
+
+- **Projets** : la liste ordonnée par glisser-déposer alimente le CV et le portfolio.
+- **CV** : blocs typés (expérience, projet, formation, compétences, texte libre) réordonnables, aperçu en direct,
+  export en page HTML imprimable en PDF depuis le navigateur.
+- **Portfolio** : sections composables et masquables, aperçu en direct, export en **page HTML autonome** sans
+  dépendance, déposable chez n'importe quel hébergeur.
+
+Ce n'est pas un éditeur visuel libre : on compose à partir de blocs typés et on les ordonne, ce qui suffit pour un CV
+et un portfolio de développeur et garantit un rendu cohérent.
 
 ## Persistance
 

@@ -294,6 +294,34 @@ details[open]>summary .chev{transform:rotate(90deg)}
 @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .3s ease-out}
 
+/* ---------- vitrine : listes réordonnables et aperçus ---------- */
+.seg{display:inline-flex;gap:4px;background:var(--surface-2);border:2px solid var(--line);border-radius:99px;padding:3px}
+.seg button{border:0;background:none;border-radius:99px;padding:5px 14px;font-family:var(--display);font-weight:700;font-size:13px;color:var(--ink-2);cursor:pointer}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-selected="true"]{background:var(--green);color:#fff}
+.sortable{display:flex;flex-direction:column;gap:8px}
+.srow{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;border:2px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 2px 0 var(--line)}
+.srow.dragging{opacity:.45;border-style:dashed}
+.srow.off{opacity:.55}
+.grip{cursor:grab;color:var(--ink-3);font-size:15px;line-height:1.2;padding:2px 3px;flex:none;user-select:none}
+.grip:active{cursor:grabbing}
+.srow-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.srow-t{font-family:var(--display);font-weight:700;font-size:14px;line-height:1.2;overflow-wrap:anywhere}
+.srow-d{font-size:12.5px;color:var(--ink-2);line-height:1.4;overflow-wrap:anywhere}
+.tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{padding:1px 8px;border-radius:99px;background:var(--blue-soft);color:var(--blue-d);border:2px solid var(--blue);font-size:11px;font-weight:700;font-family:var(--display)}
+.apercu{border:2px solid var(--line);border-radius:14px;background:#FFFFFF;color:#26303B;padding:24px;overflow-y:auto;max-height:640px;box-shadow:var(--shadow)}
+.apercu *{color:inherit}
+.apercu h1{font-family:var(--display);font-size:25px;font-weight:800;margin:0 0 2px;color:#16202B}
+.apercu h2{font-family:var(--display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#58CC02;margin:20px 0 8px;padding-bottom:5px;border-bottom:2px solid #E8EDE3}
+.apercu h3{font-family:var(--display);font-size:14.5px;font-weight:700;margin:0}
+.apercu .ap-sub{font-size:14px;color:#5A6672;margin-bottom:7px}
+.apercu .ap-meta{font-size:12px;color:#7A8794}
+.apercu .ap-item{margin-bottom:13px}
+.apercu p{font-size:13px;line-height:1.55;margin:4px 0 0}
+.apercu .ap-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.apercu .ap-tag{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;background:#EEF5E6;color:#3E7A12}
+
 @media (max-width:900px){ .sim{grid-template-columns:1fr} .grid-2{grid-template-columns:1fr} }
 @media (max-width:720px){
   main{padding:13px 11px 34px}
@@ -409,7 +437,16 @@ const PARAMS_2026 = {
       coefficientDuree: 0.75,   // fiabilite: FAIBLE — minoration contracyclique quand le chômage est bas
       dureeMinJours: 182,       // fiabilite: FAIBLE
       delaiAttenteJours: 7,     // fiabilite: haute — délai d'attente à l'ouverture des droits
+      differeDiviseur: 95.8,    // fiabilite: FAIBLE — indemnité supra-légale ÷ 95,8 = jours de différé spécifique
+      differeSpecifiqueMax: 150,// fiabilite: FAIBLE — plafond du différé spécifique (hors licenciement économique)
+      tauxPrelevementARE: 0.097,// fiabilite: FAIBLE — CSG/CRDS + retraite complémentaire retenues sur l'ARE brute
       imposable: true           // fiabilite: haute — l'ARE est un revenu de remplacement imposable
+    },
+    indemniteLegale: {
+      _libelle: "Indemnité légale de licenciement — plancher de la rupture conventionnelle",
+      tauxParAnnee: 0.25,       // fiabilite: haute — 1/4 de mois de salaire par année, 10 premières années
+      seuilAnnees: 10,          // fiabilite: haute
+      tauxAudela: 1 / 3         // fiabilite: haute — 1/3 de mois par année au-delà de 10 ans
     },
     arce: {
       _libelle: "ARCE — aide à la reprise ou à la création d'entreprise",
@@ -494,7 +531,8 @@ const TABS = [
   { id: "simulateur",  nom: "Simulateur TJM" },
   { id: "demarches",   nom: "Démarches" },
   { id: "missions",    nom: "Missions & facturation" },
-  { id: "echeances",   nom: "Échéances & trésorerie" }
+  { id: "echeances",   nom: "Échéances & trésorerie" },
+  { id: "vitrine",     nom: "Vitrine" }
 ];
 
 /* ---- contenu de départ (restaurable depuis les réglages) ---- */
@@ -574,6 +612,16 @@ const DEFAULT_SETTINGS = {
   periodiciteUrssaf: "trimestrielle",
   assujettiTVA: false,
   chargesFixesNote: "",
+  // --- simulateur ARE / rupture ---
+  dateEntreeEntreprise: "",
+  dateFinContrat: "",
+  salaireBrut12Mois: 0,          // 0 = déduit du salaire brut annuel
+  indemniteRupture: 0,           // indemnité totale négociée
+  indemniteCongesPayes: 0,       // indemnité compensatrice de congés payés
+  // --- vitrine ---
+  vitrineSection: "projets",
+  cvEntete: { nom: "", titre: "", email: "", tel: "", ville: "", liens: "" },
+  siteAccroche: "",
   // --- projection pluriannuelle et aides ---
   horizonAnnees: 4,
   joursAnnee1: 120,
@@ -625,7 +673,8 @@ function toast(msg) {
 /* ============================================================================
    Store — `db` si disponible, sinon localStorage + export/import JSON
    ========================================================================== */
-const COLLECTIONS = ["leads", "channels", "checklist", "missions", "invoices", "workdays", "deadlines", "fixedCosts"];
+const COLLECTIONS = ["leads", "channels", "checklist", "missions", "invoices", "workdays", "deadlines", "fixedCosts",
+  "projects", "cvBlocks", "siteBlocks"];
 const LS_KEY = "cockpit-freelance-v1";
 
 const Store = {
@@ -1059,12 +1108,62 @@ function comparerScenarios(S, statutId) {
     .map((x) => ({ ...x, total: x.proj.total }));
 }
 
+/* ---- simulateur ARE détaillé : du salaire à la date du premier paiement ---- */
+const mensuelBrut = (S) => nz(S.salaireBrutAnnuel) / 12;
+
+function ancienneteAnnees(S) {
+  if (!S.dateEntreeEntreprise) return 0;
+  const fin = S.dateFinContrat || todayISO();
+  const j = daysDiff(fin, S.dateEntreeEntreprise);
+  return j > 0 ? j / 365.25 : 0;
+}
+
+/** Plancher légal de l'indemnité de rupture conventionnelle. */
+function indemniteLegaleRupture(S) {
+  const IL = S.params.aides.indemniteLegale;
+  const a = ancienneteAnnees(S), ref = mensuelBrut(S);
+  if (a <= 0 || ref <= 0) return 0;
+  return (Math.min(a, IL.seuilAnnees) * IL.tauxParAnnee + Math.max(0, a - IL.seuilAnnees) * IL.tauxAudela) * ref;
+}
+
+function simulerARE(S) {
+  const A = S.params.aides.are;
+  const brut12 = nz(S.salaireBrut12Mois) > 0 ? nz(S.salaireBrut12Mois) : nz(S.salaireBrutAnnuel);
+  const sjr = brut12 > 0 ? brut12 / 365 : 0;
+  let brutJour = 0;
+  if (sjr > 0) {
+    brutJour = Math.max(A.tauxSJR * sjr, A.tauxAlt * sjr + A.partieFixe);
+    brutJour = Math.max(A.plancher, Math.min(brutJour, A.plafondPartSJR * sjr));
+  }
+  const netJour = brutJour * (1 - A.tauxPrelevementARE);
+  const anciennete = ancienneteAnnees(S);
+  const joursAffiliation = Math.min(730, Math.round(anciennete * 365));
+  const plafond = Math.max(A.dureeMinJours, Math.round(A.dureeMaxJours * A.coefficientDuree));
+  const duree = sjr > 0 && joursAffiliation > 0 ? Math.min(joursAffiliation, plafond) : 0;
+  const legale = indemniteLegaleRupture(S);
+  const supra = Math.max(0, nz(S.indemniteRupture) - legale);
+  const differeSpecifique = Math.min(A.differeSpecifiqueMax, Math.floor(supra / A.differeDiviseur));
+  const differeCP = sjr > 0 ? Math.ceil(nz(S.indemniteCongesPayes) / sjr) : 0;
+  const attente = A.delaiAttenteJours;
+  const totalDiffere = differeSpecifique + differeCP + attente;
+  const fin = S.dateFinContrat || "";
+  return {
+    sjr, brutJour, netJour, duree, joursAffiliation, plafond, anciennete,
+    legale, supra, differeSpecifique, differeCP, attente, totalDiffere,
+    fin, debut: fin ? addDays(fin, totalDiffere) : "",
+    finDroits: fin ? addDays(fin, totalDiffere + duree) : "",
+    totalBrut: brutJour * duree, totalNet: netJour * duree,
+    arce: brutJour * duree * S.params.aides.arce.part
+  };
+}
+
 /* ============================================================================
    Progression : XP, niveaux, rangs, quêtes, badges
    ========================================================================== */
 const XP_GAIN = {
   piste: 5, avance: 10, candidature: 25, echange: 40, proposition: 60, gagne: 200,
-  demarcheParPhase: [0, 20, 30, 40, 25], attente: 8, facture: 50
+  demarcheParPhase: [0, 20, 30, 40, 25], attente: 8, facture: 50,
+  projet: 15, cvBloc: 10, export: 40
 };
 
 function jeu() { return (Store.settings && Store.settings.jeu) || DEFAULT_SETTINGS.jeu; }
@@ -1112,7 +1211,10 @@ const BADGES = [
   { id: "encaisse", ico: "💰", t: "1er encaissement", test: () => Store.all("invoices").some((i) => i.dateEncaissement) },
   { id: "serie7", ico: "🔥", t: "7 jours d'affilée", test: () => nz(jeu().serieMax) >= 7 },
   { id: "serie30", ico: "🏅", t: "30 jours d'affilée", test: () => nz(jeu().serieMax) >= 30 },
-  { id: "niveau5", ico: "⭐", t: "Niveau 5", test: () => niveauPour(jeu().xp) >= 5 }
+  { id: "niveau5", ico: "⭐", t: "Niveau 5", test: () => niveauPour(jeu().xp) >= 5 },
+  { id: "projet1", ico: "🛠️", t: "1er projet perso", test: () => Store.all("projects").length > 0 },
+  { id: "cvpret", ico: "🗂️", t: "CV étoffé", test: () => Store.all("cvBlocks").length >= 4 },
+  { id: "vitrine", ico: "🌐", t: "Portfolio monté", test: () => Store.all("siteBlocks").filter((b) => b.actif !== false).length >= 3 }
 ];
 
 /* --- quêtes du jour : tirées de la situation réelle, stables sur la journée --- */
@@ -1136,6 +1238,8 @@ function quetesDuJour(S) {
   if (echues > 0) pool.push({ id: "facture", ico: "💶", t: "Relancer une facture échue", cible: 1, xp: 35, manuel: true });
   if (Store.all("missions").length) pool.push({ id: "jours", ico: "📅", t: "Mettre à jour mes jours travaillés", cible: 1, xp: 20, manuel: true });
   if (nz(S.areJournaliere) === 0) pool.push({ id: "are", ico: "🧮", t: "Saisir mes droits ARE réels dans les réglages", cible: 1, xp: 60, manuel: true });
+  if (Store.all("projects").length < 5) pool.push({ id: "projet", ico: "🛠️", t: "Ajouter un projet personnel", cible: 1, xp: 35, mesure: () => Store.all("projects").filter((p) => p.creeLe === t).length });
+  if (Store.all("cvBlocks").length < 6) pool.push({ id: "cv", ico: "🗂️", t: "Étoffer mon CV d'un bloc", cible: 1, xp: 30, mesure: () => Store.all("cvBlocks").filter((b) => b.creeLe === t).length });
 
   const choisies = pool.length <= 3 ? pool : melangeStable(pool, graineJour(t)).slice(0, 3);
   return choisies.map((q) => {
@@ -1649,8 +1753,85 @@ VIEWS.simulateur = function (S) {
     + "</div></div>";
 
   return '<div class="sim">' + gauche + '<div class="stack">'
-    + tableau + blocProjection(S) + blocAides(S) + hyp + marche + "</div></div>";
+    + tableau + blocARE(S) + blocProjection(S) + blocAides(S) + hyp + marche + "</div></div>";
 };
+
+/* --- simulateur ARE : du salaire brut à la date du premier paiement --- */
+function blocARE(S) {
+  const r = simulerARE(S);
+  const A = S.params.aides.are;
+  const pret = r.brutJour > 0 && r.duree > 0;
+
+  const entrees = '<div class="panel-b" style="border-bottom:2px solid var(--line)">'
+    + '<div class="eyebrow" style="margin-bottom:9px">Mes données de rupture</div>'
+    + '<div class="grid-2" style="gap:11px">'
+    + field("dateEntreeEntreprise", "Date d'entrée dans l'entreprise", "date", S.dateEntreeEntreprise, "détermine l'ancienneté et la durée d'indemnisation")
+    + field("dateFinContrat", "Date de fin de contrat envisagée", "date", S.dateFinContrat, "point de départ des différés")
+    + field("salaireBrut12Mois", "Salaire brut des 12 derniers mois", "number", S.salaireBrut12Mois, "0 = reprendre le salaire brut annuel (" + eur(nz(S.salaireBrutAnnuel)) + ")")
+    + field("indemniteRupture", "Indemnité de rupture négociée", "number", S.indemniteRupture, "montant total, indemnité légale comprise")
+    + field("indemniteCongesPayes", "Indemnité compensatrice de congés payés", "number", S.indemniteCongesPayes, "solde de congés non pris")
+    + "</div></div>";
+
+  if (!pret) {
+    return '<div class="panel"><div class="panel-h"><h2>Simulateur ARE</h2>'
+      + '<span class="pill warn">données incomplètes</span></div>' + entrees
+      + '<div class="panel-b"><p class="note warn">Renseignez au minimum votre <b>date d\'entrée dans l\'entreprise</b> et votre <b>salaire brut</b> pour calculer vos droits. '
+      + "Ce simulateur reproduit la mécanique de France Travail, mais il ne la remplace pas : seule la simulation officielle vous engage.</p></div></div>";
+  }
+
+  const cascade = [
+    { l: "Fin du contrat", v: fmtDateLong(r.fin) || "date non renseignée", j: null, c: "" },
+    { l: "Différé congés payés", v: r.differeCP + " jours", j: r.differeCP, c: r.differeCP ? "warn" : "" },
+    { l: "Différé spécifique (indemnité supra-légale)", v: r.differeSpecifique + " jours", j: r.differeSpecifique, c: r.differeSpecifique ? "bad" : "" },
+    { l: "Délai d'attente", v: r.attente + " jours", j: r.attente, c: "" },
+    { l: "Premier paiement", v: r.debut ? fmtDateLong(r.debut) : "—", j: null, c: "ok" }
+  ];
+
+  return '<div class="panel"><div class="panel-h"><h2>Simulateur ARE</h2>'
+    + '<span class="xs dim" style="flex:1">ancienneté ' + nNUM.format(r.anciennete) + " ans au terme du contrat</span>"
+    + '<button class="btn sm primary" data-act="are-report">Reporter dans mes droits</button></div>'
+    + entrees
+    + '<div class="kpis" style="border:0;border-bottom:2px solid var(--line);border-radius:0">'
+    + kpi(eur2(r.netJour), "ARE nette / jour", eur2(r.brutJour) + " brut")
+    + kpi(eur(r.netJour * 30), "≈ par mois", "sur 30 jours")
+    + kpi(num(r.duree) + " j", "Durée d'indemnisation", "soit " + nNUM.format(r.duree / 30.4) + " mois")
+    + kpi(eur(r.totalNet), "Total net des droits", "avant reprise d'activité")
+    + "</div>"
+    + '<div class="panel-b" style="display:flex;flex-direction:column;gap:12px">'
+    + '<div><div class="eyebrow" style="margin-bottom:7px">Quand tombe le premier paiement</div>'
+    + '<div class="tasks" style="border:2px solid var(--line);border-radius:12px;overflow:hidden">'
+    + cascade.map((c) => '<div class="task" style="cursor:default">'
+      + '<span class="task-ico ' + c.c + '">' + (c.c === "ok" ? "💶" : c.j === null ? "📄" : c.j > 0 ? "⏳" : "✓") + "</span>"
+      + '<span class="task-b"><span class="task-t">' + esc(c.l) + '</span></span>'
+      + '<b class="num small">' + esc(c.v) + "</b></div>").join("")
+    + "</div>"
+    + '<div class="xs dim" style="margin-top:6px">Total des différés : ' + r.totalDiffere + " jours, soit " + nNUM.format(r.totalDiffere / 30.4) + " mois sans allocation ni salaire.</div></div>"
+    + '<div class="grid-2" style="gap:12px">'
+    + '<div><div class="eyebrow" style="margin-bottom:5px">Indemnité de rupture</div>'
+    + '<table><tbody>'
+    + '<tr><td class="lab small">Plancher légal</td><td class="tnum">' + eur(r.legale) + "</td></tr>"
+    + '<tr><td class="lab small">Négociée</td><td class="tnum">' + eur(nz(S.indemniteRupture)) + "</td></tr>"
+    + '<tr><td class="lab small">Part supra-légale</td><td class="tnum"><b>' + eur(r.supra) + "</b></td></tr>"
+    + "</tbody></table></div>"
+    + '<div><div class="eyebrow" style="margin-bottom:5px">Si ARCE demandée</div>'
+    + '<table><tbody>'
+    + '<tr><td class="lab small">Capital versé</td><td class="tnum"><b>' + eur(r.arce) + "</b></td></tr>"
+    + '<tr><td class="lab small">1er versement</td><td class="tnum">' + eur(r.arce / 2) + "</td></tr>"
+    + '<tr><td class="lab small">2nd versement</td><td class="tnum">' + eur(r.arce / 2) + " (+" + S.params.aides.arce.moisSecondVersement + " mois)</td></tr>"
+    + "</tbody></table></div></div>"
+    + (r.supra > 0
+      ? '<p class="note warn"><b>Le piège de la négociation.</b> Chaque euro d\'indemnité au-dessus du plancher légal repousse le début de votre ARE de 1 jour par tranche de '
+        + nNUM.format(A.differeDiviseur) + " €. Votre part supra-légale de " + eur(r.supra) + " coûte <b>" + r.differeSpecifique
+        + " jours de différé</b>, soit environ " + eur(r.differeSpecifique * r.netJour) + " d'allocations décalées"
+        + (r.differeSpecifique >= A.differeSpecifiqueMax ? " — et vous êtes déjà au plafond de " + A.differeSpecifiqueMax + " jours." : ".")
+        + " Négocier plus haut reste souvent gagnant, mais le gain net est inférieur au montant affiché.</p>"
+      : '<p class="note">Aucune part supra-légale saisie : pas de différé spécifique. Si vous négociez au-dessus du plancher légal de '
+        + eur(r.legale) + ", un différé apparaîtra ici.</p>")
+    + '<p class="note warn"><b>Ordres de grandeur.</b> La partie fixe, le plancher, la durée maximale et le coefficient de minoration sont revalorisés chaque année et dépendent de la conjoncture ; '
+    + "le diviseur du différé et le taux de prélèvement sur l'ARE sont les valeurs les moins sûres du fichier. Le salaire journalier de référence est ici approché par le brut ÷ 365, "
+    + "alors que France Travail retient les jours effectivement travaillés. <b>Faites la simulation officielle sur francetravail.fr</b> et reportez le résultat dans les réglages.</p>"
+    + "</div></div>";
+}
 
 /* --- projection pluriannuelle : que rapporte réellement l'année 1, puis les suivantes --- */
 function blocProjection(S) {
@@ -2072,6 +2253,250 @@ VIEWS.echeances = function (S) {
   return '<div class="stack">' + blocProvision + tblEch + tresorerie + "</div>";
 };
 
+/* ---------------------------------------------------------------- 6. VITRINE */
+const TYPES_CV = [
+  { v: "experience", l: "Expérience" },
+  { v: "projet", l: "Projet" },
+  { v: "formation", l: "Formation" },
+  { v: "competence", l: "Compétences" },
+  { v: "texte", l: "Texte libre" }
+];
+const TYPES_SITE = [
+  { v: "hero", l: "Bandeau d'accroche" },
+  { v: "apropos", l: "À propos" },
+  { v: "competences", l: "Compétences" },
+  { v: "projets", l: "Projets (repris de l'onglet Projets)" },
+  { v: "offre", l: "Mon offre / TJM" },
+  { v: "contact", l: "Contact" }
+];
+const SECTIONS_VITRINE = [
+  { id: "projets", l: "Projets" },
+  { id: "cv", l: "CV" },
+  { id: "site", l: "Portfolio" }
+];
+
+const parOrdre = (a, b) => nz(a.ordre) - nz(b.ordre);
+const libelleType = (liste, v) => (liste.find((t) => t.v === v) || {}).l || v;
+
+VIEWS.vitrine = function (S) {
+  const sec = S.vitrineSection || "projets";
+  const onglets = '<div class="row wrap" style="gap:10px;margin-bottom:2px">'
+    + '<div class="seg">' + SECTIONS_VITRINE.map((x) =>
+      '<button data-act="vitrine-sec" data-id="' + x.id + '" aria-selected="' + (sec === x.id) + '">' + esc(x.l) + "</button>").join("")
+    + "</div></div>";
+  const corps = sec === "cv" ? vueCV(S) : sec === "site" ? vueSite(S) : vueProjets(S);
+  return '<div class="stack">' + onglets + corps + "</div>";
+};
+
+/* --- projets personnels --- */
+function vueProjets(S) {
+  const li = Store.all("projects").slice().sort(parOrdre);
+  return '<div class="panel"><div class="panel-h"><h2>Projets personnels</h2>'
+    + '<span class="pill">' + li.length + "</span>"
+    + '<span class="xs dim" style="flex:1">glissez la poignée pour changer l\'ordre — il pilote le CV et le portfolio</span>'
+    + '<button class="btn sm primary" data-act="proj-new">+ Projet</button></div>'
+    + '<div class="panel-b">'
+    + (li.length
+      ? '<div class="sortable" data-coll="projects">' + li.map((p) =>
+        '<div class="srow" data-id="' + p.id + '" draggable="true">'
+        + '<span class="grip" aria-hidden="true">⠿</span>'
+        + '<span class="srow-b">'
+        + '<span class="srow-t">' + esc(p.titre) + (p.annee ? ' <span class="dim xs">' + esc(p.annee) + "</span>" : "") + "</span>"
+        + (p.resume ? '<span class="srow-d">' + esc(p.resume) + "</span>" : "")
+        + (p.techs ? '<span class="tags">' + String(p.techs).split(/[,;]/).map((t) => t.trim()).filter(Boolean)
+          .map((t) => '<span class="tag">' + esc(t) + "</span>").join("") + "</span>" : "")
+        + (p.lien ? '<a class="xs" href="' + esc(p.lien) + '" target="_blank" rel="noopener">' + esc(p.lien) + "</a>" : "")
+        + "</span>"
+        + '<button class="btn sm ghost" data-act="proj-edit" data-id="' + p.id + '">Modifier</button>'
+        + "</div>").join("") + "</div>"
+      : '<div class="empty">Aucun projet. Ce sont eux qui remplissent votre portfolio et la rubrique « Projets » du CV.<br>Attention : la clause de propriété intellectuelle de votre contrat couvre les créations faites pendant l\'emploi — voir la phase 1 des Démarches.</div>')
+    + "</div></div>";
+}
+
+/* --- CV --- */
+function vueCV(S) {
+  const e = S.cvEntete || {};
+  const blocs = Store.all("cvBlocks").slice().sort(parOrdre);
+  const edition = '<div class="panel"><div class="panel-h"><h2>Contenu du CV</h2>'
+    + '<span class="xs dim" style="flex:1">' + blocs.length + " bloc(s)</span>"
+    + '<button class="btn sm" data-act="cv-entete">En-tête</button>'
+    + '<button class="btn sm primary" data-act="cv-new">+ Bloc</button></div>'
+    + '<div class="panel-b">'
+    + (blocs.length
+      ? '<div class="sortable" data-coll="cvBlocks">' + blocs.map((b) =>
+        '<div class="srow" data-id="' + b.id + '" draggable="true">'
+        + '<span class="grip" aria-hidden="true">⠿</span>'
+        + '<span class="srow-b">'
+        + '<span class="row wrap" style="gap:6px"><span class="pill acc">' + esc(libelleType(TYPES_CV, b.type)) + "</span>"
+        + '<span class="srow-t">' + esc(b.titre) + "</span></span>"
+        + (b.sousTitre || b.periode ? '<span class="srow-d">' + esc([b.sousTitre, b.periode].filter(Boolean).join(" · ")) + "</span>" : "")
+        + (b.description ? '<span class="srow-d dim">' + esc(String(b.description).slice(0, 130)) + (String(b.description).length > 130 ? "…" : "") + "</span>" : "")
+        + "</span>"
+        + '<button class="btn sm ghost" data-act="cv-edit" data-id="' + b.id + '">Modifier</button>'
+        + "</div>").join("") + "</div>"
+      : '<div class="empty">Aucun bloc. Ajoutez vos expériences, votre formation et vos compétences.</div>')
+    + "</div></div>";
+
+  const apercu = '<div class="panel"><div class="panel-h"><h2>Aperçu</h2>'
+    + '<span class="xs dim" style="flex:1">mise en page finale</span>'
+    + '<button class="btn sm" data-act="cv-export">Exporter en HTML</button></div>'
+    + '<div class="panel-b"><div class="apercu">' + rendreCV(S, blocs) + "</div>"
+    + '<p class="hint" style="margin-top:9px">Le fichier exporté s\'ouvre dans un navigateur et s\'imprime en PDF (Ctrl+P → Enregistrer au format PDF).</p>'
+    + "</div></div>";
+
+  return '<div class="grid-2">' + edition + apercu + "</div>";
+}
+
+function rendreCV(S, blocs) {
+  const e = S.cvEntete || {};
+  const contact = [e.email, e.tel, e.ville, e.liens].filter(Boolean).join("  ·  ");
+  if (!e.nom && !blocs.length) {
+    return '<p style="color:#7A8794;font-size:13px">Renseignez l\'en-tête et ajoutez des blocs : l\'aperçu se construit ici.</p>';
+  }
+  let html = "<h1>" + esc(e.nom || "Votre nom") + "</h1>"
+    + '<div class="ap-sub">' + esc(e.titre || "Développeur full-stack freelance") + "</div>"
+    + (contact ? '<div class="ap-meta">' + esc(contact) + "</div>" : "");
+  const groupes = [];
+  blocs.forEach((b) => {
+    const dernier = groupes[groupes.length - 1];
+    if (dernier && dernier.type === b.type) dernier.items.push(b);
+    else groupes.push({ type: b.type, items: [b] });
+  });
+  groupes.forEach((g) => {
+    html += "<h2>" + esc(libelleType(TYPES_CV, g.type)) + "</h2>";
+    if (g.type === "competence") {
+      const tous = g.items.flatMap((b) => String(b.description || b.titre || "").split(/[,;\n]/));
+      html += '<div class="ap-tags">' + tous.map((t) => t.trim()).filter(Boolean)
+        .map((t) => '<span class="ap-tag">' + esc(t) + "</span>").join("") + "</div>";
+    } else {
+      g.items.forEach((b) => {
+        html += '<div class="ap-item"><h3>' + esc(b.titre) + "</h3>"
+          + (b.sousTitre || b.periode ? '<div class="ap-meta">' + esc([b.sousTitre, b.periode].filter(Boolean).join(" · ")) + "</div>" : "")
+          + (b.description ? "<p>" + esc(b.description).replace(/\n/g, "<br>") + "</p>" : "")
+          + "</div>";
+      });
+    }
+  });
+  return html;
+}
+
+/* --- portfolio --- */
+function vueSite(S) {
+  const blocs = Store.all("siteBlocks").slice().sort(parOrdre);
+  const edition = '<div class="panel"><div class="panel-h"><h2>Sections du portfolio</h2>'
+    + '<span class="xs dim" style="flex:1">glissez pour ordonner, décochez pour masquer</span>'
+    + '<button class="btn sm primary" data-act="site-new">+ Section</button></div>'
+    + '<div class="panel-b">'
+    + (blocs.length
+      ? '<div class="sortable" data-coll="siteBlocks">' + blocs.map((b) =>
+        '<div class="srow' + (b.actif === false ? " off" : "") + '" data-id="' + b.id + '" draggable="true">'
+        + '<span class="grip" aria-hidden="true">⠿</span>'
+        + '<span class="srow-b">'
+        + '<span class="row wrap" style="gap:6px"><span class="pill' + (b.actif === false ? "" : " ok") + '">'
+        + esc(libelleType(TYPES_SITE, b.type)) + "</span>"
+        + '<span class="srow-t">' + esc(b.titre || "") + "</span></span>"
+        + (b.contenu ? '<span class="srow-d dim">' + esc(String(b.contenu).slice(0, 120)) + (String(b.contenu).length > 120 ? "…" : "") + "</span>" : "")
+        + (b.type === "projets" ? '<span class="xs dim">' + Store.all("projects").length + " projet(s) repris automatiquement</span>" : "")
+        + "</span>"
+        + '<button class="btn sm ghost" data-act="site-toggle" data-id="' + b.id + '">' + (b.actif === false ? "Afficher" : "Masquer") + "</button>"
+        + '<button class="btn sm ghost" data-act="site-edit" data-id="' + b.id + '">Modifier</button>'
+        + "</div>").join("") + "</div>"
+      : '<div class="empty">Aucune section. Commencez par un bandeau d\'accroche, puis vos projets.<br><button class="btn sm primary" data-act="site-init" style="margin-top:11px">Créer une structure de départ</button></div>')
+    + "</div></div>";
+
+  const apercu = '<div class="panel"><div class="panel-h"><h2>Aperçu</h2>'
+    + '<span class="xs dim" style="flex:1">page unique, autonome</span>'
+    + '<button class="btn sm" data-act="site-export">Exporter le site</button></div>'
+    + '<div class="panel-b"><div class="apercu">' + rendreSite(S, blocs.filter((b) => b.actif !== false)) + "</div>"
+    + '<p class="hint" style="margin-top:9px">Le fichier exporté est une page HTML autonome, sans dépendance : déposez-la chez n\'importe quel hébergeur (GitHub Pages, Netlify, OVH).</p>'
+    + "</div></div>";
+
+  return '<div class="grid-2">' + edition + apercu + "</div>";
+}
+
+function rendreSite(S, blocs) {
+  if (!blocs.length) return '<p style="color:#7A8794;font-size:13px">Activez au moins une section pour voir l\'aperçu.</p>';
+  const projets = Store.all("projects").slice().sort(parOrdre);
+  let html = "";
+  blocs.forEach((b) => {
+    if (b.type === "hero") {
+      html += "<h1>" + esc(b.titre || (S.cvEntete || {}).nom || "Votre nom") + "</h1>"
+        + '<div class="ap-sub">' + esc(b.contenu || "") + "</div>";
+    } else if (b.type === "projets") {
+      html += "<h2>" + esc(b.titre || "Projets") + "</h2>";
+      html += projets.length ? projets.map((p) => '<div class="ap-item"><h3>' + esc(p.titre) + "</h3>"
+        + (p.annee ? '<div class="ap-meta">' + esc(p.annee) + "</div>" : "")
+        + (p.resume ? "<p>" + esc(p.resume) + "</p>" : "")
+        + (p.techs ? '<div class="ap-tags">' + String(p.techs).split(/[,;]/).map((t) => t.trim()).filter(Boolean)
+          .map((t) => '<span class="ap-tag">' + esc(t) + "</span>").join("") + "</div>" : "")
+        + "</div>").join("")
+        : '<p style="color:#7A8794">Ajoutez des projets dans l\'onglet Projets.</p>';
+    } else if (b.type === "competences") {
+      html += "<h2>" + esc(b.titre || "Compétences") + "</h2>"
+        + '<div class="ap-tags">' + String(b.contenu || "").split(/[,;\n]/).map((t) => t.trim()).filter(Boolean)
+          .map((t) => '<span class="ap-tag">' + esc(t) + "</span>").join("") + "</div>";
+    } else {
+      html += "<h2>" + esc(b.titre || libelleType(TYPES_SITE, b.type)) + "</h2>"
+        + "<p>" + esc(b.contenu || "").replace(/\n/g, "<br>") + "</p>";
+    }
+  });
+  return html;
+}
+
+/* --- export : pages HTML autonomes --- */
+const CSS_EXPORT = "*{box-sizing:border-box}body{margin:0;background:#F7F9F4;color:#26303B;"
+  + "font-family:'Nunito',ui-rounded,system-ui,'Segoe UI',sans-serif;font-weight:600;line-height:1.55}"
+  + "main{max-width:780px;margin:0 auto;padding:44px 26px 72px;background:#fff;min-height:100vh}"
+  + "h1{font-family:'Baloo 2',ui-rounded,system-ui,sans-serif;font-size:34px;font-weight:800;margin:0 0 4px;color:#16202B}"
+  + "h2{font-family:'Baloo 2',ui-rounded,system-ui,sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;"
+  + "letter-spacing:.1em;color:#58CC02;margin:30px 0 10px;padding-bottom:6px;border-bottom:2px solid #E8EDE3}"
+  + "h3{font-family:'Baloo 2',ui-rounded,system-ui,sans-serif;font-size:17px;font-weight:700;margin:0}"
+  + ".sub{font-size:17px;color:#5A6672;margin-bottom:8px}.meta{font-size:13px;color:#7A8794}"
+  + ".item{margin-bottom:18px}p{font-size:14.5px;margin:5px 0 0}"
+  + ".tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}"
+  + ".tag{font-size:12.5px;font-weight:700;padding:3px 11px;border-radius:99px;background:#EEF5E6;color:#3E7A12}"
+  + "a{color:#3E7A12}@media print{body{background:#fff}main{padding:0;max-width:none}}";
+
+function pageExport(titre, corps) {
+  return "<!doctype html>\n<html lang=\"fr\">\n<head>\n<meta charset=\"utf-8\">\n"
+    + '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+    + "<title>" + esc(titre) + "</title>\n"
+    + '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap">\n'
+    + "<style>" + CSS_EXPORT + "</style>\n</head>\n<body>\n<main>\n" + corps + "\n</main>\n</body>\n</html>";
+}
+
+/** Reprend le rendu de l'aperçu en remplaçant les classes internes par celles de l'export. */
+const versExport = (html) => html.replace(/class="ap-sub"/g, 'class="sub"').replace(/class="ap-meta"/g, 'class="meta"')
+  .replace(/class="ap-item"/g, 'class="item"').replace(/class="ap-tags"/g, 'class="tags"').replace(/class="ap-tag"/g, 'class="tag"');
+
+async function telecharger(nomFichier, contenu) {
+  let ok = false;
+  try {
+    const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+    if (dl) { await dl.save({ filename: nomFichier, data: contenu }); ok = true; }
+  } catch (err) { ok = false; }
+  if (!ok) {
+    try { await navigator.clipboard.writeText(contenu); toast("Téléchargement indisponible — HTML copié dans le presse-papiers"); return false; }
+    catch (_) { toast("Export impossible depuis cette page"); return false; }
+  }
+  return true;
+}
+
+async function exporterCV(S) {
+  const blocs = Store.all("cvBlocks").slice().sort(parOrdre);
+  const nom = (S.cvEntete || {}).nom || "CV";
+  const ok = await telecharger("cv-" + nom.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".html",
+    pageExport("CV — " + nom, versExport(rendreCV(S, blocs))));
+  if (ok) { toast("CV exporté"); gagnerXP(XP_GAIN.export, "CV exporté"); }
+}
+
+async function exporterSite(S) {
+  const blocs = Store.all("siteBlocks").slice().sort(parOrdre).filter((b) => b.actif !== false);
+  const nom = (S.cvEntete || {}).nom || "Portfolio";
+  const ok = await telecharger("portfolio.html", pageExport(nom, versExport(rendreSite(S, blocs))));
+  if (ok) { toast("Portfolio exporté"); gagnerXP(XP_GAIN.export, "portfolio exporté"); }
+}
+
 /* ============================================================================
    Formulaires — 4 champs visibles maximum, le reste replié
    ========================================================================== */
@@ -2338,6 +2763,93 @@ function echeanceModal() {
   });
 }
 
+function projectModal(id) {
+  const p = id ? Store.get("projects", id) : null;
+  formModal({
+    title: p ? "Modifier le projet" : "Nouveau projet personnel",
+    values: p || { annee: String(new Date().getFullYear()), statut: "en_cours", ordre: Store.all("projects").length },
+    required: ["titre"],
+    fields: [
+      { name: "titre", label: "Titre du projet", type: "text" },
+      { name: "resume", label: "En une phrase", type: "textarea", hint: "ce que ça fait et pour qui" },
+      { name: "techs", label: "Technologies", type: "text", hint: "séparées par des virgules" },
+      { name: "annee", label: "Année", type: "text" },
+      { name: "lien", label: "Lien de démonstration", type: "text", fold: true },
+      { name: "repo", label: "Dépôt de code", type: "text", fold: true },
+      { name: "statut", label: "État", type: "select", fold: true, options: [{ v: "en_cours", l: "En cours" }, { v: "termine", l: "Terminé" }, { v: "idee", l: "Idée" }] }
+    ],
+    onSubmit: (v) => Store.put("projects", { ...(p || { creeLe: todayISO() }), ...v })
+      .then(() => { if (!p) gagnerXP(XP_GAIN.projet, "projet ajouté"); }),
+    onDelete: p ? () => Store.remove("projects", p.id) : null
+  });
+}
+
+function cvBlockModal(id) {
+  const b = id ? Store.get("cvBlocks", id) : null;
+  formModal({
+    title: b ? "Modifier le bloc" : "Nouveau bloc de CV",
+    values: b || { type: "experience", ordre: Store.all("cvBlocks").length },
+    required: ["titre"],
+    fields: [
+      { name: "type", label: "Type de bloc", type: "select", options: TYPES_CV.map((t) => ({ v: t.v, l: t.l })) },
+      { name: "titre", label: "Titre", type: "text", hint: "poste, diplôme, ou intitulé de la rubrique" },
+      { name: "periode", label: "Période", type: "text", hint: "ex. 2024 – 2026" },
+      { name: "description", label: "Description", type: "textarea", hint: "pour les compétences, séparez par des virgules" },
+      { name: "sousTitre", label: "Entreprise / école", type: "text", fold: true }
+    ],
+    onSubmit: (v) => Store.put("cvBlocks", { ...(b || { creeLe: todayISO() }), ...v })
+      .then(() => { if (!b) gagnerXP(XP_GAIN.cvBloc, "bloc de CV ajouté"); }),
+    onDelete: b ? () => Store.remove("cvBlocks", b.id) : null
+  });
+}
+
+function cvEnteteModal() {
+  const e = Store.settings.cvEntete || {};
+  formModal({
+    title: "En-tête du CV",
+    values: e,
+    fields: [
+      { name: "nom", label: "Nom affiché", type: "text" },
+      { name: "titre", label: "Titre professionnel", type: "text", hint: "ex. Développeur full-stack .NET / Angular" },
+      { name: "email", label: "E-mail", type: "text" },
+      { name: "ville", label: "Ville", type: "text" },
+      { name: "tel", label: "Téléphone", type: "text", fold: true },
+      { name: "liens", label: "Liens", type: "text", fold: true, hint: "LinkedIn, GitHub, site — séparés par des espaces" }
+    ],
+    onSubmit: (v) => Store.saveSettings({ cvEntete: v })
+  });
+}
+
+function siteBlockModal(id) {
+  const b = id ? Store.get("siteBlocks", id) : null;
+  formModal({
+    title: b ? "Modifier la section" : "Nouvelle section du portfolio",
+    values: b || { type: "apropos", actif: true, ordre: Store.all("siteBlocks").length },
+    fields: [
+      { name: "type", label: "Type de section", type: "select", options: TYPES_SITE.map((t) => ({ v: t.v, l: t.l })) },
+      { name: "titre", label: "Titre affiché", type: "text" },
+      { name: "contenu", label: "Contenu", type: "textarea", hint: "ignoré pour la section Projets, qui reprend l'onglet Projets" },
+      { name: "actif", label: "Visible", type: "checkbox", checkLabel: "Afficher cette section", fold: true }
+    ],
+    onSubmit: (v) => Store.put("siteBlocks", { ...(b || {}), ...v }),
+    onDelete: b ? () => Store.remove("siteBlocks", b.id) : null
+  });
+}
+
+async function initSite() {
+  const S = Store.settings, e = S.cvEntete || {};
+  const base = [
+    { type: "hero", titre: e.nom || "Votre nom", contenu: e.titre || "Développeur full-stack .NET / Angular — freelance en Île-de-France" },
+    { type: "apropos", titre: "À propos", contenu: "" },
+    { type: "competences", titre: "Compétences", contenu: ".NET Core, Angular, React, Flutter, PostgreSQL, Azure" },
+    { type: "projets", titre: "Projets", contenu: "" },
+    { type: "offre", titre: "Mon offre", contenu: "" },
+    { type: "contact", titre: "Contact", contenu: [e.email, e.liens].filter(Boolean).join(" · ") }
+  ];
+  for (let i = 0; i < base.length; i++) await Store.put("siteBlocks", { ...base[i], actif: true, ordre: i });
+  toast("Structure de départ créée");
+}
+
 function fixedCostModal() {
   formModal({
     title: "Charge fixe mensuelle",
@@ -2524,6 +3036,14 @@ function contexteOnglet() {
   } else if (t === "missions") {
     base.missions = Store.all("missions").map((m) => ({ client: m.client, tjm: m.tjm, joursVendus: m.joursVendus, joursConsommes: joursConsommes(m.id), statut: m.statut }));
     base.factures = Store.all("invoices").map((i) => ({ numero: i.numero, montantHT: i.montantHT, echeance: i.dateEcheance, encaissement: i.dateEncaissement || null }));
+  } else if (t === "vitrine") {
+    base.projets = Store.all("projects").slice().sort(parOrdre)
+      .map((p) => ({ titre: p.titre, resume: p.resume, techs: p.techs, annee: p.annee, statut: p.statut }));
+    base.cvEntete = S.cvEntete;
+    base.cvBlocs = Store.all("cvBlocks").slice().sort(parOrdre)
+      .map((b) => ({ type: b.type, titre: b.titre, sousTitre: b.sousTitre, periode: b.periode, description: b.description }));
+    base.sectionsPortfolio = Store.all("siteBlocks").slice().sort(parOrdre)
+      .map((b) => ({ type: b.type, titre: b.titre, visible: b.actif !== false }));
   } else if (t === "echeances") {
     base.echeances = genEcheances(S).slice(0, 12).map((e) => ({ date: e.date, libelle: e.libelle }));
     base.tauxProvision = tauxProvision(S);
@@ -2546,7 +3066,12 @@ const CHIPS = {
   simulateur: [{ l: "Que dois-je faire cette semaine ?", p: "semaine" }, { l: "Explique-moi l'écart entre EURL et SASU", p: "libre", q: "Explique-moi en quelques phrases pourquoi l'écart entre EURL et SASU est ce qu'il est dans ma simulation." }],
   demarches: [{ l: "Que dois-je faire cette semaine ?", p: "semaine" }, { l: "Qu'est-ce que la CFE ?", p: "libre", q: "Qu'est-ce que la CFE ? Réponse courte et factuelle." }],
   missions: [{ l: "Que dois-je faire cette semaine ?", p: "semaine" }, { l: "Relancer une facture en retard", p: "libre", q: "Rédige un message de relance courtois mais ferme pour ma facture échue la plus ancienne." }],
-  echeances: [{ l: "Que dois-je faire cette semaine ?", p: "semaine" }, { l: "Explique-moi mes échéances", p: "libre", q: "Explique-moi brièvement à quoi correspond chacune de mes prochaines échéances." }]
+  echeances: [{ l: "Que dois-je faire cette semaine ?", p: "semaine" }, { l: "Explique-moi mes échéances", p: "libre", q: "Explique-moi brièvement à quoi correspond chacune de mes prochaines échéances." }],
+  vitrine: [
+    { l: "Rédige mon accroche", p: "libre", q: "À partir de mes projets et de mon CV ci-dessus, propose trois accroches courtes (une phrase) pour le bandeau de mon portfolio de développeur full-stack freelance. Pas de superlatif, pas de jargon marketing." },
+    { l: "Améliore mes descriptions de projets", p: "libre", q: "Pour chacun de mes projets, réécris le résumé en une phrase orientée résultat : ce que ça fait, pour qui, et avec quoi. Ne rien inventer : uniquement ce qui figure déjà dans les données." },
+    { l: "Que manque-t-il à mon CV ?", p: "libre", q: "Au vu des blocs de mon CV, dis-moi ce qui manque pour un CV de développeur freelance crédible en Île-de-France. Réponse courte, sous forme de liste." }
+  ]
 };
 
 function renderDrawer() {
@@ -2734,6 +3259,30 @@ document.addEventListener("click", (e) => {
     case "ech-del": Store.remove("deadlines", act.dataset.doc); break;
     case "fc-new": fixedCostModal(); break;
     case "fc-del": Store.remove("fixedCosts", id); break;
+    case "vitrine-sec": Store.saveSettings({ vitrineSection: id }); break;
+    case "proj-new": projectModal(null); break;
+    case "proj-edit": projectModal(id); break;
+    case "cv-new": cvBlockModal(null); break;
+    case "cv-edit": cvBlockModal(id); break;
+    case "cv-entete": cvEnteteModal(); break;
+    case "cv-export": exporterCV(Store.settings); break;
+    case "site-new": siteBlockModal(null); break;
+    case "site-edit": siteBlockModal(id); break;
+    case "site-init": initSite(); break;
+    case "site-export": exporterSite(Store.settings); break;
+    case "site-toggle": {
+      const b = Store.get("siteBlocks", id);
+      if (b) Store.put("siteBlocks", { ...b, actif: b.actif === false });
+      break;
+    }
+    case "are-report": {
+      const r = simulerARE(Store.settings);
+      if (r.brutJour > 0 && r.duree > 0) {
+        Store.saveSettings({ areJournaliere: Math.round(r.brutJour * 100) / 100, areJoursDroits: r.duree });
+        toast("Droits reportés — la projection utilise maintenant ces valeurs");
+      } else toast("Complétez d'abord vos données de rupture");
+      break;
+    }
     case "del-exemples":
       Store.all("leads").filter((l) => l.exemple).forEach((l) => Store.remove("leads", l.id));
       toast("Exemples supprimés"); break;
@@ -2801,6 +3350,56 @@ document.addEventListener("drop", (e) => {
   dragId = null;
 });
 document.addEventListener("dragend", () => { $$(".col").forEach((c) => c.classList.remove("drop")); dragId = null; });
+
+/* listes réordonnables (projets, blocs de CV, sections du portfolio) */
+let sortDrag = null;
+function rowApres(cont, y) {
+  return $$(".srow:not(.dragging)", cont).find((r) => {
+    const b = r.getBoundingClientRect();
+    return y < b.top + b.height / 2;
+  }) || null;
+}
+async function persistOrdre(coll, cont) {
+  const ids = $$(".srow", cont).map((r) => r.dataset.id);
+  for (let i = 0; i < ids.length; i++) {
+    const doc = Store.get(coll, ids[i]);
+    if (doc && nz(doc.ordre) !== i) await Store.put(coll, { ...doc, ordre: i });
+  }
+}
+document.addEventListener("dragstart", (e) => {
+  const row = e.target.closest(".srow");
+  if (!row) return;
+  const cont = row.closest(".sortable");
+  if (!cont) return;
+  sortDrag = { id: row.dataset.id, coll: cont.dataset.coll };
+  row.classList.add("dragging");
+  e.dataTransfer.effectAllowed = "move";
+  try { e.dataTransfer.setData("text/plain", row.dataset.id); } catch (_) { }
+});
+document.addEventListener("dragover", (e) => {
+  if (!sortDrag) return;
+  const cont = e.target.closest(".sortable");
+  if (!cont || cont.dataset.coll !== sortDrag.coll) return;
+  e.preventDefault();
+  const el = $(".srow.dragging", cont);
+  if (!el) return;
+  const ref = rowApres(cont, e.clientY);
+  if (ref) cont.insertBefore(el, ref); else cont.appendChild(el);
+});
+document.addEventListener("drop", (e) => {
+  if (!sortDrag) return;
+  const cont = e.target.closest(".sortable");
+  if (!cont || cont.dataset.coll !== sortDrag.coll) { sortDrag = null; return; }
+  e.preventDefault();
+  const coll = sortDrag.coll;
+  sortDrag = null;
+  $$(".srow.dragging").forEach((r) => r.classList.remove("dragging"));
+  persistOrdre(coll, cont);
+});
+document.addEventListener("dragend", () => {
+  $$(".srow.dragging").forEach((r) => r.classList.remove("dragging"));
+  sortDrag = null;
+});
 
 $("#askBtn").addEventListener("click", () => openDrawer(null));
 $("#drawerClose").addEventListener("click", () => { state.drawerOpen = false; renderDrawer(); });
