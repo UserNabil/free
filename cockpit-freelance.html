@@ -744,7 +744,7 @@ function toast(msg) {
    Store — `db` si disponible, sinon localStorage + export/import JSON
    ========================================================================== */
 const COLLECTIONS = ["leads", "channels", "checklist", "missions", "invoices", "workdays", "deadlines", "fixedCosts",
-  "projects", "cvBlocks", "siteBlocks", "clauses"];
+  "projects", "cvBlocks", "siteBlocks", "clauses", "payslips"];
 const LS_KEY = "cockpit-freelance-v1";
 
 const Store = {
@@ -1869,8 +1869,74 @@ VIEWS.simulateur = function (S) {
     + "</div></div>";
 
   return '<div class="sim">' + gauche + '<div class="stack">'
-    + tableau + blocARE(S) + blocProjection(S) + blocAides(S) + hyp + marche + "</div></div>";
+    + tableau + blocPaie(S) + blocARE(S) + blocProjection(S) + blocAides(S) + hyp + marche + "</div></div>";
 };
+
+/* --- historique de paie : la seule source de vérité sur mon salaire réel --- */
+function statsPaie() {
+  const li = Store.all("payslips").slice().sort((a, b) => String(a.mois).localeCompare(String(b.mois)));
+  if (!li.length) return null;
+  const douze = li.slice(-12);
+  const s = (k) => douze.reduce((a, x) => a + nz(x[k]), 0);
+  const brut = s("brut"), net = s("netPaye"), cout = s("coutGlobal");
+  return {
+    tout: li, douze, brut, net, cout,
+    brutMoyen: brut / douze.length, netMoyen: net / douze.length,
+    ratioNet: brut > 0 ? net / brut : 0,
+    ratioBrutCout: cout > 0 ? brut / cout : 0,
+    debut: douze[0].mois, fin: douze[douze.length - 1].mois
+  };
+}
+
+function blocPaie(S) {
+  const st = statsPaie();
+  if (!st) {
+    return '<details class="panel"><summary class="panel-h"><span class="chev">&#9656;</span>'
+      + "<h2>Mon historique de paie</h2>"
+      + '<span class="xs dim" style="flex:1">aucune fiche enregistrée</span>'
+      + '<span class="btn sm" data-act="paie-new">+ Fiche</span></summary>'
+      + '<div class="panel-b"><p class="note">Enregistrez vos bulletins pour que le simulateur travaille sur votre salaire '
+      + "<b>réel</b> plutôt que sur une estimation : le brut des 12 derniers mois pilote directement le calcul de l'ARE.</p></div></details>";
+  }
+  const maxBrut = Math.max(...st.douze.map((x) => nz(x.brut)), 1);
+  const ecartRef = nz(S.salaireNetMensuel) > 0 ? (st.netMoyen - nz(S.salaireNetMensuel)) / nz(S.salaireNetMensuel) : null;
+
+  return '<details class="panel" id="panPaie"' + (localStorage_get("paieOpen") === "1" ? " open" : "") + ">"
+    + '<summary class="panel-h"><span class="chev">&#9656;</span>'
+    + "<h2>Mon historique de paie</h2>"
+    + '<span class="pill">' + st.tout.length + " fiches</span>"
+    + '<span class="xs dim" style="flex:1">' + esc(fmtMonth(st.debut)) + " → " + esc(fmtMonth(st.fin)) + "</span>"
+    + '<span class="btn sm" data-act="paie-new">+ Fiche</span>'
+    + '<span class="btn sm primary" data-act="paie-report">Utiliser ces chiffres</span></summary>'
+    + '<div class="kpis" style="border:0;border-top:2px solid var(--line);border-bottom:2px solid var(--line);border-radius:0">'
+    + kpi(eur(st.brut), "Brut sur 12 mois", "base du calcul ARE")
+    + kpi(eur(st.netMoyen), "Net payé / mois", "moyenne réelle")
+    + kpi(pct(st.ratioNet, 1), "Net / brut", "ce qui arrive vraiment")
+    + kpi(eur(st.cout), "Coût employeur", "ce que vous coûtez")
+    + "</div>"
+    + '<div class="scroll-x"><table><thead><tr><th>Mois</th><th class="tnum">Brut</th><th class="tnum">Net imposable</th>'
+    + '<th class="tnum">Net payé</th><th style="min-width:120px">Brut</th></tr></thead><tbody>'
+    + st.douze.slice().reverse().map((x) => "<tr>"
+      + "<td>" + esc(fmtMonth(x.mois)) + "</td>"
+      + '<td class="tnum">' + eur2(nz(x.brut)) + "</td>"
+      + '<td class="tnum">' + (nz(x.netImposable) ? eur2(nz(x.netImposable)) : "—") + "</td>"
+      + '<td class="tnum"><b>' + (nz(x.netPaye) ? eur2(nz(x.netPaye)) : "—") + "</b></td>"
+      + '<td><div class="bar"><i style="width:' + Math.round(nz(x.brut) / maxBrut * 100) + '%"></i></div></td>'
+      + '<td class="tnum"><button class="btn sm ghost" data-act="paie-edit" data-id="' + x.id + '">Modifier</button></td>'
+      + "</tr>").join("")
+    + "</tbody></table></div>"
+    + '<div class="panel-b" style="border-top:2px solid var(--line);display:flex;flex-direction:column;gap:9px">'
+    + '<p class="note acc"><b>Ce que ça change.</b> Le brut réel des 12 derniers mois (' + eur(st.brut)
+    + ") intègre primes et réintégrations, il dépasse donc le simple salaire de base × 12. C'est ce montant qui doit servir de "
+    + "salaire de référence pour l'ARE, et c'est le net payé moyen (" + eur(st.netMoyen)
+    + ") qu'il faut comparer au revenu freelance — pas un net théorique."
+    + (ecartRef !== null && Math.abs(ecartRef) > 0.02
+      ? " Votre référence saisie dans les réglages (" + eur(nz(S.salaireNetMensuel)) + ") s'en écarte de "
+        + '<b class="delta ' + (ecartRef > 0 ? "neg" : "pos") + '">' + (ecartRef > 0 ? "−" : "+") + pct(Math.abs(ecartRef), 0)
+        + "</b> : le bouton « Utiliser ces chiffres » la corrige."
+      : "")
+    + "</p></div></details>";
+}
 
 /* --- simulateur ARE : du salaire brut à la date du premier paiement --- */
 function blocARE(S) {
@@ -3329,6 +3395,25 @@ async function initSite() {
   toast("Structure de départ créée");
 }
 
+function payslipModal(id) {
+  const p = id ? Store.get("payslips", id) : null;
+  formModal({
+    title: p ? "Modifier la fiche de paie" : "Nouvelle fiche de paie",
+    values: p || { mois: monthISO(new Date()) },
+    required: ["mois"],
+    fields: [
+      { name: "mois", label: "Mois", type: "month" },
+      { name: "brut", label: "Salaire brut", type: "number", step: "0.01" },
+      { name: "netPaye", label: "Net payé", type: "number", step: "0.01" },
+      { name: "netImposable", label: "Net imposable", type: "number", step: "0.01", fold: true },
+      { name: "coutGlobal", label: "Coût employeur", type: "number", step: "0.01", fold: true },
+      { name: "salaireBase", label: "Salaire de base", type: "number", step: "0.01", fold: true }
+    ],
+    onSubmit: (v) => Store.put("payslips", { ...(p || {}), ...v }),
+    onDelete: p ? () => Store.remove("payslips", p.id) : null
+  });
+}
+
 function fixedCostModal() {
   formModal({
     title: "Charge fixe mensuelle",
@@ -3785,6 +3870,19 @@ document.addEventListener("click", (e) => {
       if (b) Store.put("siteBlocks", { ...b, actif: b.actif === false });
       break;
     }
+    case "paie-new": payslipModal(null); break;
+    case "paie-edit": payslipModal(id); break;
+    case "paie-report": {
+      const st = statsPaie();
+      if (!st) { toast("Aucune fiche enregistrée"); break; }
+      Store.saveSettings({
+        salaireBrut12Mois: Math.round(st.brut * 100) / 100,
+        salaireBrutAnnuel: Math.round(st.brut * 100) / 100,
+        salaireNetMensuel: Math.round(st.netMoyen * 100) / 100
+      });
+      toast("Salaire réel repris — le simulateur ARE est recalculé");
+      break;
+    }
     case "are-report": {
       const r = simulerARE(Store.settings);
       if (r.brutJour > 0 && r.duree > 0) {
@@ -3830,7 +3928,8 @@ document.addEventListener("input", (e) => {
 
 document.addEventListener("toggle", (e) => {
   const t = e.target;
-  if (t.id === "panClauses") localStorage_set("clausesOpen", t.open ? "1" : "0");
+  if (t.id === "panPaie") localStorage_set("paieOpen", t.open ? "1" : "0");
+  else if (t.id === "panClauses") localStorage_set("clausesOpen", t.open ? "1" : "0");
   else if (t.id === "regCanaux") localStorage_set("regOpen", t.open ? "1" : "0");
   else if (t.id === "grilleJours") localStorage_set("grilleOpen", t.open ? "1" : "0");
   else if (t.dataset && t.dataset.phase) localStorage_set("ph" + t.dataset.phase, t.open ? "1" : "0");
