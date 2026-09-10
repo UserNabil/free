@@ -291,6 +291,8 @@ details[open]>summary .chev{transform:rotate(90deg)}
 .fields{display:flex;flex-direction:column;gap:12px}
 .cmp td.lab{font-size:13px;color:var(--ink-2);white-space:nowrap;font-weight:700}
 .cmp tr.hi td{background:var(--green-soft);font-weight:800;color:var(--ink)}
+.cmp td.best{background:var(--green-soft);color:var(--ok);font-weight:800}
+.cmp tr.hi td.best{background:var(--green);color:#FFFFFF}
 .cmp td.q{font-size:12px;color:var(--ink-2);white-space:normal;min-width:136px;line-height:1.35;font-weight:600}
 
 /* ---------- démarches ---------- */
@@ -1268,6 +1270,38 @@ function comparerScenarios(S, statutId) {
     .map((x) => ({ ...x, total: x.proj.total }));
 }
 
+/** Net de chaque statut, année par année : le statut le plus favorable change
+ *  avec le chiffre d'affaires, et la micro-entreprise a un plafond. */
+function projectionStatuts(S, scenario) {
+  const stats = ["micro", "eurl", "sasu", "portage"];
+  const proj = {};
+  stats.forEach((st) => { proj[st] = projection(S, st, scenario); });
+  const N = proj.micro.annees.length;
+  const annees = [];
+  for (let y = 0; y < N; y++) {
+    const ref = proj.micro.annees[y];
+    const nets = {};
+    stats.forEach((st) => { nets[st] = proj[st].annees[y].net; });
+    // Au-dessus du plafond, la micro-entreprise n'existe plus : son chiffre serait
+    // une fiction. Elle sort de la comparaison au lieu d'être désignée « meilleure ».
+    const horsPlafond = ref.CA > S.params.micro.plafondCA;
+    const dispo = { micro: !horsPlafond, eurl: true, sasu: true, portage: true };
+    const candidats = stats.filter((st) => dispo[st]);
+    const meilleur = candidats.reduce((a, b) => (nets[b] > nets[a] ? b : a));
+    annees.push({
+      annee: ref.annee, jours: ref.jours, CA: ref.CA, aide: ref.aide, nets, dispo, meilleur,
+      dépasseTVA: ref.CA > S.params.micro.tvaFranchiseBase, dépassePlafond: horsPlafond
+    });
+  }
+  const totaux = {};
+  stats.forEach((st) => { totaux[st] = proj[st].total; });
+  // Un statut tenable toute la période seulement : la micro sort dès qu'une année dépasse.
+  const tenables = stats.filter((st) => annees.every((a) => a.dispo[st]));
+  const meilleurFixe = (tenables.length ? tenables : stats).reduce((a, b) => (totaux[b] > totaux[a] ? b : a));
+  const optimal = annees.reduce((a, x) => a + x.nets[x.meilleur], 0);
+  return { annees, totaux, optimal, stats, tenables, meilleurFixe };
+}
+
 /* ---- simulateur ARE détaillé : du salaire à la date du premier paiement ---- */
 const mensuelBrut = (S) => nz(S.salaireBrutAnnuel) / 12;
 
@@ -1997,7 +2031,7 @@ VIEWS.simulateur = function (S) {
     + "</div></div>";
 
   return '<div class="sim">' + gauche + '<div class="stack">'
-    + tableau + blocPaie(S) + blocARE(S) + blocProjection(S) + blocAides(S) + hyp + marche + "</div></div>";
+    + tableau + blocPaie(S) + blocARE(S) + blocProjection(S) + blocTrajectoire(S) + blocAides(S) + hyp + marche + "</div></div>";
 };
 
 /* --- historique de paie : la seule source de vérité sur mon salaire réel --- */
@@ -2234,6 +2268,74 @@ function blocProjection(S) {
       + "Le montant réel dépend de votre relevé de situation France Travail, du différé d'indemnisation lié à votre indemnité de rupture et du délai d'attente. "
       + "Faites la simulation officielle avant de vous appuyer sur ces chiffres.</p>" : "")
     + "</div></div>";
+}
+
+/* --- trajectoire de statut : quand faut-il changer de forme juridique --- */
+function blocTrajectoire(S) {
+  const scenario = S.scenarioAide || "arce";
+  const t = projectionStatuts(S, scenario);
+  const P = S.params;
+  const nom = (id) => (STATUTS.find((x) => x.id === id) || {}).nom || id;
+
+  // Année où le statut le plus favorable change pour la première fois
+  const premier = t.annees[0] ? t.annees[0].meilleur : null;
+  const bascule = t.annees.find((a) => a.meilleur !== premier) || null;
+  const anneeTVA = t.annees.find((a) => a.dépasseTVA) || null;
+  const anneePlafond = t.annees.find((a) => a.dépassePlafond) || null;
+  const gainOptimal = t.optimal - t.totaux[t.meilleurFixe];
+
+  const lignes = t.annees.map((a) => "<tr>"
+    + '<td style="white-space:nowrap"><b>Année ' + a.annee + "</b>"
+    + (a.dépassePlafond ? ' <span class="pill bad">plafond micro</span>'
+      : a.dépasseTVA ? ' <span class="pill warn">seuil TVA</span>' : "") + "</td>"
+    + '<td class="tnum">' + num(a.jours) + " j</td>"
+    + '<td class="tnum">' + eur(a.CA) + "</td>"
+    + t.stats.map((st) => (a.dispo[st]
+      ? '<td class="tnum' + (st === a.meilleur ? " best" : "") + '">' + eur(a.nets[st]) + "</td>"
+      : '<td class="tnum dim" title="Régime impossible à ce niveau de chiffre d\'affaires">—</td>')).join("")
+    + "</tr>").join("");
+
+  return '<details class="panel" id="panTraj"' + (localStorage_get("trajOpen") === "1" ? " open" : "") + ">"
+    + '<summary class="panel-h"><span class="chev">&#9656;</span>'
+    + "<h2>Trajectoire de statut</h2>"
+    + '<span class="pill acc">' + esc(nom(premier)) + (bascule ? " → " + esc(nom(bascule.meilleur)) : "") + "</span>"
+    + '<span class="xs dim" style="flex:1">quel statut est le plus favorable, année par année</span></summary>'
+    + '<div class="scroll-x"><table class="cmp"><thead><tr>'
+    + "<th>Période</th><th class=\"tnum\">Jours</th><th class=\"tnum\">CA HT</th>"
+    + t.stats.map((st) => '<th class="tnum">' + esc(nom(st)) + "</th>").join("")
+    + "</tr></thead><tbody>" + lignes
+    + '<tr class="hi"><td>Total sur ' + t.annees.length + " ans</td><td></td><td></td>"
+    + t.stats.map((st) => (t.tenables.includes(st)
+      ? '<td class="tnum' + (st === t.meilleurFixe ? " best" : "") + '">' + eur(t.totaux[st]) + "</td>"
+      : '<td class="tnum dim" title="Régime intenable sur toute la période">—</td>')).join("")
+    + "</tr></tbody></table></div>"
+    + '<div class="panel-b" style="display:flex;flex-direction:column;gap:10px">'
+    + '<div class="kpis" style="border:0">'
+    + kpi(esc(nom(t.meilleurFixe)), "Meilleur statut unique", eur(t.totaux[t.meilleurFixe]) + " cumulés")
+    + kpi(eur(t.optimal), "Si je change au bon moment", gainOptimal > 0 ? "+" + eur(gainOptimal) + " qu'en restant fixe" : "aucun gain à changer")
+    + kpi(anneePlafond ? "Année " + anneePlafond.annee : "—", "Plafond micro franchi", eur(P.micro.plafondCA))
+    + kpi(anneeTVA ? "Année " + anneeTVA.annee : "—", "Seuil de TVA franchi", eur(P.micro.tvaFranchiseBase))
+    + "</div>"
+    + (bascule
+      ? '<p class="note acc"><b>Point de bascule.</b> ' + esc(nom(premier)) + " est le plus favorable au départ, puis "
+        + esc(nom(bascule.meilleur)) + " passe devant à partir de l'<b>année " + bascule.annee + "</b>, quand le chiffre d'affaires atteint "
+        + eur(bascule.CA) + ". C'est là qu'il faut réexaminer la question, pas avant.</p>"
+      : '<p class="note">Sur cet horizon, <b>' + esc(nom(premier)) + "</b> reste le plus favorable chaque année : "
+        + "rien ne justifie de changer de statut, sauf franchissement d'un plafond.</p>")
+    + (anneePlafond
+      ? '<p class="note warn"><b>Sortie obligatoire du régime micro en année ' + anneePlafond.annee + ".</b> Le chiffre d'affaires ("
+        + eur(anneePlafond.CA) + ") dépasse le plafond de " + eur(P.micro.plafondCA) + ". Ce n'est plus un arbitrage mais une contrainte : "
+        + "il faut basculer en société. Anticipez d'un an, la création prend du temps.</p>"
+      : anneeTVA
+        ? '<p class="note warn"><b>Franchise de TVA perdue en année ' + anneeTVA.annee + ".</b> Au-delà de "
+          + eur(P.micro.tvaFranchiseBase) + " de chiffre d'affaires, la TVA devient due. Vous restez en micro, mais vous facturez la TVA "
+          + "et vous déclarez. Pour des clients professionnels, c'est neutre : ils la récupèrent.</p>"
+        : "")
+    + '<p class="note warn"><b>Le coût du changement n\'est pas dans ces chiffres.</b> Passer de micro à société suppose une radiation, '
+    + "une création, des statuts, un capital, un expert-comptable, et une année comptable en double. Comptez 1 500 à 3 000 € la première année "
+    + "et plusieurs semaines de démarches. Un gain inférieur à ce montant ne justifie pas de changer. "
+    + "Le calcul ci-dessus suppose aussi un chiffre d'affaires qui se réalise : c'est l'hypothèse la plus fragile de toutes.</p>"
+    + "</div></details>";
 }
 
 /* --- dispositifs mobilisables, en lecture seule --- */
@@ -4917,7 +5019,8 @@ document.addEventListener("input", (e) => {
 
 document.addEventListener("toggle", (e) => {
   const t = e.target;
-  if (t.id === "panInfos") localStorage_set("infosOpen", t.open ? "1" : "0");
+  if (t.id === "panTraj") localStorage_set("trajOpen", t.open ? "1" : "0");
+  else if (t.id === "panInfos") localStorage_set("infosOpen", t.open ? "1" : "0");
   else if (t.id === "panPaie") localStorage_set("paieOpen", t.open ? "1" : "0");
   else if (t.id === "panClauses") localStorage_set("clausesOpen", t.open ? "1" : "0");
   else if (t.id === "regCanaux") localStorage_set("regOpen", t.open ? "1" : "0");
