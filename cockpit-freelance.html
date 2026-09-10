@@ -406,6 +406,14 @@ details[open]>summary .chev{transform:rotate(90deg)}
   font-family:var(--display);font-weight:800;font-size:11px;padding:3px 11px;border-radius:99px;white-space:nowrap;
   box-shadow:0 3px 0 var(--green-d);animation:flotte 1.7s ease-in-out infinite}
 @keyframes flotte{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-5px)}}
+.crit{display:flex;flex-direction:column;gap:7px;margin-top:11px}
+.crit-l{display:flex;align-items:center;gap:10px;padding:9px 12px;border:2px solid var(--line);
+  border-radius:12px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.crit-l.on{border-color:var(--accent-line);background:var(--green-soft);color:var(--ok)}
+.crit-p{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-size:12px;
+  font-weight:800;background:var(--surface-2);color:var(--ink-3);flex:none}
+.crit-l.on .crit-p{background:var(--green);color:#FFFFFF}
+.crit-l b{margin-left:auto;font-family:var(--display);white-space:nowrap}
 .choix{display:flex;flex-direction:column;gap:9px}
 .choix button{display:flex;align-items:center;gap:11px;padding:13px 15px;border:2px solid var(--line-strong);border-radius:15px;
   background:var(--surface);cursor:pointer;box-shadow:0 3px 0 var(--line-strong);text-align:left;width:100%}
@@ -2480,6 +2488,57 @@ const GUIDES = {
     + "- Prévoyez un TJM plancher en dessous duquel vous refusez : décidez-le à froid."
 };
 
+/* Marche à suivre des démarches issues de l'analyse du contrat : celles-là sont
+   désignées par leur identifiant, elles n'ont pas de clé du contenu de départ. */
+Object.assign(GUIDES, {
+  "contrat-01-nonconcurrence":
+    "- Relisez le contrat article par article : les 22 se suivent sans clause de non-concurrence ni de non-sollicitation.\n"
+    + "- Cherchez un éventuel avenant, une charte ou un règlement intérieur signé à part qui en ajouterait une.\n"
+    + "- Si rien n'apparaît, notez-le dans « Ce que j'ai obtenu » : c'est un point acquis de votre dossier.",
+  "contrat-02-octopuce":
+    "- Demandez à votre interlocuteur chez Octopuce s'il existe une clause de non-sollicitation dans leur contrat avec Granite.\n"
+    + "- Posez la question de façon neutre, hors de tout engagement : vous vous renseignez, vous ne démarchez pas encore.\n"
+    + "- Notez la réponse et sa durée éventuelle : elle décide si Octopuce peut être votre première mission.",
+  "contrat-03-exclusivite":
+    "- Vous pouvez prospecter, créer vos profils et immatriculer : rien de tout cela n'est un cumul d'emploi.\n"
+    + "- Ce que vous ne pouvez pas faire, c'est exécuter et facturer une prestation concurrente pendant le contrat.\n"
+    + "- Ne signez aucun contrat dont la date de début tombe avant la fin du vôtre.",
+  "contrat-04-cadre-dirigeant":
+    "- Prenez rendez-vous avec un avocat en droit du travail, avant d'ouvrir la négociation.\n"
+    + "- Apportez le CDI, l'avenant et une fiche de paie : c'est leur contradiction qui fait le dossier.\n"
+    + "- Demandez un chiffrage du rappel d'heures supplémentaires sur trois ans.",
+  "contrat-05-avenant-erreur":
+    "- Demandez par écrit un avenant rectificatif : 4 034 € est mensuel, pas annuel.\n"
+    + "- À défaut, un simple courriel de l'employeur confirmant le montant mensuel suffit à lever l'ambiguïté.\n"
+    + "- Ce montant sert de base au plancher de l'indemnité et au salaire de référence France Travail.",
+  "contrat-06-pi-5pct":
+    "- Ouvrez vos bulletins et cherchez une ligne distincte de cession de droits : il n'y en a sur aucun des 28.\n"
+    + "- Deux lectures possibles : soit le salaire l'inclut déjà, soit elle n'a jamais été versée.\n"
+    + "- Mentionnez-le à l'avocat en même temps que l'article 5, mais n'en faites pas votre argument principal.",
+  "contrat-07-pi-code":
+    "- Ne reprenez aucune ligne de code écrite chez Granite ni de livrable Octopuce dans votre portfolio.\n"
+    + "- Datez le démarrage de vos projets personnels : premier commit, nom de domaine, facture d'hébergement.\n"
+    + "- Pour PiratesDice, publié sous votre nom, conservez les preuves d'antériorité.",
+  "contrat-08-confidentialite":
+    "- Construisez votre registre de canaux à partir de sources publiques : Malt, Free-Work, LinkedIn.\n"
+    + "- N'emportez ni fichier prospects, ni grille tarifaire, ni contact nominatif issu de Granite.\n"
+    + "- L'obligation n'a pas de terme : elle vous suit après la fin du contrat.",
+  "contrat-09-materiel":
+    "- Dressez la liste du matériel et des documents en votre possession.\n"
+    + "- Faites signer un inventaire contradictoire le jour de la restitution, avec la date.\n"
+    + "- Gardez-en une copie : c'est votre seule protection en cas de contestation ultérieure.",
+  "contrat-10-forfait":
+    "- Rassemblez trois pièces : l'article 5 du CDI, l'avenant du 21/05/2025, une fiche de paie au hasard.\n"
+    + "- Faites constater qu'aucune convention individuelle de forfait en jours n'existe par écrit.\n"
+    + "- Demandez à l'avocat ce que vaut un forfait privé d'effet : retour aux 35 heures et rappel sur trois ans.\n"
+    + "- C'est le point le plus solide du dossier : traitez-le avant tout le reste.",
+  "contrat-11-conges":
+    "- Ouvrez le Simulateur ARE et regardez la ligne « différé congés payés ».\n"
+    + "- Comparez deux scénarios : congés payés en indemnité, ou congés pris avant la fin du contrat.\n"
+    + "- Les prendre supprime le différé : vous êtes payé pendant, puis l'ARE démarre presque aussitôt.\n"
+    + "- Tranchez avant de fixer la date de fin dans la convention."
+});
+
 /* Écran du cockpit que la démarche fait ouvrir, quand elle en concerne un. */
 const GUIDE_ONGLET = {
   "contrat-relecture": "demarches", "are-simulation": "simulateur", "are-report": "simulateur",
@@ -2487,7 +2546,9 @@ const GUIDE_ONGLET = {
   "aide-arbitrage": "simulateur", "tva-option": "aventure", "tva-seuil": "missions",
   "expert-validation": "simulateur", "canal-plateformes": "vitrine", "canal-esn": "prospection",
   "canal-reseau": "prospection", "portfolio": "vitrine", "cv": "vitrine",
-  "facturation-outil": "missions", "tva-ca3": "echeances", "portage-choix": "simulateur"
+  "facturation-outil": "missions", "tva-ca3": "echeances", "portage-choix": "simulateur",
+  "contrat-01-nonconcurrence": "demarches", "contrat-06-pi-5pct": "simulateur",
+  "contrat-11-conges": "simulateur", "contrat-07-pi-code": "vitrine"
 };
 
 /** Marche à suivre numérotée : « pas à pas » suppose des étapes ordonnées. */
@@ -2546,8 +2607,8 @@ VIEWS.demarches = function (S) {
           const reste = i.attenduLe ? daysDiff(i.attenduLe, t) : null;
           const retard = e === "en_attente" && reste !== null && reste < 0;
           const cls = e === "fait" ? " fait" : e === "en_attente" ? " attente" : "";
-          const guide = i.commentFaire || GUIDES[i.cle] || "";
-          const ong = i.onglet || GUIDE_ONGLET[i.cle] || "";
+          const guide = i.commentFaire || GUIDES[i.cle] || GUIDES[i.id] || "";
+          const ong = i.onglet || GUIDE_ONGLET[i.cle] || GUIDE_ONGLET[i.id] || "";
           return '<div class="ck' + cls + '">'
             + '<button class="ck-check" data-act="check-toggle" data-id="' + i.id + '" aria-label="'
             + (e === "fait" ? "Rouvrir cette démarche" : "Marquer comme faite") + '">'
@@ -3214,14 +3275,18 @@ const AVENTURE = [
     cle: "contrat-relecture", fb: "Relire mon contrat",
     d: "Repérer non-concurrence, exclusivité et propriété intellectuelle." },
   { ch: 1, id: "are", ico: "🧮", t: "Droits ARE", xp: 60, go: "simulateur",
-    test: (S) => nz(S.areJournaliere) > 0,
-    d: "Renseigner l'ARE réelle relevée sur France Travail." },
+    d: "Renseigner l'ARE réelle relevée sur France Travail.",
+    criteres: [{ l: "ARE journalière renseignée dans les réglages", ok: (S) => nz(S.areJournaliere) > 0 }] },
   { ch: 1, id: "tresorerie", ico: "🏦", t: "Trésorerie", xp: 40, go: "demarches",
     cle: "tresorerie", fb: "trésorerie de sécurité",
     d: "De quoi tenir plusieurs mois sans revenu." },
   { ch: 1, id: "tjm", ico: "🎯", t: "Mon TJM", xp: 40, go: "simulateur",
-    test: (S) => nz(S.tjm) > 0 && Store.reels("leads").length >= 3,
-    d: "Un tarif confronté à trois pistes réelles, au moins." },
+    d: "Un tarif confronté à trois pistes réelles, au moins.",
+    criteres: [
+      { l: "TJM cible renseigné", ok: (S) => nz(S.tjm) > 0, val: (S) => eur(nz(S.tjm)) },
+      { l: "Trois pistes réelles créées", ok: () => Store.reels("leads").length >= 3,
+        val: () => Store.reels("leads").length + " / 3", go: "prospection" }
+    ] },
   { ch: 1, id: "choix-statut", ico: "⚖️", t: "Mon statut", xp: 100, type: "carrefour", go: "simulateur",
     test: (S) => S.statut !== "undecided",
     d: "La décision la plus structurante. Elle ouvre un chemin différent.",
@@ -3304,11 +3369,17 @@ const AVENTURE = [
 
   /* --- chapitre 4 : lancement --- */
   { ch: 4, id: "vitrine", ico: "🌐", t: "Ma vitrine", xp: 60, go: "vitrine",
-    test: () => Store.all("cvBlocks").length >= 4 && Store.all("siteBlocks").filter((b) => b.actif !== false).length >= 3,
-    d: "CV étoffé et portfolio monté." },
+    d: "CV étoffé et portfolio monté.",
+    criteres: [
+      { l: "Quatre blocs de CV au moins", ok: () => Store.all("cvBlocks").length >= 4,
+        val: () => Store.all("cvBlocks").length + " / 4" },
+      { l: "Trois sections de portfolio actives", ok: () => Store.all("siteBlocks").filter((b) => b.actif !== false).length >= 3,
+        val: () => Store.all("siteBlocks").filter((b) => b.actif !== false).length + " / 3" }
+    ] },
   { ch: 4, id: "piste", ico: "🔍", t: "1re piste", xp: 30, go: "prospection",
-    test: () => Store.reels("leads").length > 0,
-    d: "Le kanban commence à vivre." },
+    d: "Le kanban commence à vivre.",
+    criteres: [{ l: "Une piste enregistrée", ok: () => Store.reels("leads").length > 0,
+      val: () => Store.reels("leads").length + " piste(s)" }] },
   { ch: 4, id: "choix-canal", ico: "📡", t: "Canal principal", xp: 60, type: "carrefour", go: "prospection",
     test: (S) => !!S.canalPrincipal,
     d: "Où vous investissez votre temps en priorité.",
@@ -3327,14 +3398,18 @@ const AVENTURE = [
     si: (S) => S.canalPrincipal === "reseau", cle: "canal-reseau",
     d: "Anciens collègues d'abord." },
   { ch: 4, id: "candidature", ico: "📤", t: "1re candidature", xp: 60, go: "prospection",
-    test: () => Store.reels("leads").some((l) => (l.stageDates || {}).envoyee),
-    d: "Une piste passée en « Candidature envoyée »." },
+    d: "Une piste passée en « Candidature envoyée ».",
+    criteres: [{ l: "Une piste au moins a atteint « Candidature envoyée »",
+      ok: () => Store.reels("leads").some((l) => (l.stageDates || {}).envoyee),
+      val: () => Store.reels("leads").filter((l) => (l.stageDates || {}).envoyee).length + " envoyée(s)" }] },
   { ch: 4, id: "mission", ico: "💼", t: "1re mission", xp: 150, go: "missions",
-    test: () => Store.all("missions").length > 0,
-    d: "Signée." },
+    d: "Signée.",
+    criteres: [{ l: "Une mission enregistrée", ok: () => Store.all("missions").length > 0,
+      val: () => Store.all("missions").length + " mission(s)" }] },
   { ch: 4, id: "encaisse", ico: "💰", t: "1er encaissement", xp: 300, go: "missions",
-    test: () => Store.all("invoices").some((i) => i.dateEncaissement),
-    d: "L'argent est arrivé. Vous êtes freelance." }
+    d: "L'argent est arrivé. Vous êtes freelance.",
+    criteres: [{ l: "Une facture marquée encaissée", ok: () => Store.all("invoices").some((i) => i.dateEncaissement),
+      val: () => Store.all("invoices").filter((i) => i.dateEncaissement).length + " encaissée(s)" }] }
 ];
 
 const DX_CHEMIN = [0, 46, 66, 46, 0, -46, -66, -46];
@@ -3349,10 +3424,16 @@ function tacheDuNoeud(n) {
   return Store.all("checklist").find((c) => (c.titre || "").toLowerCase().includes(f)) || null;
 }
 
+const critereOk = (c, S) => { try { return !!c.ok(S); } catch (_) { return false; } };
+const critereVal = (c, S) => { try { return c.val ? String(c.val(S)) : ""; } catch (_) { return ""; } };
+
 function noeudFait(n, S) {
   // Un jalon adossé à une tâche n'a pas d'état propre : la checklist fait foi.
   const tache = tacheDuNoeud(n);
   if (tache) return etatCheck(tache) === "fait";
+  // Un jalon à critères est franchi quand tous ses critères le sont, et pas autrement :
+  // il ne peut pas être validé à la main, sinon l'affichage mentirait sur les données.
+  if (n.criteres) return n.criteres.every((c) => critereOk(c, S));
   if (n.test) { try { if (n.test(S)) return true; } catch (_) { } }
   return ((jeu().noeuds) || []).includes(n.id);
 }
@@ -3455,8 +3536,18 @@ function noeudModal(id) {
     + "</div>"
     + (tache ? '<p class="note" style="margin-top:9px">Adossé à la démarche : <b>' + esc(tache.titre) + "</b>. "
       + "Cocher ici coche la démarche, et inversement — les deux ne peuvent pas diverger.</p>"
+      : n.criteres ? '<p class="note" style="margin-top:9px">Ce jalon se franchit tout seul dès que ces conditions sont remplies. '
+        + "Elles portent sur vos données réelles : rien ne se coche à la main ici.</p>"
       : n.type === "carrefour" ? "" : '<p class="note" style="margin-top:9px">Ce jalon se franchit tout seul dès que la donnée existe dans l\'application.</p>')
-    + "</div></div>";
+    + "</div></div>"
+    + (n.criteres ? '<div class="crit">' + n.criteres.map((c) => {
+      const ok = critereOk(c, S), v = critereVal(c, S);
+      return '<div class="crit-l' + (ok ? " on" : "") + '">'
+        + '<span class="crit-p">' + (ok ? "&#10003;" : "&#9675;") + "</span>"
+        + "<span>" + esc(c.l) + "</span>"
+        + (v ? '<b class="num">' + esc(v) + "</b>" : "")
+        + "</div>";
+    }).join("") + "</div>" : "");
 
   const options = n.type === "carrefour"
     ? '<div class="choix" style="margin-top:4px">' + n.options.map((o) =>
@@ -3471,7 +3562,7 @@ function noeudModal(id) {
     + '<div class="modal-b">' + corps + options + "</div>"
     + '<div class="modal-f">'
     + (n.go ? '<button class="btn" data-act="noeud-go" data-id="' + n.id + '">Ouvrir ' + esc((TABS.find((t) => t.id === n.go) || {}).nom || "") + "</button>" : "")
-    + (n.type === "carrefour" || fait || (!tache && n.test) ? "" : '<button class="btn primary" data-act="noeud-ok" data-id="' + n.id + '">C\'est fait</button>')
+    + (n.type === "carrefour" || fait || n.criteres || (!tache && n.test) ? "" : '<button class="btn primary" data-act="noeud-ok" data-id="' + n.id + '">C\'est fait</button>')
     + "</div></div></div>";
   $("#modalRoot").innerHTML = html;
   const root = $("#modalRoot");
