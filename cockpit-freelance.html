@@ -283,6 +283,7 @@ details[open]>summary .chev{transform:rotate(90deg)}
 .card-nav{display:flex;gap:4px;margin-left:auto}
 .card-nav button{width:24px;height:24px;border:2px solid var(--line);background:var(--surface-2);border-radius:8px;cursor:pointer;font-size:12px;line-height:1;color:var(--ink-2);padding:0;font-weight:800}
 .card-nav button:hover{background:var(--green-soft);border-color:var(--accent-line);color:var(--ok)}
+.card-nav button.on{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-d)}
 .card-nav button[disabled]{opacity:.3;cursor:default}
 
 /* ---------- simulateur ---------- */
@@ -762,6 +763,7 @@ const DEFAULT_SETTINGS = {
   periodiciteUrssaf: "trimestrielle",
   assujettiTVA: false,
   chargesFixesNote: "",
+  messageType: "",
   // --- simulateur ARE / rupture ---
   dateEntreeEntreprise: "",
   dateFinContrat: "",
@@ -990,7 +992,7 @@ const Store = {
 /** Champs texte que rien ne doit transformer en nombre : on répare au chargement
  *  les valeurs corrompues par d'anciennes versions. */
 const CHAMPS_TEXTE = ["dateEntreeEntreprise", "dateFinContrat", "statut", "periodiciteUrssaf",
-  "scenarioAide", "canalPrincipal", "vitrineSection", "siteAccroche", "chargesFixesNote"];
+  "scenarioAide", "canalPrincipal", "vitrineSection", "siteAccroche", "chargesFixesNote", "messageType"];
 
 function mergeSettings(s) {
   const out = { ...DEFAULT_SETTINGS, ...(s || {}) };
@@ -1851,6 +1853,8 @@ VIEWS.prospection = function (S) {
             : nz(l.tjmVise) > 0 ? '<span class="pill">cible ' + eur(l.tjmVise) + "</span>" : "")
           + (!f.closed && f.dormant && !f.due ? '<span class="pill">dormante</span>' : "")
           + '<span class="card-nav">'
+          + '<button data-act="lead-message" data-id="' + l.id + '" title="Message de candidature"'
+          + (l.message ? ' class="on"' : "") + ' aria-label="Message de candidature">&#9993;</button>'
           + '<button data-act="lead-move" data-id="' + l.id + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Reculer">&#8249;</button>'
           + '<button data-act="lead-move" data-id="' + l.id + '" data-dir="1"' + (i === STAGES.length - 1 ? " disabled" : "") + ' aria-label="Avancer">&#8250;</button>'
           + "</span></div>"
@@ -3762,6 +3766,123 @@ async function marquerQuete(qid) {
   await Store.saveSettings({ jeu: j });
 }
 
+/** Ce que Claude doit savoir de vous pour écrire une candidature : uniquement
+ *  ce qui figure déjà dans votre CV et vos projets. Rien n'est inventé. */
+function resumeProfil(S) {
+  const e = S.cvEntete || {};
+  const bloc = (t) => Store.all("cvBlocks").filter((b) => b.type === t).slice().sort(parOrdre);
+  return {
+    nom: e.nom || "", titre: e.titre || "", ville: e.ville || "",
+    competences: bloc("competence").map((b) => b.description).filter(Boolean).join(", "),
+    experiences: bloc("experience").slice(0, 3).map((b) => ({
+      poste: b.titre, chez: b.sousTitre, periode: periodeCV(b),
+      detail: String(b.description || "").replace(/\n+/g, " · ").slice(0, 260)
+    })),
+    projets: Store.all("projects").slice().sort(parOrdre).slice(0, 3).map((p) => ({
+      titre: p.titre, resume: String(p.resume || "").split("\n")[0].slice(0, 160), lien: p.lien || ""
+    }))
+  };
+}
+
+const LIMITE_MESSAGE = 2000;
+
+/** Atelier de candidature d'une piste : on écrit, Claude adapte, on copie. */
+function messageModal(id) {
+  const l = Store.get("leads", id);
+  if (!l) return;
+  const S = Store.settings;
+  const dispo = !!state.sample;
+  const initial = l.message || S.messageType || "";
+
+  $("#modalRoot").innerHTML = '<div class="scrim"><div class="modal wide" role="dialog" aria-modal="true">'
+    + '<div class="modal-h"><h2>Candidature : ' + esc(l.nom) + "</h2>"
+    + '<button class="icon-btn" data-close="1" aria-label="Fermer">&#10005;</button></div>'
+    + '<div class="modal-b">'
+    + '<div class="row wrap" style="gap:6px">'
+    + (l.poste ? '<span class="pill acc">' + esc(l.poste) + "</span>" : "")
+    + (l.canal ? '<span class="pill">' + esc(l.canal) + "</span>" : "")
+    + (nz(l.tjmVise) ? '<span class="pill warn">cible ' + eur(nz(l.tjmVise)) + "</span>" : "")
+    + "</div>"
+    + '<label class="f"><span class="f-lab">Message de candidature</span>'
+    + '<textarea id="msgTexte" style="min-height:210px" placeholder="Votre message…">' + esc(initial) + "</textarea>"
+    + '<span class="hint"><b id="msgCompte">0</b> / ' + LIMITE_MESSAGE + " caractères — la plupart des plateformes s'arrêtent là.</span></label>"
+    + '<div class="row wrap" style="gap:9px">'
+    + (dispo ? '<button class="btn blue" id="msgGen">Rédiger avec Claude</button>' : "")
+    + '<button class="btn" id="msgCopy">Copier</button>'
+    + '<span class="hint" id="msgEtat"></span></div>'
+    + '<details class="fold"><summary>Mon message type</summary><div class="fold-b">'
+    + '<label class="f"><span class="f-lab">Base réutilisée pour chaque nouvelle piste</span>'
+    + '<textarea id="msgType" style="min-height:110px">' + esc(S.messageType || "") + "</textarea>"
+    + '<span class="hint">Enregistré une fois, repris comme point de départ sur toutes vos candidatures.</span></label>'
+    + '<button class="btn sm" id="msgTypeSave">Enregistrer le message type</button>'
+    + "</div></details>"
+    + "</div>"
+    + '<div class="modal-f"><button class="btn" data-close="1">Fermer</button>'
+    + '<button class="btn primary" id="msgSave">Enregistrer</button></div>'
+    + "</div></div>";
+
+  const root = $("#modalRoot");
+  root.querySelectorAll("button[data-close]").forEach((b) => b.addEventListener("click", closeModal));
+  root.querySelector(".scrim").addEventListener("click", (ev) => { if (ev.target.classList.contains("scrim")) closeModal(); });
+
+  const zone = $("#msgTexte"), compte = $("#msgCompte");
+  const majCompte = () => {
+    const n = zone.value.length;
+    compte.textContent = num(n);
+    compte.style.color = n > LIMITE_MESSAGE ? "var(--bad)" : n > LIMITE_MESSAGE * 0.9 ? "var(--warn)" : "";
+  };
+  zone.addEventListener("input", majCompte);
+  majCompte();
+
+  $("#msgSave").addEventListener("click", () => {
+    Store.put("leads", { ...l, message: zone.value });
+    closeModal();
+    toast("Message enregistré sur la piste");
+  });
+  $("#msgTypeSave").addEventListener("click", () => {
+    Store.saveSettings({ messageType: $("#msgType").value });
+    toast("Message type enregistré");
+  });
+  $("#msgCopy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(zone.value); toast("Message copié"); }
+    catch (_) { toast("Copie impossible — sélectionnez le texte à la main"); }
+  });
+
+  const gen = $("#msgGen");
+  if (!gen) return;
+  gen.addEventListener("click", async () => {
+    const s = state.sample;
+    if (!s) return;
+    gen.disabled = true;
+    $("#msgEtat").textContent = "Claude rédige…";
+    const existant = zone.value.trim();
+    const prompt = "Rédige un message de candidature pour une mission en freelance, en français.\n\n"
+      + "LA MISSION\n" + JSON.stringify({
+        client: l.nom, poste: l.poste || "", canal: l.canal || "",
+        tjmVise: nz(l.tjmVise) || null, notes: l.note || ""
+      }) + "\n\n"
+      + "LE CANDIDAT (n'utilise que ces éléments, n'invente rien)\n"
+      + JSON.stringify(resumeProfil(S)) + "\n\n"
+      + (existant ? "SON BROUILLON ACTUEL, à reprendre et améliorer :\n\"\"\"\n" + existant + "\n\"\"\"\n\n" : "")
+      + "RÈGLES\n"
+      + "- " + LIMITE_MESSAGE + " caractères maximum, vise plutôt 900 à 1200 : c'est lu en diagonale.\n"
+      + "- Structure : une phrase sur qui il est, deux ou trois lignes sur ce qui le rend pertinent POUR CETTE MISSION "
+      + "en citant une expérience précise de son CV, une ligne de disponibilité, une proposition d'échange.\n"
+      + "- Pas de formule creuse, pas de « passionné », pas de « dynamique », pas de flatterie sur l'entreprise.\n"
+      + "- Ne mentionne le TJM que si la mission en affiche un.\n"
+      + "- Si une information manque, mets un [crochet] à compléter plutôt que d'inventer.\n"
+      + "- Rends uniquement le message, prêt à coller. Aucun commentaire avant ou après.";
+    try {
+      const res = await s(prompt, { onText: ({ text }) => { zone.value = text; majCompte(); } });
+      zone.value = res.text;
+      majCompte();
+      $("#msgEtat").textContent = "Relisez avant d'envoyer.";
+    } catch (e) {
+      $("#msgEtat").textContent = erreurClaude(e && e.code);
+    } finally { gen.disabled = false; }
+  });
+}
+
 function canalModal(id) {
   const c = id ? Store.get("channels", id) : null;
   formModal({
@@ -4478,6 +4599,7 @@ document.addEventListener("click", (e) => {
     case "lead-new": leadModal(null); break;
     case "lead-edit": leadModal(id); break;
     case "lead-move": moveLead(id, Number(act.dataset.dir)); break;
+    case "lead-message": messageModal(id); break;
     case "canal-new": canalModal(null); break;
     case "canal-edit": canalModal(id); break;
     case "check-new": checkModal(null); break;
