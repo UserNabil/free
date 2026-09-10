@@ -357,6 +357,16 @@ details[open]>summary .chev{transform:rotate(90deg)}
 .guide[open]>summary{border-radius:99px 99px 99px 99px}
 .guide-b{margin-top:9px;border-left:4px solid var(--blue);background:var(--blue-soft);
   border-radius:0 10px 10px 0;padding:11px 14px}
+.g-cpt{margin-left:4px;background:var(--surface);border:2px solid var(--blue);border-radius:99px;
+  padding:0 7px;font-size:10.5px;color:var(--blue-d)}
+.etapes{display:flex;flex-direction:column;gap:6px}
+.etape{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;
+  font-size:12.5px;line-height:1.5;font-weight:600;color:var(--ink-2);background:var(--surface);
+  border:2px solid var(--line)}
+.etape:hover{border-color:var(--blue)}
+.etape.on{background:var(--green-soft);border-color:var(--accent-line);color:var(--ok)}
+.etape.on>span{text-decoration:line-through;opacity:.75}
+.etape input[type=checkbox]{width:20px;height:20px;border-width:2px;border-radius:6px;margin-top:1px}
 .guide-b ol{margin:0;padding-left:20px}
 .guide-b li{font-size:12.5px;line-height:1.6;margin:4px 0;color:var(--ink-2);font-weight:600}
 .guide-b li::marker{color:var(--blue-d);font-family:var(--display);font-weight:800}
@@ -702,6 +712,8 @@ const CHECKLIST_DEPART = [
   [1, "Constituer une trésorerie de sécurité", "", "", 0, "tresorerie"],
   [1, "Tester le marché avec 5 candidatures réelles pour valider mon TJM", "", "", 0, "test-marche"],
   [1, "Décider du statut juridique", "", "", 0, "statut-decision"],
+  [1, "Calculer mon revenu minimum vital", "", "", 0, "revenu-minimum"],
+  [1, "Lister mes charges fixes mensuelles dans le cockpit", "", "", 0, "charges-fixes"],
   [2, "Préparer l'argumentaire de rupture conventionnelle", "", "", 0, "argumentaire"],
   [2, "Demander l'entretien à mon employeur", "", "", 14, "entretien-demande"],
   [2, "Entretien(s) obligatoire(s) avec l'employeur", "Service-public.fr", "https://www.service-public.fr", 0, "entretien"],
@@ -710,6 +722,9 @@ const CHECKLIST_DEPART = [
   [2, "Homologation DREETS : 15 jours ouvrables", "", "", 21, "dreets"],
   [2, "Inscription France Travail", "France Travail", "https://www.francetravail.fr", 7, "ft-inscription"],
   [2, "Récupérer le solde de tout compte et l'attestation employeur", "", "", 14, "solde-tout-compte"],
+  [2, "Poser le calendrier complet de la rupture", "", "", 0, "calendrier-rupture"],
+  [2, "Vérifier le calcul de l'indemnité proposée", "", "", 0, "indemnite-verif"],
+  [2, "Demander la portabilité de la mutuelle et de la prévoyance", "", "", 21, "portabilite"],
   [3, "Rédiger les statuts de la société", "", "", 0, "societe-statuts"],
   [3, "Déposer le capital social sur un compte bloqué", "", "", 7, "societe-capital"],
   [3, "Choisir ma société de portage et comparer les frais de gestion", "", "", 0, "portage-choix"],
@@ -729,6 +744,11 @@ const CHECKLIST_DEPART = [
   [3, "Surveiller le seuil de franchise en base de TVA", "", "", 0, "tva-seuil"],
   [3, "Prendre un expert-comptable si société", "", "", 0, "expert-comptable"],
   [3, "Faire valider ma simulation de statut par un expert-comptable", "", "", 14, "expert-validation"],
+  [3, "Créer mon espace URSSAF et déclarer le début d'activité", "URSSAF", "https://www.urssaf.fr", 7, "urssaf-espace"],
+  [3, "Créer mon espace professionnel sur impots.gouv.fr", "impots.gouv.fr", "https://www.impots.gouv.fr", 7, "impots-espace"],
+  [3, "Récupérer mon avis de situation SIRENE", "INSEE", "", 0, "avis-sirene"],
+  [3, "Mettre en place mon registre des recettes", "", "", 0, "registre-recettes"],
+  [3, "Vérifier les mentions obligatoires de mes factures", "", "", 0, "facturation-mentions"],
   [4, "Repositionner le profil LinkedIn : titre, bannière, section « à propos » orientée offre", "", "", 0, "linkedin"],
   [4, "Créer les profils sur les plateformes (Malt, Free-Work, Comet)", "", "", 7, "canal-plateformes"],
   [4, "Constituer une liste de 20 ESN et cabinets à contacter en Île-de-France", "", "", 0, "canal-esn"],
@@ -736,7 +756,13 @@ const CHECKLIST_DEPART = [
   [4, "Portfolio ou site vitrine", "", "", 0, "portfolio"],
   [4, "CV freelance et « one-pager » d'offre", "", "", 0, "cv"],
   [4, "Modèles de contrat de prestation et de devis", "", "", 0, "contrats-modeles"],
-  [4, "Grille tarifaire écrite : TJM, majoration urgence, conditions de règlement", "", "", 0, "grille-tarifaire"]
+  [4, "Grille tarifaire écrite : TJM, majoration urgence, conditions de règlement", "", "", 0, "grille-tarifaire"],
+  [4, "Définir ma cible de clients et de missions", "", "", 0, "cible-client"],
+  [4, "Préparer mon pitch de trente secondes", "", "", 0, "pitch"],
+  [4, "Rassembler mes références et recommandations", "", "", 14, "references"],
+  [4, "Préparer mes questions pour les entretiens client", "", "", 0, "entretien-questions"],
+  [4, "Préparer ma négociation de TJM", "", "", 0, "negociation-tjm"],
+  [4, "Rédiger mes conditions générales de vente", "", "", 0, "cgv"]
 ];
 
 const PHASES = [
@@ -1489,7 +1515,7 @@ const normTitre = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " 
 async function migrerChecklist() {
   if (migrationLancee) return;
   const S = Store.settings;
-  if (!S || nz(S.migrationCles) >= 2) { migrationLancee = true; return; }
+  if (!S || nz(S.migrationCles) >= 3) { migrationLancee = true; return; }
   const items = Store.all("checklist");
   if (!items.length) return;                 // base vide : le contenu de départ s'en charge
   migrationLancee = true;
@@ -1506,16 +1532,26 @@ async function migrerChecklist() {
     await Store.put("checklist", { ...it, cle: ref[5], delaiAttente: nz(it.delaiAttente, 0) || ref[4] || 0 });
   }
 
+  // L'ordre vient de la position dans le contenu de départ : les lignes ajoutées
+  // se glissent à leur place logique au lieu de s'empiler à la fin.
+  const rang = {};
+  CHECKLIST_DEPART.forEach(([, , , , , cle], i) => { rang[cle] = i; });
   const presentes = new Set(Store.all("checklist").map((c) => c.cle).filter(Boolean));
-  let ordre = Math.max(0, ...Store.all("checklist").map((c) => nz(c.ordre))) + 1;
-  for (const [phase, titre, organisme, lien, delai, cle] of CHECKLIST_DEPART) {
+  for (const [i, l] of CHECKLIST_DEPART.entries()) {
+    const [phase, titre, organisme, lien, delai, cle] = l;
     if (presentes.has(cle)) continue;
     await Store.put("checklist", {
       phase, titre, organisme, lien, delaiAttente: delai || 0, cle,
-      etat: "a_faire", fait: false, faitLe: "", attenduLe: "", echeance: "", note: "", ordre: ordre++
+      etat: "a_faire", fait: false, faitLe: "", attenduLe: "", echeance: "", note: "", ordre: i
     });
   }
-  await Store.saveSettings({ migrationCles: 2 });
+  // Les lignes déjà présentes reprennent le même rang, pour que la séquence soit juste.
+  let suivant = CHECKLIST_DEPART.length;
+  for (const it of Store.all("checklist")) {
+    const r = it.cle && rang[it.cle] !== undefined ? rang[it.cle] : suivant++;
+    if (nz(it.ordre) !== r) await Store.put("checklist", { ...it, ordre: r });
+  }
+  await Store.saveSettings({ migrationCles: 3 });
 }
 
 /** Vérifie quêtes terminées et badges débloqués. Idempotent. */
@@ -1601,6 +1637,8 @@ let renderDiffere = false;
 function editionEnCours() {
   const a = document.activeElement;
   if (!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false;
+  // Une case à cocher n'est pas une saisie en cours : elle doit se redessiner tout de suite.
+  if (a.type === "checkbox" || a.type === "radio") return false;
   const v = $("#view");
   return !!(v && v.contains(a));
 }
@@ -2604,6 +2642,38 @@ const GUIDES = {
 /* Marche à suivre des démarches issues de l'analyse du contrat : celles-là sont
    désignées par leur identifiant, elles n'ont pas de clé du contenu de départ. */
 Object.assign(GUIDES, {
+  "revenu-minimum":
+    "- Additionnez loyer, crédits, assurances, énergie, alimentation, transports, garde d'enfants.\n- Ajoutez ce que vous mettez de côté chaque mois : c'est un poste, pas un reste.\n- Comparez ce total au net payé de vos fiches de paie : l'écart est votre marge de manœuvre réelle.\n- Reportez le total dans les charges fixes de l'onglet Échéances : la vue trésorerie s'en sert.",
+  "charges-fixes":
+    "- Ouvrez l'onglet Échéances & trésorerie, bouton « + Charge fixe ».\n- Saisissez d'abord les charges qui existeront APRÈS le départ : RC Pro, mutuelle, prévoyance, outils, comptable.\n- Ajoutez les charges personnelles incompressibles si vous voulez une vue complète.\n- La vue trésorerie à six mois les déduit automatiquement de vos encaissements prévus.",
+  "calendrier-rupture":
+    "- Partez de la date de fin souhaitée et remontez le fil.\n- Comptez 15 jours calendaires de rétractation après la signature.\n- Puis 15 jours ouvrables d'homologation DREETS, soit environ trois semaines.\n- Ajoutez le délai pour obtenir l'entretien, souvent deux à quatre semaines.\n- Renseignez la date de fin obtenue dans le Simulateur ARE : elle pilote la date du premier versement.",
+  "indemnite-verif":
+    "- Le Simulateur ARE affiche le plancher légal calculé sur votre ancienneté et votre salaire.\n- Vérifiez que la convention collective Syntec ne prévoit pas mieux : c'est le montant le plus favorable qui s'applique.\n- Rappelez-vous que la part au-dessus du plancher retarde votre ARE d'un jour par tranche de 95,80 €.\n- Au-delà d'environ 17 000 € d'indemnité, le différé est plafonné : le surplus ne coûte plus rien.\n- Saisissez le montant négocié dans le simulateur pour voir la date réelle du premier versement.",
+  "portabilite":
+    "- La portabilité maintient vos garanties santé et prévoyance gratuitement après le départ, sous conditions.\n- Elle suppose d'être indemnisé par France Travail : inscrivez-vous d'abord.\n- Sa durée est plafonnée et dépend de votre ancienneté — demandez le détail par écrit à votre employeur.\n- Anticipez la suite : la portabilité s'arrête, et il faudra votre propre contrat.\n- Notez la date de fin de portabilité dans « Ce que j'ai obtenu ».",
+  "urssaf-espace":
+    "- Créez votre compte une fois le SIRET obtenu.\n- Vérifiez que la périodicité de déclaration affichée correspond à celle de vos réglages.\n- Repérez où se fait la déclaration de chiffre d'affaires : c'est le geste que vous répéterez chaque mois ou trimestre.\n- Activez le prélèvement automatique pour ne jamais être en retard.\n- Notez vos identifiants dans un gestionnaire de mots de passe, pas dans le cockpit.",
+  "impots-espace":
+    "- L'espace professionnel est distinct de votre espace particulier.\n- Il sert à la TVA, à la CFE et aux acomptes d'impôt sur les sociétés.\n- L'adhésion demande une validation par courrier : comptez une à deux semaines.\n- Sans cet espace, aucune déclaration de TVA n'est possible.",
+  "avis-sirene":
+    "- L'avis de situation SIRENE se télécharge librement une fois le SIRET attribué.\n- C'est la pièce que réclament les plateformes et les clients pour vous référencer.\n- Une société obtient en plus un extrait Kbis auprès du greffe.\n- Enregistrez le PDF quelque part de sûr : on vous le redemandera à chaque nouveau client.",
+  "registre-recettes":
+    "- En micro-entreprise, le registre des recettes est obligatoire et doit être tenu au jour le jour.\n- Il liste chaque encaissement : date, client, montant, mode de règlement.\n- L'onglet Missions & facturation en tient l'équivalent, mais vérifiez qu'il couvre vos obligations.\n- Un contrôle URSSAF peut le demander : il doit être chronologique et sans rature.",
+  "facturation-mentions":
+    "- Numérotation continue, sans trou ni doublon, sur toute la vie de l'entreprise.\n- Votre identité, adresse, SIRET, et la mention du régime de TVA applicable.\n- En franchise en base : la mention « TVA non applicable, article 293 B du CGI » est obligatoire.\n- Date d'émission, date d'échéance, taux des pénalités de retard, indemnité forfaitaire de recouvrement.\n- Faites valider un premier exemplaire par votre expert-comptable avant d'envoyer la vraie.",
+  "cible-client":
+    "- Écrivez en une phrase le type de mission que vous cherchez : techno, secteur, durée, régie ou forfait.\n- Écrivez aussi ce que vous refusez : c'est ce qui vous fera gagner le plus de temps.\n- Fixez votre TJM plancher, celui en dessous duquel vous dites non — décidez-le à froid.\n- Relisez cette phrase avant chaque candidature : elle évite les missions qu'on accepte par lassitude.",
+  "pitch":
+    "- Trois phrases : ce que vous faites, pour qui, avec quelle preuve.\n- La preuve doit être concrète : une application livrée, une techno maîtrisée, un résultat mesurable.\n- Bannissez « passionné », « dynamique », « polyvalent » : ces mots ne disent rien.\n- Dites-le à voix haute et chronométrez : au-delà de quarante secondes, coupez.\n- Utilisez « Préparer avec Claude » sur cette ligne pour le travailler.",
+  "references":
+    "- Listez deux ou trois personnes prêtes à répondre à un appel de référence.\n- Demandez-leur l'autorisation avant de donner leur nom, jamais après.\n- Sollicitez une recommandation écrite sur LinkedIn pendant que la mission est fraîche.\n- Attention à la clause de confidentialité : ne citez pas de client final sans accord.",
+  "entretien-questions":
+    "- Sur la mission : périmètre exact, équipe, méthode, existant technique, définition du succès.\n- Sur le cadre : durée, télétravail, date de démarrage, processus de décision.\n- Sur l'argent : TJM, délai de paiement, qui signe le bon de commande.\n- Poser des questions précises est le meilleur signal de sérieux que vous puissiez envoyer.\n- Préparez aussi votre réponse à « quelles sont vos prétentions ? » — voir la ligne suivante.",
+  "negociation-tjm":
+    "- Connaissez trois chiffres : votre plancher, votre cible, et le repère de marché du simulateur.\n- Ne donnez jamais le premier chiffre si vous pouvez l'éviter ; demandez la fourchette prévue.\n- Si vous devez annoncer, annoncez votre cible majorée, jamais votre plancher.\n- En régie via une ESN, sachez que l'intermédiaire prend sa marge : le TJM client est plus élevé.\n- Préparez une contrepartie non financière : télétravail, durée, montée en charge progressive.",
+  "cgv":
+    "- Délai de paiement : 30 jours par défaut, 45 jours fin de mois au maximum entre professionnels.\n- Pénalités de retard et indemnité forfaitaire de recouvrement de 40 € : leur mention est obligatoire.\n- Périmètre des prestations, modalités de validation, conditions de modification.\n- Propriété intellectuelle : dites explicitement ce que vous cédez et quand — à la livraison ou au paiement.\n- Faites-les relire une fois par un avocat : elles resserviront à chaque mission.",
   "contrat-01-nonconcurrence":
     "- Relisez le contrat article par article : les 22 se suivent sans clause de non-concurrence ni de non-sollicitation.\n"
     + "- Cherchez un éventuel avenant, une charte ou un règlement intérieur signé à part qui en ajouterait une.\n"
@@ -2664,6 +2734,28 @@ const GUIDE_ONGLET = {
   "contrat-11-conges": "simulateur", "contrat-07-pi-code": "vitrine"
 };
 
+/** Les étapes d'une démarche, sous forme de liste exploitable. */
+function etapesDuGuide(item) {
+  const texte = item.commentFaire || GUIDES[item.cle] || GUIDES[item.id] || "";
+  return String(texte).split("\n")
+    .map((l) => l.match(/^\s*[-*•]\s+(.+)$/)).filter(Boolean).map((m) => m[1].trim());
+}
+
+/** Chaque étape devient une sous-tâche cochable : la démarche se coche d'elle-même
+ *  quand toutes le sont. Rien ne se perd entre deux sessions. */
+function etapesHTML(item) {
+  const etapes = etapesDuGuide(item);
+  if (!etapes.length) return "";
+  const faites = Array.isArray(item.etapesFaites) ? item.etapesFaites : [];
+  return '<div class="etapes">' + etapes.map((e, i) => {
+    const ok = faites.indexOf(i) >= 0;
+    return '<label class="etape' + (ok ? " on" : "") + '">'
+      + '<input type="checkbox" data-act="etape-toggle" data-id="' + item.id + '" data-i="' + i + '"'
+      + (ok ? " checked" : "") + ">"
+      + "<span>" + esc(e) + "</span></label>";
+  }).join("") + "</div>";
+}
+
 /** Marche à suivre numérotée : « pas à pas » suppose des étapes ordonnées. */
 function guideHTML(texte) {
   const lignes = String(texte || "").split("\n");
@@ -2722,12 +2814,16 @@ VIEWS.demarches = function (S) {
           const cls = e === "fait" ? " fait" : e === "en_attente" ? " attente" : "";
           const guide = i.commentFaire || GUIDES[i.cle] || GUIDES[i.id] || "";
           const ong = i.onglet || GUIDE_ONGLET[i.cle] || GUIDE_ONGLET[i.id] || "";
+          const nbEtapes = etapesDuGuide(i).length;
+          const nbFaites = Math.min(nbEtapes, (Array.isArray(i.etapesFaites) ? i.etapesFaites : []).length);
           return '<div class="ck' + cls + '">'
             + '<button class="ck-check" data-act="check-toggle" data-id="' + i.id + '" aria-label="'
             + (e === "fait" ? "Rouvrir cette démarche" : "Marquer comme faite") + '">'
             + (e === "fait" ? "&#10003;" : e === "en_attente" ? "&#9203;" : "&nbsp;") + "</button>"
             + '<div class="b"><div class="t">' + esc(i.titre) + "</div>"
             + '<div class="meta">'
+            + (nbEtapes && e !== "fait"
+              ? '<span class="pill' + (nbFaites ? " warn" : "") + '">' + nbFaites + " / " + nbEtapes + " étapes</span>" : "")
             + (e === "en_attente"
               ? '<span class="pill ' + (retard ? "bad" : "warn") + '">'
                 + (reste === null ? "en attente" : retard ? "retour en retard de " + (-reste) + " j"
@@ -2749,8 +2845,10 @@ VIEWS.demarches = function (S) {
             + (i.resultat ? "Voir / compléter" : i.brouillon ? "&#9998; Mon brouillon" : "Préparer avec Claude") + "</button>"
             + '<button class="btn sm ghost" data-act="check-edit" data-id="' + i.id + '">Modifier</button>'
             + "</div>"
-            + (guide ? '<details class="guide"><summary>&#9432; Comment faire</summary>'
-              + '<div class="guide-b">' + guideHTML(guide) + "</div></details>" : "")
+            + (guide ? '<details class="guide"' + (i.id === (prochaineDemarche() || {}).id ? " open" : "") + ">"
+              + "<summary>&#9432; Comment faire"
+              + (nbEtapes ? '<b class="g-cpt">' + nbFaites + " / " + nbEtapes + "</b>" : "") + "</summary>"
+              + '<div class="guide-b">' + etapesHTML(i) + "</div></details>" : "")
             + "</div></div>";
         }).join("")
         + (li.length ? "" : '<div class="empty">Aucune ligne dans cette phase.</div>')
@@ -4996,6 +5094,26 @@ document.addEventListener("change", (e) => {
     return;
   }
   const act = t.dataset.act;
+  if (act === "etape-toggle") {
+    const c = Store.get("checklist", t.dataset.id);
+    if (!c) return;
+    const idx = Number(t.dataset.i);
+    const faites = (Array.isArray(c.etapesFaites) ? c.etapesFaites : []).slice();
+    const k = faites.indexOf(idx);
+    if (t.checked) { if (k < 0) faites.push(idx); } else if (k >= 0) faites.splice(k, 1);
+    const total = etapesDuGuide(c).length;
+    const rec = { ...c, etapesFaites: faites };
+    const tout = total > 0 && faites.length >= total;
+    const etaitFait = etatCheck(c) === "fait";
+    if (tout && !etaitFait) { rec.etat = "fait"; rec.fait = true; rec.faitLe = todayISO(); rec.attenduLe = ""; }
+    Store.put("checklist", rec).then(() => {
+      if (tout && !etaitFait) {
+        gagnerXP(XP_GAIN.demarcheParPhase[nz(c.phase, 1)] || 20, "démarche accomplie");
+        toastJeu("Toutes les étapes faites — démarche cochée", "win");
+      }
+    });
+    return;
+  }
   if (act === "wd") {
     const { mission, mois } = t.dataset;
     const existing = Store.all("workdays").find((w) => w.missionId === mission && w.mois === mois);
