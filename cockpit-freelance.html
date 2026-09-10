@@ -345,6 +345,20 @@ details[open]>summary .chev{transform:rotate(90deg)}
 @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .3s ease-out}
 
+/* ---------- marche à suivre d'une démarche ---------- */
+.guide{margin-top:3px}
+.guide>summary{display:inline-flex;align-items:center;gap:5px;font-family:var(--display);font-size:11.5px;
+  font-weight:700;color:var(--blue-d);background:var(--blue-soft);border:2px solid var(--blue);
+  border-radius:99px;padding:2px 11px}
+.guide>summary:hover{filter:brightness(.96)}
+.guide[open]>summary{border-radius:99px 99px 99px 99px}
+.guide-b{margin-top:9px;border-left:4px solid var(--blue);background:var(--blue-soft);
+  border-radius:0 10px 10px 0;padding:11px 14px}
+.guide-b ol{margin:0;padding-left:20px}
+.guide-b li{font-size:12.5px;line-height:1.6;margin:4px 0;color:var(--ink-2);font-weight:600}
+.guide-b li::marker{color:var(--blue-d);font-family:var(--display);font-weight:800}
+.guide-b p{font-size:12.5px;line-height:1.5;color:var(--ink-2);margin:0 0 7px}
+
 /* ---------- lecture des clauses du contrat ---------- */
 .clause{border:2px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .clause>summary{display:flex;align-items:center;gap:10px;padding:11px 13px}
@@ -2283,6 +2297,218 @@ function field(name, label, type, value, hint, step, info) {
     + (step ? ' step="' + step + '"' : "") + ">", hint, info);
 }
 
+/* Marche à suivre de chaque démarche, indexée par la clé stable de la ligne.
+   Une ligne « - » = une étape. Rien de personnel ici : ce sont des instructions
+   génériques, le contenu propre à l'utilisateur vit dans son magasin. */
+const GUIDES = {
+  "contrat-relecture":
+    "- Ouvrez le panneau « Mon contrat — les clauses qui comptent », juste au-dessus de cette liste.\n"
+    + "- Lisez en priorité les clauses marquées « Levier » et « Contrainte » : ce sont celles qui pèsent sur votre projet.\n"
+    + "- Vérifiez qu'aucun avenant ou charte signé à part n'ajoute une clause absente du contrat.\n"
+    + "- Cochez cette ligne quand vous les avez lues — pas avant.",
+  "are-simulation":
+    "- Ouvrez le Simulateur TJM, panneau « Simulateur ARE » : vos fiches de paie l'alimentent déjà.\n"
+    + "- Renseignez la date de fin de contrat envisagée pour obtenir la date du premier versement.\n"
+    + "- Créez ensuite un compte sur francetravail.fr et lancez la simulation officielle.\n"
+    + "- Reportez le résultat officiel dans les Réglages : c'est lui qui fait foi.",
+  "are-affiliation":
+    "- Sur francetravail.fr, ouvrez votre relevé de situation : il indique la durée d'affiliation et le salaire journalier de référence.\n"
+    + "- À défaut, l'attestation employeur remise en fin de contrat porte les mêmes informations.\n"
+    + "- Notez les deux chiffres dans « Ce que j'ai obtenu », en bas de cette ligne.",
+  "are-report":
+    "- Ouvrez les Réglages avec l'icône en haut à droite de la page.\n"
+    + "- Renseignez « ARE journalière réelle » et « Jours de droits ARE restants ».\n"
+    + "- Tant que ces deux champs valent 0, toute la projection repose sur une estimation.",
+  "tresorerie":
+    "- Le Simulateur ARE affiche le nombre de jours avant votre premier versement : c'est votre trou de trésorerie.\n"
+    + "- Visez cette durée plus trois mois de charges fixes.\n"
+    + "- Placez la somme sur un compte séparé pour ne pas l'entamer sans y penser.",
+  "test-marche":
+    "- Ouvrez l'onglet Prospection et créez cinq pistes réelles, pas des intentions.\n"
+    + "- Envoyez cinq candidatures, puis faites glisser chaque piste en « Candidature envoyée ».\n"
+    + "- Notez le TJM qu'on vous propose en retour : c'est votre valeur de marché, pas celle du baromètre.",
+  "statut-decision":
+    "- Ouvrez le Simulateur TJM : le tableau compare les quatre statuts sur votre TJM.\n"
+    + "- Regardez surtout la projection pluriannuelle — l'écart se joue la première année.\n"
+    + "- Faites valider par un expert-comptable avant de trancher définitivement.\n"
+    + "- Enregistrez votre choix au carrefour « Mon statut » de l'onglet Aventure.",
+  "argumentaire":
+    "- Cliquez sur « Préparer avec Claude » ci-dessous et écrivez vos arguments.\n"
+    + "- Restez sur le terrain de l'intérêt commun : départ organisé, passation propre, pas de conflit.\n"
+    + "- N'annoncez pas votre projet freelance comme une certitude, cela affaiblit votre position.\n"
+    + "- Préparez aussi votre réponse à un refus : c'est le scénario le plus probable au premier essai.",
+  "entretien-demande":
+    "- Demandez l'entretien à l'oral, puis confirmez-le par écrit le jour même.\n"
+    + "- Mettez ensuite cette ligne « En attente » : le compte à rebours de 14 jours démarre.\n"
+    + "- Un refus ne se conteste pas — la rupture conventionnelle suppose l'accord des deux parties.",
+  "entretien":
+    "- Au moins un entretien est obligatoire avant toute signature.\n"
+    + "- Vous pouvez vous faire assister par un salarié de l'entreprise ; prévenez l'employeur si vous le faites.\n"
+    + "- Notez la date et ce qui a été convenu dans « Ce que j'ai obtenu ».",
+  "convention-signature":
+    "- La convention fixe deux choses : la date de fin du contrat et le montant de l'indemnité.\n"
+    + "- Vérifiez que l'indemnité atteint au moins le plancher légal calculé dans le Simulateur ARE.\n"
+    + "- Rappelez-vous que chaque euro au-dessus de ce plancher retarde votre ARE.\n"
+    + "- Repartez avec un exemplaire signé : sans lui, le délai de rétractation ne peut pas être prouvé.",
+  "retractation":
+    "- Le délai court 15 jours calendaires à partir du lendemain de la signature.\n"
+    + "- Les deux parties peuvent se rétracter, sans avoir à se justifier.\n"
+    + "- Mettez la ligne « En attente » le jour de la signature : le compte à rebours s'affiche sur l'accueil.",
+  "dreets":
+    "- La demande d'homologation se dépose une fois le délai de rétractation écoulé, en ligne.\n"
+    + "- La DREETS dispose de 15 jours ouvrables ; sans réponse de sa part, l'homologation est acquise.\n"
+    + "- Mettez la ligne « En attente » pour suivre le délai sans y penser.",
+  "ft-inscription":
+    "- Inscrivez-vous sur francetravail.fr, au plus tard dans les 12 mois suivant la fin du contrat.\n"
+    + "- Munissez-vous de l'attestation employeur : sans elle, le dossier n'avance pas.\n"
+    + "- Inscrivez-vous dès le premier jour : les différés courent à partir de la fin du contrat, pas de l'inscription.",
+  "solde-tout-compte":
+    "- Réclamez trois documents : le solde de tout compte, le certificat de travail et l'attestation employeur.\n"
+    + "- Vérifiez que le solde de congés payés correspond à celui de votre dernière fiche de paie.\n"
+    + "- Conservez-les sans limite de durée — ils resservent à chaque changement de situation.",
+  "societe-statuts":
+    "- Faites rédiger ou relire les statuts par un expert-comptable ou un avocat : une erreur ici se paie plus tard.\n"
+    + "- Points à arrêter : objet social, date de clôture de l'exercice, montant du capital, pouvoirs du dirigeant.\n"
+    + "- En EURL, le montant du capital détermine la part de dividendes soumise aux cotisations.",
+  "societe-capital":
+    "- Le dépôt se fait auprès d'une banque, d'un notaire ou d'une plateforme en ligne, avant l'immatriculation.\n"
+    + "- Vous recevez une attestation de dépôt des fonds, exigée par le guichet unique.\n"
+    + "- Les fonds sont débloqués une fois le Kbis obtenu.",
+  "portage-choix":
+    "- Comparez au moins trois sociétés sur les frais de gestion : ils vont de 5 à 10 % du chiffre d'affaires.\n"
+    + "- Demandez une simulation écrite de votre net pour votre TJM, tous frais inclus.\n"
+    + "- Vérifiez la garantie financière et la convention collective appliquée.\n"
+    + "- Reportez les frais retenus dans les Réglages pour que le simulateur soit juste.",
+  "portage-convention":
+    "- La convention d'adhésion vous rend salarié de la société de portage.\n"
+    + "- Vérifiez les conditions de rupture et le sort des jours non facturés.\n"
+    + "- En portage, il n'y a ni immatriculation, ni ACRE, ni TVA à gérer.",
+  "immatriculation":
+    "- Tout passe par le guichet unique de l'INPI : formalites.entreprises.gouv.fr.\n"
+    + "- Préparez pièce d'identité, justificatif de domicile et déclaration de non-condamnation.\n"
+    + "- Choisissez le code APE avec soin : il détermine votre convention collective et votre taux d'AT/MP.\n"
+    + "- Mettez la ligne « En attente » après le dépôt : comptez une quinzaine de jours.",
+  "siret":
+    "- Le SIRET arrive par courrier de l'INSEE, puis dans votre espace INPI.\n"
+    + "- Notez-le dans « Ce que j'ai obtenu » : il vous sera demandé partout, tout le temps.\n"
+    + "- Sans SIRET, ni facture ni inscription sur les plateformes.",
+  "acre":
+    "- La demande se fait auprès de l'URSSAF dans les 60 jours suivant l'immatriculation, pas un de plus.\n"
+    + "- Passé ce délai, l'exonération est définitivement perdue.\n"
+    + "- L'ACRE conditionne aussi l'accès à l'ARCE : ne la manquez pas si vous visez le capital.",
+  "aide-arbitrage":
+    "- Ouvrez le Simulateur TJM, panneau « Projection sur plusieurs années ».\n"
+    + "- Comparez les trois scénarios : ARCE, maintien de l'ARE, aucune aide.\n"
+    + "- La bascule se situe autour de 40 à 50 jours facturés la première année.\n"
+    + "- Le choix est définitif : ne le faites qu'une fois vos droits réels renseignés.",
+  "arce-demande":
+    "- La demande se dépose auprès de France Travail après l'immatriculation, jamais avant.\n"
+    + "- Fournissez le justificatif d'immatriculation et l'attestation d'ACRE.\n"
+    + "- Le versement se fait en deux fois, le second six mois après le premier.",
+  "ft-declaration":
+    "- L'actualisation est due tous les mois, y compris ceux sans aucun revenu.\n"
+    + "- Déclarez le chiffre d'affaires encaissé, pas facturé.\n"
+    + "- Un oubli suspend le versement et impose de refaire la démarche.",
+  "banque":
+    "- Un compte dédié est obligatoire au-delà de 10 000 € de chiffre d'affaires deux années de suite.\n"
+    + "- Un compte courant séparé suffit en micro : le compte professionnel n'est pas exigé.\n"
+    + "- Comparez les frais, souvent trois à cinq fois plus élevés sur les offres dites professionnelles.",
+  "rcpro":
+    "- Demandez trois devis : la plupart des clients et des plateformes l'exigent avant de signer.\n"
+    + "- Vérifiez que l'activité déclarée couvre bien le développement logiciel.\n"
+    + "- Notez le numéro de contrat dans « Ce que j'ai obtenu » : on vous le redemandera.",
+  "prevoyance":
+    "- En indépendant, un arrêt de travail n'est quasiment pas indemnisé : la prévoyance couvre ce trou.\n"
+    + "- Regardez surtout le délai de carence et le montant des indemnités journalières.\n"
+    + "- La mutuelle n'est plus prise en charge par un employeur : le coût passe entièrement sur vous.",
+  "facturation-outil":
+    "- La facturation électronique devient obligatoire : choisissez un outil compatible dès maintenant.\n"
+    + "- Vérifiez la numérotation continue et sans trou, exigée par l'administration.\n"
+    + "- L'onglet Missions & facturation suit vos encaissements, mais n'émet pas les factures.",
+  "tva-option":
+    "- Ouvrez le carrefour « TVA » de l'onglet Aventure pour enregistrer votre choix.\n"
+    + "- En franchise, pas de TVA facturée ni récupérable, mais un seuil à surveiller.\n"
+    + "- Pour des clients professionnels, la TVA est neutre : ils la récupèrent.\n"
+    + "- Si vous avez des achats importants, l'assujettissement devient intéressant.",
+  "tva-ca3":
+    "- La déclaration se fait depuis votre espace professionnel sur impots.gouv.fr.\n"
+    + "- Choisissez le rythme, mensuel ou trimestriel, et reportez-le dans les Réglages.\n"
+    + "- Les échéances apparaîtront automatiquement dans l'onglet Échéances.",
+  "tva-seuil":
+    "- L'onglet Missions & facturation affiche une jauge de progression vers le seuil.\n"
+    + "- Au franchissement, la TVA devient due dès le premier euro du mois de dépassement.\n"
+    + "- Surveillez-la en fin d'année : c'est là que le dépassement se joue.",
+  "expert-comptable":
+    "- Obligatoire de fait dès qu'il y a un bilan, donc pour toute société.\n"
+    + "- Comptez 1 200 à 2 500 € par an pour une structure unipersonnelle.\n"
+    + "- Demandez ce qui est inclus : bilan, liasse, déclarations, conseil.",
+  "expert-validation":
+    "- Apportez la comparaison des quatre statuts issue du Simulateur TJM.\n"
+    + "- Faites confirmer en priorité le barème d'impôt, le traitement fiscal de l'ARCE et les ratios de cotisations.\n"
+    + "- Une heure de consultation coûte bien moins qu'un mauvais statut gardé trois ans.",
+  "linkedin":
+    "- Le titre doit annoncer une offre, pas un poste : ce que vous faites, pour qui.\n"
+    + "- La section « À propos » se lit en trois lignes avant le « voir plus » : mettez l'essentiel devant.\n"
+    + "- Activez « Open to work » en mode visible des recruteurs uniquement si vous êtes encore en poste.",
+  "canal-plateformes":
+    "- Créez les profils Malt, Free-Work et Comet : ils demandent tous le SIRET.\n"
+    + "- Reprenez le CV et le portfolio de l'onglet Vitrine plutôt que de tout réécrire.\n"
+    + "- Un profil complet à 100 % remonte nettement mieux dans les recherches.",
+  "canal-esn":
+    "- Visez les ESN et cabinets qui placent en régie sur .NET et Angular en Île-de-France.\n"
+    + "- Créez une piste par société dans l'onglet Prospection, avec une date de relance.\n"
+    + "- C'est le canal le plus volumineux en régie, mais celui où le TJM est le plus rogné.",
+  "canal-reseau":
+    "- Commencez par les anciens collègues : ce sont eux qui recommandent le plus facilement.\n"
+    + "- Attention aux clients de votre employeur actuel — vérifiez d'abord les clauses de votre contrat.\n"
+    + "- Un message court et direct fonctionne mieux qu'une annonce de reconversion.",
+  "portfolio":
+    "- Tout est dans l'onglet Vitrine : composez les sections, puis exportez une page HTML autonome.\n"
+    + "- Elle s'héberge gratuitement sur GitHub Pages ou Netlify.\n"
+    + "- Trois projets bien décrits valent mieux que dix listés.",
+  "cv":
+    "- L'onglet Vitrine contient déjà votre CV : complétez les blocs et exportez-le.\n"
+    + "- Le fichier exporté s'imprime en PDF depuis le navigateur.\n"
+    + "- Un CV freelance met en avant les missions et les résultats, pas les employeurs.",
+  "contrats-modeles":
+    "- Il vous faut deux modèles : un devis et un contrat de prestation.\n"
+    + "- Points à ne jamais omettre : périmètre, TJM, délai de paiement, pénalités de retard, propriété intellectuelle.\n"
+    + "- Faites relire le contrat une fois par un avocat : il resservira à chaque mission.",
+  "grille-tarifaire":
+    "- Écrivez votre grille : TJM standard, majoration urgence ou week-end, conditions de règlement.\n"
+    + "- Une grille écrite évite de négocier à chaud, au téléphone.\n"
+    + "- Prévoyez un TJM plancher en dessous duquel vous refusez : décidez-le à froid."
+};
+
+/* Écran du cockpit que la démarche fait ouvrir, quand elle en concerne un. */
+const GUIDE_ONGLET = {
+  "contrat-relecture": "demarches", "are-simulation": "simulateur", "are-report": "simulateur",
+  "tresorerie": "simulateur", "test-marche": "prospection", "statut-decision": "simulateur",
+  "aide-arbitrage": "simulateur", "tva-option": "aventure", "tva-seuil": "missions",
+  "expert-validation": "simulateur", "canal-plateformes": "vitrine", "canal-esn": "prospection",
+  "canal-reseau": "prospection", "portfolio": "vitrine", "cv": "vitrine",
+  "facturation-outil": "missions", "tva-ca3": "echeances", "portage-choix": "simulateur"
+};
+
+/** Marche à suivre numérotée : « pas à pas » suppose des étapes ordonnées. */
+function guideHTML(texte) {
+  const lignes = String(texte || "").split("\n");
+  const out = [];
+  let liste = false;
+  for (const l of lignes) {
+    const m = l.match(/^\s*[-*•]\s+(.+)$/);
+    if (m) {
+      if (!liste) { out.push("<ol>"); liste = true; }
+      out.push("<li>" + esc(m[1].trim()) + "</li>");
+    } else {
+      if (liste) { out.push("</ol>"); liste = false; }
+      if (l.trim()) out.push("<p>" + esc(l.trim()) + "</p>");
+    }
+  }
+  if (liste) out.push("</ol>");
+  return out.join("");
+}
+
 /* ---------------------------------------------------------------- 3. DÉMARCHES */
 VIEWS.demarches = function (S) {
   const t = todayISO();
@@ -2320,6 +2546,8 @@ VIEWS.demarches = function (S) {
           const reste = i.attenduLe ? daysDiff(i.attenduLe, t) : null;
           const retard = e === "en_attente" && reste !== null && reste < 0;
           const cls = e === "fait" ? " fait" : e === "en_attente" ? " attente" : "";
+          const guide = i.commentFaire || GUIDES[i.cle] || "";
+          const ong = i.onglet || GUIDE_ONGLET[i.cle] || "";
           return '<div class="ck' + cls + '">'
             + '<button class="ck-check" data-act="check-toggle" data-id="' + i.id + '" aria-label="'
             + (e === "fait" ? "Rouvrir cette démarche" : "Marquer comme faite") + '">'
@@ -2331,8 +2559,8 @@ VIEWS.demarches = function (S) {
                 + (reste === null ? "en attente" : retard ? "retour en retard de " + (-reste) + " j"
                   : reste === 0 ? "retour attendu aujourd&#39;hui" : "retour attendu J−" + reste) + "</span>"
               : "")
-            + (i.onglet ? '<button class="btn sm primary" data-act="go-tab" data-tab="' + esc(i.onglet) + '">'
-              + esc((TABS.find((t) => t.id === i.onglet) || {}).nom || "Ouvrir") + "</button>" : "")
+            + (ong ? '<button class="btn sm primary" data-act="go-tab" data-tab="' + esc(ong) + '">'
+              + esc((TABS.find((t) => t.id === ong) || {}).nom || "Ouvrir") + "</button>" : "")
             + (i.lien ? '<a class="xs" href="' + esc(i.lien) + '" target="_blank" rel="noopener">' + esc(i.organisme || "Site officiel") + "</a>"
               : i.organisme ? '<span class="xs dim">' + esc(i.organisme) + "</span>" : "")
             + (i.echeance ? '<span class="pill num' + (daysDiff(t, i.echeance) > 0 && e !== "fait" ? " bad" : "") + '">échéance ' + fmtDate(i.echeance) + "</span>" : "")
@@ -2346,7 +2574,10 @@ VIEWS.demarches = function (S) {
             + '<button class="btn sm blue" data-act="check-prep" data-id="' + i.id + '">'
             + (i.resultat ? "Voir / compléter" : i.brouillon ? "&#9998; Mon brouillon" : "Préparer avec Claude") + "</button>"
             + '<button class="btn sm ghost" data-act="check-edit" data-id="' + i.id + '">Modifier</button>'
-            + "</div></div></div>";
+            + "</div>"
+            + (guide ? '<details class="guide"><summary>&#9432; Comment faire</summary>'
+              + '<div class="guide-b">' + guideHTML(guide) + "</div></details>" : "")
+            + "</div></div>";
         }).join("")
         + (li.length ? "" : '<div class="empty">Aucune ligne dans cette phase.</div>')
         + "</details>";
