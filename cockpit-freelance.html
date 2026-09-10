@@ -294,6 +294,20 @@ details[open]>summary .chev{transform:rotate(90deg)}
 @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .3s ease-out}
 
+/* ---------- lecture des clauses du contrat ---------- */
+.clause{border:2px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.clause>summary{display:flex;align-items:center;gap:10px;padding:11px 13px}
+.clause>summary:hover{background:var(--surface-2)}
+.cl-ref{font-family:var(--display);font-size:11px;font-weight:800;color:var(--ink-3);white-space:nowrap;
+  background:var(--surface-2);border:2px solid var(--line);border-radius:8px;padding:1px 7px}
+.cl-t{font-family:var(--display);font-weight:700;font-size:13.5px;flex:1;min-width:0;line-height:1.25}
+.clause-b{padding:0 13px 13px;display:flex;flex-direction:column;gap:10px}
+.extrait{border-left:4px solid var(--line-strong);background:var(--surface-2);border-radius:0 10px 10px 0;
+  padding:12px 14px;font-size:13px;line-height:1.65;color:var(--ink-2);white-space:pre-wrap;overflow-wrap:anywhere}
+.extrait em{font-style:normal;background:var(--gold-soft);color:var(--warn);padding:0 3px;border-radius:4px;font-weight:700}
+.cl-lecture{font-size:13px;line-height:1.5}
+.cl-lecture b{color:var(--ink)}
+
 /* ---------- aventure : chemin de progression ---------- */
 .aventure{display:flex;flex-direction:column;align-items:center;gap:26px}
 .chapitre{width:100%;max-width:540px}
@@ -730,7 +744,7 @@ function toast(msg) {
    Store — `db` si disponible, sinon localStorage + export/import JSON
    ========================================================================== */
 const COLLECTIONS = ["leads", "channels", "checklist", "missions", "invoices", "workdays", "deadlines", "fixedCosts",
-  "projects", "cvBlocks", "siteBlocks"];
+  "projects", "cvBlocks", "siteBlocks", "clauses"];
 const LS_KEY = "cockpit-freelance-v1";
 
 const Store = {
@@ -782,17 +796,8 @@ const Store = {
       id: uid(), phase, titre, organisme, lien, delaiAttente: delaiAttente || 0, cle: cle || "",
       etat: "a_faire", attenduLe: "", faitLe: "", echeance: "", note: "", ordre: i, updatedAt: now
     }));
-    const exemples = [
-      { id: uid(), nom: "Exemple — ESN Alpha (client final : assurance)", canal: "ESN / sociétés de conseil", poste: "Dev .NET / Angular — régie IDF",
-        stage: "envoyee", tjmVise: 550, tjmPropose: 0, dernierContact: addDays(todayISO(), -9), prochaineRelance: addDays(todayISO(), -2),
-        note: "Exemple de départ — supprimez-le quand vous voulez.", exemple: true, stageDates: { a_contacter: addDays(todayISO(), -12), envoyee: addDays(todayISO(), -9) }, updatedAt: now },
-      { id: uid(), nom: "Exemple — Scale-up Beta (direct)", canal: "Malt", poste: "Full-stack .NET / React",
-        stage: "echange", tjmVise: 600, tjmPropose: 0, dernierContact: addDays(todayISO(), -3), prochaineRelance: todayISO(),
-        note: "", exemple: true, stageDates: { a_contacter: addDays(todayISO(), -14), envoyee: addDays(todayISO(), -10), echange: addDays(todayISO(), -3) }, updatedAt: now },
-      { id: uid(), nom: "Exemple — Cabinet Gamma (banque)", canal: "Cabinets de placement IT", poste: "Lead dev Angular",
-        stage: "proposition", tjmVise: 620, tjmPropose: 580, dernierContact: addDays(todayISO(), -1), prochaineRelance: addDays(todayISO(), 4),
-        note: "", exemple: true, stageDates: { a_contacter: addDays(todayISO(), -21), envoyee: addDays(todayISO(), -18), echange: addDays(todayISO(), -8), proposition: addDays(todayISO(), -1) }, updatedAt: now }
-    ];
+    // Aucune piste d'exemple : de fausses données feraient de faux jalons et de faux XP.
+    const exemples = [];
     if (this.mode === "db") {
       await Promise.all([
         ...chans.map((c) => this.db.collection("channels").doc(c.id).set(c)),
@@ -828,6 +833,10 @@ const Store = {
   },
 
   all(coll) { return this.cache[coll] || []; },
+  /** Pistes réellement saisies : tout ce qui est marqué « exemple » est exclu de
+   *  la progression, des compteurs et des jalons. Une donnée de démonstration ne
+   *  doit jamais valoir un fait accompli. */
+  reels(coll) { return this.all(coll).filter((x) => !x.exemple); },
   get(coll, id) { return this.all(coll).find((x) => x.id === id) || null; },
 
   async put(coll, obj) {
@@ -1264,13 +1273,13 @@ function rangActuel(S) {
 }
 
 const BADGES = [
-  { id: "premier_pas", ico: "🐣", t: "Premier pas", test: () => Store.all("leads").length > 0 },
+  { id: "premier_pas", ico: "🐣", t: "Premier pas", test: () => Store.reels("leads").length > 0 },
   { id: "contrat", ico: "📄", t: "Contrat relu", test: () => cleFait("contrat-relecture", "Relire mon contrat") },
   { id: "are", ico: "🧮", t: "Droits ARE connus", test: (S) => nz(S.areJournaliere) > 0 },
   { id: "statut", ico: "⚖️", t: "Statut choisi", test: (S) => S.statut !== "undecided" },
   { id: "rupture", ico: "🤝", t: "Rupture signée", test: () => cleFait("convention-signature", "Signature de la convention") },
   { id: "siret", ico: "🏛️", t: "SIRET obtenu", test: () => cleFait("siret", "Obtention du SIRET") },
-  { id: "prospecteur", ico: "🎯", t: "20 candidatures", test: () => Store.all("leads").filter((l) => (l.stageDates || {}).envoyee).length >= 20 },
+  { id: "prospecteur", ico: "🎯", t: "20 candidatures", test: () => Store.reels("leads").filter((l) => (l.stageDates || {}).envoyee).length >= 20 },
   { id: "mission", ico: "💼", t: "1re mission", test: () => Store.all("missions").length > 0 },
   { id: "encaisse", ico: "💰", t: "1er encaissement", test: () => Store.all("invoices").some((i) => i.dateEncaissement) },
   { id: "serie7", ico: "🔥", t: "7 jours d'affilée", test: () => nz(jeu().serieMax) >= 7 },
@@ -1290,7 +1299,7 @@ function melangeStable(arr, graine) {
 }
 function quetesDuJour(S) {
   const t = todayISO();
-  const leads = Store.all("leads"), checks = Store.all("checklist");
+  const leads = Store.reels("leads"), checks = Store.all("checklist");
   const manuelles = jeu().quetesManuelles || [];
   const pool = [];
   const dues = leads.filter((l) => { const f = leadFlags(l, S); return !f.closed && f.due; }).length;
@@ -1671,7 +1680,7 @@ function metriques(leads) {
 
 VIEWS.prospection = function (S) {
   const leads = Store.all("leads");
-  const m = metriques(leads);
+  const m = metriques(Store.reels("leads"));
   const aFaire = leads.map((l) => ({ l, f: leadFlags(l, S) }))
     .filter((x) => !x.f.closed && (x.f.due || x.f.dormant))
     .sort((a, b) => (b.f.retard === null ? -1 : b.f.retard) - (a.f.retard === null ? -1 : a.f.retard));
@@ -2089,6 +2098,7 @@ VIEWS.demarches = function (S) {
     + (enRetard ? '<span class="pill bad">' + enRetard + " en retard</span>" : "")
     + '<button class="btn sm" data-act="check-new">+ Ligne</button>'
     + "</div></div>"
+    + blocClauses()
     + '<p class="note acc">Chaque ligne a trois états : <b>à faire</b>, <b>&#9203; en attente</b> quand vous avez fait votre part et que la réponse dépend d\'un tiers, et <b>&#10003; fait</b>. Une ligne mise en attente démarre un compte à rebours, affiché sur l\'accueil et signalé en rouge s\'il dépasse.</p>'
     + PHASES.map((ph) => {
       const li = items.filter((i) => nz(i.phase) === ph.n);
@@ -2135,6 +2145,57 @@ VIEWS.demarches = function (S) {
     + '<p class="note">Les liens pointent vers les sites officiels des organismes. Lorsqu\'aucun lien certain n\'existe pour une démarche précise, seul le nom de l\'organisme est indiqué.</p>'
     + "</div>";
 };
+
+/** Lecture des clauses du contrat, directement dans l'application.
+ *  Le contenu vient du magasin privé : rien de personnel n'est écrit dans la page. */
+const IMPACTS = {
+  favorable: { l: "Favorable", c: "ok" },
+  contrainte: { l: "Contrainte", c: "warn" },
+  levier: { l: "Levier", c: "acc" },
+  vigilance: { l: "Vigilance", c: "bad" }
+};
+
+function blocClauses() {
+  const li = Store.all("clauses").slice().sort((a, b) => nz(a.ordre) - nz(b.ordre));
+  if (!li.length) return "";
+  const compte = {};
+  li.forEach((c) => { compte[c.impact] = (compte[c.impact] || 0) + 1; });
+  return '<details class="panel" id="panClauses"' + (localStorage_get("clausesOpen") === "1" ? " open" : "") + ">"
+    + '<summary class="panel-h"><span class="chev">&#9656;</span>'
+    + "<h2>Mon contrat — les clauses qui comptent</h2>"
+    + '<span class="row wrap" style="gap:5px;flex:1">'
+    + Object.keys(compte).map((k) => '<span class="pill ' + (IMPACTS[k] || {}).c + '">' + (IMPACTS[k] || {}).l + " " + compte[k] + "</span>").join("")
+    + "</span></summary>"
+    + '<div class="panel-b" style="display:flex;flex-direction:column;gap:9px">'
+    + '<p class="note">Extraits repris mot pour mot de votre CDI et de son avenant. Cliquez une clause pour la lire. '
+    + "Les passages surlignés sont ceux qui pèsent sur votre passage en freelance.</p>"
+    + li.map((c) => '<details class="clause">'
+      + '<summary><span class="chev">&#9656;</span>'
+      + (c.ref ? '<span class="cl-ref">' + esc(c.ref) + "</span>" : "")
+      + '<span class="cl-t">' + esc(c.titre) + "</span>"
+      + '<span class="pill ' + ((IMPACTS[c.impact] || {}).c || "") + '">' + ((IMPACTS[c.impact] || {}).l || "") + "</span></summary>"
+      + '<div class="clause-b">'
+      + (c.extrait
+        ? '<div class="extrait">' + surligner(c.extrait, c.surligne) + "</div>"
+        : '<div class="extrait">Aucune clause de ce type dans le contrat.</div>')
+      + '<p class="cl-lecture">' + esc(c.lecture) + "</p>"
+      + "</div></details>").join("")
+    + '<p class="note warn">Ceci est une lecture attentive du texte, pas un avis juridique. Les points marqués « Levier » '
+    + "méritent d'être confirmés par un avocat en droit du travail avant d'ouvrir la négociation.</p>"
+    + "</div></details>";
+}
+
+/** Met en évidence les fragments listés dans `surligne`, sans jamais injecter de HTML. */
+function surligner(texte, fragments) {
+  const parts = String(fragments || "").split("|").map((f) => f.trim()).filter(Boolean);
+  let out = esc(texte);
+  for (const f of parts) {
+    const cible = esc(f);
+    const i = out.indexOf(cible);
+    if (i >= 0) out = out.slice(0, i) + "<em>" + cible + "</em>" + out.slice(i + cible.length);
+  }
+  return out;
+}
 
 /* ---------------------------------------------------------------- 4. MISSIONS */
 function joursConsommes(missionId) {
@@ -2627,7 +2688,7 @@ const estPortage = (S) => S.statut === "portage";
 
 const AVENTURE = [
   /* --- chapitre 1 : préparation --- */
-  { ch: 1, id: "contrat", ico: "📄", t: "Contrat lu", xp: 40, go: "demarches",
+  { ch: 1, id: "contrat", ico: "📄", t: "Mon contrat", xp: 40, go: "demarches",
     cle: "contrat-relecture", fb: "Relire mon contrat",
     d: "Repérer non-concurrence, exclusivité et propriété intellectuelle." },
   { ch: 1, id: "are", ico: "🧮", t: "Droits ARE", xp: 60, go: "simulateur",
@@ -2636,8 +2697,8 @@ const AVENTURE = [
   { ch: 1, id: "tresorerie", ico: "🏦", t: "Trésorerie", xp: 40, go: "demarches",
     cle: "tresorerie", fb: "trésorerie de sécurité",
     d: "De quoi tenir plusieurs mois sans revenu." },
-  { ch: 1, id: "tjm", ico: "🎯", t: "TJM fixé", xp: 40, go: "simulateur",
-    test: (S) => nz(S.tjm) > 0 && Store.all("leads").length >= 3,
+  { ch: 1, id: "tjm", ico: "🎯", t: "Mon TJM", xp: 40, go: "simulateur",
+    test: (S) => nz(S.tjm) > 0 && Store.reels("leads").length >= 3,
     d: "Un tarif confronté à trois pistes réelles, au moins." },
   { ch: 1, id: "choix-statut", ico: "⚖️", t: "Mon statut", xp: 100, type: "carrefour", go: "simulateur",
     test: (S) => S.statut !== "undecided",
@@ -2653,13 +2714,13 @@ const AVENTURE = [
   { ch: 2, id: "argumentaire", ico: "🗣️", t: "Argumentaire", xp: 30, go: "demarches",
     cle: "argumentaire", fb: "argumentaire",
     d: "Ce que vous direz, et ce que vous ne direz pas." },
-  { ch: 2, id: "demande", ico: "🤝", t: "Demande faite", xp: 40, go: "demarches",
+  { ch: 2, id: "demande", ico: "🤝", t: "Demande d'entretien", xp: 40, go: "demarches",
     cle: "entretien-demande", fb: "Demander l'entretien",
     d: "L'employeur doit accepter : ça ne s'impose pas." },
-  { ch: 2, id: "signature", ico: "✍️", t: "Convention signée", xp: 60, go: "demarches",
+  { ch: 2, id: "signature", ico: "✍️", t: "Convention", xp: 60, go: "demarches",
     cle: "convention-signature", fb: "Signature de la convention",
     d: "Puis 15 jours de rétractation." },
-  { ch: 2, id: "homologation", ico: "🏛️", t: "Homologuée", xp: 60, go: "demarches",
+  { ch: 2, id: "homologation", ico: "🏛️", t: "Homologation", xp: 60, go: "demarches",
     cle: "dreets", fb: "Homologation",
     d: "La DREETS valide sous 15 jours ouvrables." },
   { ch: 2, id: "inscription", ico: "📋", t: "France Travail", xp: 40, go: "demarches",
@@ -2667,22 +2728,22 @@ const AVENTURE = [
     d: "L'inscription ouvre les droits." },
 
   /* --- chapitre 3 : création — le chemin dépend du statut --- */
-  { ch: 3, id: "societe-statuts", ico: "📜", t: "Statuts rédigés", xp: 60, go: "demarches",
+  { ch: 3, id: "societe-statuts", ico: "📜", t: "Statuts", xp: 60, go: "demarches",
     si: estSociete, cle: "societe-statuts",
     d: "Objet social, gérance, exercice comptable." },
-  { ch: 3, id: "societe-capital", ico: "🏦", t: "Capital déposé", xp: 50, go: "demarches",
+  { ch: 3, id: "societe-capital", ico: "🏦", t: "Capital social", xp: 50, go: "demarches",
     si: estSociete, cle: "societe-capital",
     d: "Sur un compte bloqué, avant l'immatriculation." },
-  { ch: 3, id: "portage-choix", ico: "🔎", t: "Société choisie", xp: 60, go: "simulateur",
+  { ch: 3, id: "portage-choix", ico: "🔎", t: "Société de portage", xp: 60, go: "simulateur",
     si: estPortage, cle: "portage-choix",
     d: "Comparer les frais de gestion : 5 à 10 % du CA." },
-  { ch: 3, id: "portage-convention", ico: "🤝", t: "Convention signée", xp: 60, go: "demarches",
+  { ch: 3, id: "portage-convention", ico: "🤝", t: "Adhésion portage", xp: 60, go: "demarches",
     si: estPortage, cle: "portage-convention",
     d: "L'adhésion vous rend salarié de la société de portage." },
   { ch: 3, id: "immat", ico: "🏢", t: "SIRET", xp: 80, go: "demarches",
     si: (S) => !estPortage(S), cle: "siret", fb: "Obtention du SIRET",
     d: "L'entreprise existe." },
-  { ch: 3, id: "acre", ico: "🎁", t: "ACRE demandée", xp: 60, go: "demarches",
+  { ch: 3, id: "acre", ico: "🎁", t: "ACRE", xp: 60, go: "demarches",
     si: (S) => !estPortage(S), cle: "acre", fb: "ACRE",
     d: "60 jours après l'immatriculation, pas un de plus." },
   { ch: 3, id: "expert", ico: "🧾", t: "Expert-comptable", xp: 40, go: "demarches",
@@ -2696,7 +2757,7 @@ const AVENTURE = [
       { v: "maintien", ico: "📆", l: "Maintien de l'ARE", d: "Allocation mensuelle, à déclarer tous les mois.", patch: { scenarioAide: "maintien" } },
       { v: "aucune", ico: "⛔", l: "Aucune aide", d: "Je démarre sans dispositif.", patch: { scenarioAide: "aucune" } }
     ] },
-  { ch: 3, id: "arce-demande", ico: "📨", t: "ARCE demandée", xp: 60, go: "demarches",
+  { ch: 3, id: "arce-demande", ico: "📨", t: "Demande d'ARCE", xp: 60, go: "demarches",
     si: (S) => !estPortage(S) && S.scenarioAide === "arce", cle: "arce-demande",
     d: "À déposer après l'immatriculation." },
   { ch: 3, id: "ft-declaration", ico: "📆", t: "Déclaration mensuelle", xp: 50, go: "demarches",
@@ -2715,16 +2776,16 @@ const AVENTURE = [
   { ch: 3, id: "tva-ca3", ico: "📑", t: "Déclaration TVA", xp: 40, go: "echeances",
     si: (S) => !estPortage(S) && S.assujettiTVA === true, cle: "tva-ca3",
     d: "Mettre en place la CA3." },
-  { ch: 3, id: "tva-seuil", ico: "📏", t: "Seuil surveillé", xp: 40, go: "missions",
+  { ch: 3, id: "tva-seuil", ico: "📏", t: "Seuil de TVA", xp: 40, go: "missions",
     si: (S) => !estPortage(S) && S.assujettiTVA !== true, cle: "tva-seuil",
     d: "La jauge de plafonds suit le franchissement." },
 
   /* --- chapitre 4 : lancement --- */
-  { ch: 4, id: "vitrine", ico: "🌐", t: "Vitrine prête", xp: 60, go: "vitrine",
+  { ch: 4, id: "vitrine", ico: "🌐", t: "Ma vitrine", xp: 60, go: "vitrine",
     test: () => Store.all("cvBlocks").length >= 4 && Store.all("siteBlocks").filter((b) => b.actif !== false).length >= 3,
     d: "CV étoffé et portfolio monté." },
   { ch: 4, id: "piste", ico: "🔍", t: "1re piste", xp: 30, go: "prospection",
-    test: () => Store.all("leads").length > 0,
+    test: () => Store.reels("leads").length > 0,
     d: "Le kanban commence à vivre." },
   { ch: 4, id: "choix-canal", ico: "📡", t: "Canal principal", xp: 60, type: "carrefour", go: "prospection",
     test: (S) => !!S.canalPrincipal,
@@ -2734,17 +2795,17 @@ const AVENTURE = [
       { v: "esn", ico: "🏢", l: "ESN et cabinets", d: "Le canal dominant en régie sur .NET / Angular en IDF.", patch: { canalPrincipal: "esn" } },
       { v: "reseau", ico: "🤝", l: "Réseau direct", d: "Anciens collègues, LinkedIn, bouche-à-oreille.", patch: { canalPrincipal: "reseau" } }
     ] },
-  { ch: 4, id: "canal-plateformes", ico: "🖥️", t: "Profils créés", xp: 50, go: "prospection",
+  { ch: 4, id: "canal-plateformes", ico: "🖥️", t: "Profils plateformes", xp: 50, go: "prospection",
     si: (S) => S.canalPrincipal === "plateformes", cle: "canal-plateformes",
     d: "Malt, Free-Work, Comet." },
-  { ch: 4, id: "canal-esn", ico: "🏢", t: "20 ESN listées", xp: 50, go: "prospection",
+  { ch: 4, id: "canal-esn", ico: "🏢", t: "Liste d'ESN", xp: 50, go: "prospection",
     si: (S) => S.canalPrincipal === "esn", cle: "canal-esn",
     d: "Une liste nominative, pas une intention." },
-  { ch: 4, id: "canal-reseau", ico: "🤝", t: "10 contacts relancés", xp: 50, go: "prospection",
+  { ch: 4, id: "canal-reseau", ico: "🤝", t: "Mon réseau", xp: 50, go: "prospection",
     si: (S) => S.canalPrincipal === "reseau", cle: "canal-reseau",
     d: "Anciens collègues d'abord." },
   { ch: 4, id: "candidature", ico: "📤", t: "1re candidature", xp: 60, go: "prospection",
-    test: () => Store.all("leads").some((l) => (l.stageDates || {}).envoyee),
+    test: () => Store.reels("leads").some((l) => (l.stageDates || {}).envoyee),
     d: "Une piste passée en « Candidature envoyée »." },
   { ch: 4, id: "mission", ico: "💼", t: "1re mission", xp: 150, go: "missions",
     test: () => Store.all("missions").length > 0,
@@ -3769,7 +3830,8 @@ document.addEventListener("input", (e) => {
 
 document.addEventListener("toggle", (e) => {
   const t = e.target;
-  if (t.id === "regCanaux") localStorage_set("regOpen", t.open ? "1" : "0");
+  if (t.id === "panClauses") localStorage_set("clausesOpen", t.open ? "1" : "0");
+  else if (t.id === "regCanaux") localStorage_set("regOpen", t.open ? "1" : "0");
   else if (t.id === "grilleJours") localStorage_set("grilleOpen", t.open ? "1" : "0");
   else if (t.dataset && t.dataset.phase) localStorage_set("ph" + t.dataset.phase, t.open ? "1" : "0");
 }, true);
