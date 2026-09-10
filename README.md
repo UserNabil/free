@@ -5,11 +5,12 @@ Outil personnel unique pour préparer et piloter un passage en freelance (dével
 Application web mono-page, sans dépendance, publiée comme Artifact Claude.
 Le fichier `cockpit-freelance.html` est autonome : il contient tout le code, le style et les paramètres.
 
-## Les 7 onglets
+## Les 8 onglets
 
 | Onglet | Ce qu'il sert à faire |
 |---|---|
 | **Aujourd'hui** (accueil) | Le copilote : rang, niveau, série, quêtes du jour, ce qui vous attend, ce qui est en attente d'un tiers, avancement des 4 phases |
+| **Aventure** | Chemin de 21 jalons en 4 chapitres, avec 4 carrefours de décision qui écrivent un vrai réglage |
 | **Prospection** | Kanban de pistes en 6 colonnes, bandeau « à faire aujourd'hui », 4 compteurs de performance, registre des canaux |
 | **Simulateur TJM** | Comparaison micro-entreprise / EURL / SASU / portage, **projection pluriannuelle** ARCE / maintien ARE / sans aide, fiches des aides mobilisables |
 | **Démarches** | Checklist en 4 phases à **trois états** (à faire / en attente d'un retour / fait), avec compte à rebours sur les délais |
@@ -30,6 +31,20 @@ Le **rang** ne dépend pas de l'XP mais de l'avancement objectif du dossier : *S
 Une démarche qui dépend d'un tiers (homologation DREETS, délai de rétractation, immatriculation, réponse ARCE)
 se met **en attente** : elle sort de la liste des choses à faire et déclenche un compte à rebours, signalé en
 rouge quand le délai habituel est dépassé.
+
+L'onglet **Aventure** trace le parcours comme un chemin de 21 jalons en 4 chapitres (1 510 XP au total). Aucun
+jalon ne se débloque en cliquant : chacun est adossé à un fait réel de l'application (une démarche cochée, un
+SIRET obtenu, une facture encaissée). Quatre d'entre eux sont des **carrefours de décision** — statut juridique,
+ARCE ou maintien de l'ARE, franchise de TVA ou assujettissement, canal de prospection principal — et le choix
+retenu écrit réellement le réglage correspondant. Le jeu et l'outil sont la même chose.
+
+## Ce qui n'est pas possible
+
+Relier les comptes **LinkedIn, Malt, Free-Work ou Indeed** pour postuler ou synchroniser les missions n'est pas
+réalisable : un Artifact publié ne peut émettre aucune requête réseau sortante, Malt et Free-Work n'exposent pas
+d'API publique, l'API Indeed est fermée à cet usage, et la candidature par API LinkedIn est réservée à des
+partenaires accrédités. La seule passerelle réelle est le **courrier électronique**, puisque ces plateformes
+notifient toutes par e-mail.
 
 ## Projection pluriannuelle et aides
 

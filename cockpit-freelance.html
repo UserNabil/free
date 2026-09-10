@@ -294,6 +294,49 @@ details[open]>summary .chev{transform:rotate(90deg)}
 @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .3s ease-out}
 
+/* ---------- aventure : chemin de progression ---------- */
+.aventure{display:flex;flex-direction:column;align-items:center;gap:26px}
+.chapitre{width:100%;max-width:540px}
+.chap-h{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.chap-n{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;
+  font-family:var(--display);font-weight:800;font-size:13px;background:var(--surface-2);border:2px solid var(--line);color:var(--ink-3)}
+.chap-n.on{background:var(--gold);border-color:var(--gold-d);color:#4A3200}
+.chap-t{font-family:var(--display);font-weight:800;font-size:15px;white-space:nowrap}
+.chap-bar{flex:1;height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.chap-bar>i{display:block;height:100%;background:var(--gold);border-radius:99px}
+.chemin{display:flex;flex-direction:column;align-items:center;gap:0;padding:14px 0 4px}
+.nw{display:flex;flex-direction:column;align-items:center;gap:6px;transform:translateX(var(--dx,0px));padding:5px 0}
+.noeud{width:74px;height:74px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;font-size:30px;
+  position:relative;background:var(--surface-3);box-shadow:0 6px 0 var(--line-strong);color:var(--ink-3);
+  transition:transform .08s,box-shadow .08s;padding:0}
+.noeud:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line-strong)}
+.noeud.dispo{background:var(--green);box-shadow:0 6px 0 var(--green-d);color:#fff}
+.noeud.dispo:active{box-shadow:0 2px 0 var(--green-d)}
+.noeud.fait{background:var(--gold);box-shadow:0 6px 0 var(--gold-d);color:#4A3200}
+.noeud.fait:active{box-shadow:0 2px 0 var(--gold-d)}
+.noeud.verrou{opacity:.5;cursor:not-allowed}
+.noeud.verrou:active{transform:none;box-shadow:0 6px 0 var(--line-strong)}
+.noeud.carrefour{border-radius:24px;width:82px;height:74px}
+.noeud-t{font-family:var(--display);font-weight:700;font-size:12.5px;text-align:center;max-width:140px;line-height:1.2;color:var(--ink-2)}
+.noeud-t.on{color:var(--ink)}
+.nxp{position:absolute;top:-5px;right:-9px;background:var(--surface);border:2px solid var(--gold);color:var(--gold-d);
+  font-family:var(--display);font-weight:800;font-size:10px;border-radius:99px;padding:0 6px;line-height:16px}
+.lien{width:5px;height:15px;border-radius:99px;background:var(--line)}
+.lien.on{background:var(--gold)}
+.bulle{position:absolute;top:-33px;left:50%;background:var(--surface);border:2px solid var(--green);color:var(--ok);
+  font-family:var(--display);font-weight:800;font-size:11px;padding:3px 11px;border-radius:99px;white-space:nowrap;
+  box-shadow:0 3px 0 var(--green-d);animation:flotte 1.7s ease-in-out infinite}
+@keyframes flotte{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-5px)}}
+.choix{display:flex;flex-direction:column;gap:9px}
+.choix button{display:flex;align-items:center;gap:11px;padding:13px 15px;border:2px solid var(--line-strong);border-radius:15px;
+  background:var(--surface);cursor:pointer;box-shadow:0 3px 0 var(--line-strong);text-align:left;width:100%}
+.choix button:hover{border-color:var(--green);background:var(--green-soft)}
+.choix button:active{transform:translateY(3px);box-shadow:none}
+.choix .ci{font-size:22px;flex:none}
+.choix .cb{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.choix .ct{font-family:var(--display);font-weight:700;font-size:14.5px}
+.choix .cd{font-size:12px;color:var(--ink-2);line-height:1.35}
+
 /* ---------- vitrine : listes réordonnables et aperçus ---------- */
 .seg{display:inline-flex;gap:4px;background:var(--surface-2);border:2px solid var(--line);border-radius:99px;padding:3px}
 .seg button{border:0;background:none;border-radius:99px;padding:5px 14px;font-family:var(--display);font-weight:700;font-size:13px;color:var(--ink-2);cursor:pointer}
@@ -527,6 +570,7 @@ const STAGE_IDX = Object.fromEntries(STAGES.map((s, i) => [s.id, i]));
 
 const TABS = [
   { id: "aujourdhui",  nom: "Aujourd'hui" },
+  { id: "aventure",    nom: "Aventure" },
   { id: "prospection", nom: "Prospection" },
   { id: "simulateur",  nom: "Simulateur TJM" },
   { id: "demarches",   nom: "Démarches" },
@@ -618,6 +662,7 @@ const DEFAULT_SETTINGS = {
   salaireBrut12Mois: 0,          // 0 = déduit du salaire brut annuel
   indemniteRupture: 0,           // indemnité totale négociée
   indemniteCongesPayes: 0,       // indemnité compensatrice de congés payés
+  canalPrincipal: "",
   // --- vitrine ---
   vitrineSection: "projets",
   cvEntete: { nom: "", titre: "", email: "", tel: "", ville: "", liens: "" },
@@ -633,7 +678,7 @@ const DEFAULT_SETTINGS = {
   // --- progression (jeu) ---
   jeu: {
     xp: 0, serie: 0, serieMax: 0, dernierJour: "", badges: [],
-    quetesDate: "", quetesFaites: [], journal: {}
+    quetesDate: "", quetesFaites: [], journal: {}, noeuds: [], noeudsXP: []
   }
 };
 
@@ -848,6 +893,8 @@ function mergeSettings(s) {
   j.badges = Array.isArray(j.badges) ? j.badges.slice() : [];
   j.quetesFaites = Array.isArray(j.quetesFaites) ? j.quetesFaites.slice() : [];
   j.quetesManuelles = Array.isArray(j.quetesManuelles) ? j.quetesManuelles.slice() : [];
+  j.noeuds = Array.isArray(j.noeuds) ? j.noeuds.slice() : [];
+  j.noeudsXP = Array.isArray(j.noeudsXP) ? j.noeudsXP.slice() : [];
   j.journal = { ...(j.journal || {}) };
   out.jeu = j;
   return out;
@@ -1290,6 +1337,11 @@ async function verifierProgression() {
       const cle = t + ":" + q.id;
       if (q.fini && !faites.includes(cle)) { faites.push(cle); gain += q.xp; libelles.push(q.t); }
     }
+    const noeudsXP = (j.noeudsXP || []).slice();
+    const av = etatAventure(S);
+    AVENTURE.forEach((n, i) => {
+      if (av.faits[i] && !noeudsXP.includes(n.id)) { noeudsXP.push(n.id); gain += n.xp; libelles.push(n.t); }
+    });
     const badges = (j.badges || []).slice(); const nouveaux = [];
     for (const b of BADGES) {
       if (!badges.includes(b.id)) { let ok = false; try { ok = !!b.test(S); } catch (_) { ok = false; }
@@ -1297,6 +1349,7 @@ async function verifierProgression() {
     }
     if (!gain && !nouveaux.length) return;
     j.quetesFaites = faites.slice(-60);
+    j.noeudsXP = noeudsXP;
     j.badges = badges;
     await Store.saveSettings({ jeu: j });
     if (gain) await gagnerXP(gain, libelles.length === 1 ? "quête terminée" : libelles.length + " quêtes");
@@ -2497,6 +2550,227 @@ async function exporterSite(S) {
   if (ok) { toast("Portfolio exporté"); gagnerXP(XP_GAIN.export, "portfolio exporté"); }
 }
 
+/* ---------------------------------------------------------------- 7. AVENTURE */
+/* Chaque nœud est adossé à un fait réel de l'application : rien ne se débloque
+   en cliquant pour cliquer. Les carrefours écrivent une vraie décision. */
+const CHAPITRES = [
+  { n: 1, t: "Préparation" },
+  { n: 2, t: "Sortie" },
+  { n: 3, t: "Création" },
+  { n: 4, t: "Lancement" }
+];
+
+const AVENTURE = [
+  { ch: 1, id: "contrat", ico: "📄", t: "Contrat lu", xp: 40, go: "demarches",
+    d: "Repérer non-concurrence, exclusivité et propriété intellectuelle.",
+    test: () => checkFait("Relire mon contrat") },
+  { ch: 1, id: "are", ico: "🧮", t: "Droits ARE", xp: 60, go: "simulateur",
+    d: "Savoir combien France Travail versera, et à partir de quand.",
+    test: (S) => nz(S.areJournaliere) > 0 },
+  { ch: 1, id: "tresorerie", ico: "🏦", t: "Trésorerie", xp: 40, go: "demarches",
+    d: "De quoi tenir plusieurs mois sans revenu.",
+    test: () => checkFait("trésorerie de sécurité") },
+  { ch: 1, id: "tjm", ico: "🎯", t: "TJM fixé", xp: 40, go: "simulateur",
+    d: "Un tarif validé par le marché, pas par l'espoir.",
+    test: (S) => nz(S.tjm) > 0 && Store.all("leads").length >= 3 },
+  { ch: 1, id: "choix-statut", ico: "⚖️", t: "Mon statut", xp: 100, type: "carrefour", go: "simulateur",
+    d: "La décision la plus structurante. Modifiable ensuite.",
+    test: (S) => S.statut !== "undecided",
+    options: [
+      { v: "micro", ico: "🌱", l: "Micro-entreprise", d: "Le plus simple. Plafond de CA à surveiller.", patch: { statut: "micro" } },
+      { v: "eurl", ico: "🏛️", l: "EURL à l'IS", d: "Cotisations plus basses, comptabilité lourde.", patch: { statut: "eurl" } },
+      { v: "sasu", ico: "🏢", l: "SASU à l'IS", d: "Protection de salarié, cotisations élevées.", patch: { statut: "sasu" } },
+      { v: "portage", ico: "🛟", l: "Portage salarial", d: "Zéro administration, chômage conservé.", patch: { statut: "portage" } }
+    ] },
+
+  { ch: 2, id: "argumentaire", ico: "🗣️", t: "Argumentaire", xp: 30, go: "demarches",
+    d: "Ce que vous direz, et ce que vous ne direz pas.",
+    test: () => checkFait("argumentaire") },
+  { ch: 2, id: "demande", ico: "🤝", t: "Demande faite", xp: 40, go: "demarches",
+    d: "L'employeur doit accepter : ça ne s'impose pas.",
+    test: () => checkFait("Demander l'entretien") },
+  { ch: 2, id: "signature", ico: "✍️", t: "Convention signée", xp: 60, go: "demarches",
+    d: "Puis 15 jours de rétractation.",
+    test: () => checkFait("Signature de la convention") },
+  { ch: 2, id: "homologation", ico: "🏛️", t: "Homologuée", xp: 60, go: "demarches",
+    d: "La DREETS valide sous 15 jours ouvrables.",
+    test: () => checkFait("Homologation") },
+  { ch: 2, id: "inscription", ico: "📋", t: "France Travail", xp: 40, go: "demarches",
+    d: "L'inscription ouvre les droits.",
+    test: () => checkFait("Inscription France Travail") },
+
+  { ch: 3, id: "immat", ico: "🏢", t: "SIRET", xp: 80, go: "demarches",
+    d: "L'entreprise existe.",
+    test: () => checkFait("Obtention du SIRET") },
+  { ch: 3, id: "acre", ico: "🎁", t: "ACRE demandée", xp: 60, go: "demarches",
+    d: "60 jours après l'immatriculation, pas un de plus.",
+    test: () => checkFait("ACRE") },
+  { ch: 3, id: "choix-aide", ico: "💸", t: "ARCE ou ARE", xp: 100, type: "carrefour", go: "simulateur",
+    d: "Choix définitif. Le simulateur chiffre les deux.",
+    options: [
+      { v: "arce", ico: "💸", l: "ARCE — capital", d: "60 % des droits en deux versements. Solde les droits.", patch: { scenarioAide: "arce" } },
+      { v: "maintien", ico: "📆", l: "Maintien de l'ARE", d: "Allocation mensuelle, droits conservés plus longtemps.", patch: { scenarioAide: "maintien" } },
+      { v: "aucune", ico: "⛔", l: "Aucune aide", d: "Je démarre sans dispositif.", patch: { scenarioAide: "aucune" } }
+    ] },
+  { ch: 3, id: "rcpro", ico: "🛡️", t: "RC Pro", xp: 40, go: "demarches",
+    d: "Exigée par presque tous les clients.",
+    test: () => checkFait("RC Pro") },
+  { ch: 3, id: "choix-tva", ico: "🧾", t: "TVA", xp: 60, type: "carrefour", go: "echeances",
+    d: "Franchise en base, ou TVA dès le premier euro.",
+    options: [
+      { v: "franchise", ico: "🌾", l: "Franchise en base", d: "Pas de TVA à facturer sous le seuil.", patch: { assujettiTVA: false } },
+      { v: "assujetti", ico: "🧾", l: "Assujetti à la TVA", d: "TVA facturée, et récupérable sur mes achats.", patch: { assujettiTVA: true } }
+    ] },
+
+  { ch: 4, id: "vitrine", ico: "🌐", t: "Vitrine prête", xp: 60, go: "vitrine",
+    d: "CV et portfolio en ligne.",
+    test: () => Store.all("cvBlocks").length >= 4 && Store.all("siteBlocks").filter((b) => b.actif !== false).length >= 3 },
+  { ch: 4, id: "piste", ico: "🔍", t: "1re piste", xp: 30, go: "prospection",
+    d: "Le kanban commence à vivre.",
+    test: () => Store.all("leads").length > 0 },
+  { ch: 4, id: "choix-canal", ico: "📡", t: "Canal principal", xp: 60, type: "carrefour", go: "prospection",
+    d: "Où vous investissez votre temps en priorité.",
+    options: [
+      { v: "plateformes", ico: "🖥️", l: "Plateformes", d: "Malt, Free-Work, Comet, Talent.io.", patch: { canalPrincipal: "plateformes" } },
+      { v: "esn", ico: "🏢", l: "ESN et cabinets", d: "Le canal dominant en régie sur .NET / Angular en IDF.", patch: { canalPrincipal: "esn" } },
+      { v: "reseau", ico: "🤝", l: "Réseau direct", d: "Anciens collègues, LinkedIn, bouche-à-oreille.", patch: { canalPrincipal: "reseau" } }
+    ] },
+  { ch: 4, id: "candidature", ico: "📤", t: "1re candidature", xp: 60, go: "prospection",
+    d: "Une piste passée en « Candidature envoyée ».",
+    test: () => Store.all("leads").some((l) => (l.stageDates || {}).envoyee) },
+  { ch: 4, id: "mission", ico: "💼", t: "1re mission", xp: 150, go: "missions",
+    d: "Signée.",
+    test: () => Store.all("missions").length > 0 },
+  { ch: 4, id: "encaisse", ico: "💰", t: "1er encaissement", xp: 300, go: "missions",
+    d: "L'argent est arrivé. Vous êtes freelance.",
+    test: () => Store.all("invoices").some((i) => i.dateEncaissement) }
+];
+
+const DX_CHEMIN = [0, 46, 66, 46, 0, -46, -66, -46];
+
+function noeudFait(n, S) {
+  if (((jeu().noeuds) || []).includes(n.id)) return true;
+  try { return n.test ? !!n.test(S) : false; } catch (_) { return false; }
+}
+
+function etatAventure(S) {
+  const faits = AVENTURE.map((n) => noeudFait(n, S));
+  let courant = -1;
+  const dispo = AVENTURE.map((n, i) => {
+    const d = i === 0 || faits[i - 1];
+    if (courant < 0 && d && !faits[i]) courant = i;
+    return d;
+  });
+  return { faits, dispo, courant, total: AVENTURE.length, nbFaits: faits.filter(Boolean).length };
+}
+
+VIEWS.aventure = function (S) {
+  const e = etatAventure(S);
+  const p = progressionNiveau(jeu().xp);
+  const suivant = e.courant >= 0 ? AVENTURE[e.courant] : null;
+  const xpRestant = AVENTURE.filter((n, i) => !e.faits[i]).reduce((a, n) => a + n.xp, 0);
+
+  const tete = '<div class="hero" style="max-width:540px;width:100%">'
+    + anneauNiveau(p.pct, p.niveau)
+    + '<div class="hero-main">'
+    + "<h1>" + e.nbFaits + " / " + e.total + " jalons</h1>"
+    + '<div class="bar" style="margin:2px 0 4px"><i style="width:' + Math.round(e.nbFaits / e.total * 100) + '%"></i></div>'
+    + '<div class="hero-stats">'
+    + '<span class="pill acc">' + num(nz(jeu().xp)) + " XP</span>"
+    + '<span class="pill warn">🔥 ' + nz(jeu().serie) + " j</span>"
+    + '<span class="pill">' + num(xpRestant) + " XP à gagner</span>"
+    + "</div></div>"
+    + (suivant ? '<div style="flex:1 1 190px;display:flex;flex-direction:column;gap:7px;align-items:flex-start">'
+      + '<div class="eyebrow">Prochain jalon</div>'
+      + '<div class="row" style="gap:8px"><span style="font-size:22px">' + suivant.ico + "</span>"
+      + '<b style="font-family:var(--display);font-size:15px">' + esc(suivant.t) + "</b></div>"
+      + '<button class="btn primary" data-act="noeud" data-id="' + suivant.id + '">Commencer</button></div>'
+      : '<div style="flex:1 1 190px"><div class="eyebrow">Terminé</div><p class="small muted">Tous les jalons sont franchis.</p></div>')
+    + "</div>";
+
+  const chapitres = CHAPITRES.map((ch) => {
+    const idx = AVENTURE.map((n, i) => (n.ch === ch.n ? i : -1)).filter((i) => i >= 0);
+    const f = idx.filter((i) => e.faits[i]).length;
+    const complet = f === idx.length;
+    return '<section class="chapitre">'
+      + '<div class="chap-h"><span class="chap-n' + (complet ? " on" : "") + '">' + (complet ? "★" : ch.n) + "</span>"
+      + '<span class="chap-t">' + esc(ch.t) + "</span>"
+      + '<span class="chap-bar"><i style="width:' + Math.round(f / idx.length * 100) + '%"></i></span>'
+      + '<span class="xs dim num">' + f + "/" + idx.length + "</span></div>"
+      + '<div class="chemin">'
+      + idx.map((i, k) => {
+        const n = AVENTURE[i];
+        const fait = e.faits[i], disponible = e.dispo[i];
+        const cls = fait ? "fait" : disponible ? "dispo" : "verrou";
+        const lien = k > 0 ? '<span class="lien' + (e.faits[idx[k - 1]] ? " on" : "") + '"></span>' : "";
+        return lien
+          + '<div class="nw" style="--dx:' + DX_CHEMIN[i % DX_CHEMIN.length] + 'px">'
+          + '<button class="noeud ' + cls + (n.type === "carrefour" ? " carrefour" : "")
+          + '" data-act="noeud" data-id="' + n.id + '" aria-label="' + esc(n.t) + '">'
+          + (fait ? "✓" : n.ico)
+          + (fait ? "" : '<span class="nxp">' + n.xp + "</span>")
+          + (i === e.courant ? '<span class="bulle">COMMENCER</span>' : "")
+          + "</button>"
+          + '<span class="noeud-t' + (fait || disponible ? " on" : "") + '">' + esc(n.t) + "</span>"
+          + "</div>";
+      }).join("")
+      + "</div></section>";
+  }).join("");
+
+  return '<div class="aventure">' + tete + chapitres + "</div>";
+};
+
+function noeudModal(id) {
+  const S = Store.settings;
+  const i = AVENTURE.findIndex((n) => n.id === id);
+  if (i < 0) return;
+  const n = AVENTURE[i];
+  const e = etatAventure(S);
+  const fait = e.faits[i];
+
+  if (!fait && !e.dispo[i]) {
+    toast("Terminez d'abord « " + AVENTURE[i - 1].t + " »");
+    return;
+  }
+
+  const corps = '<div class="row" style="gap:12px;align-items:flex-start">'
+    + '<span style="font-size:34px;line-height:1">' + n.ico + "</span>"
+    + '<div style="flex:1;min-width:0"><p class="small">' + esc(n.d) + "</p>"
+    + '<div class="row" style="gap:6px;margin-top:7px">'
+    + '<span class="pill' + (fait ? " ok" : " warn") + '">' + (fait ? "Franchi" : "+" + n.xp + " XP") + "</span>"
+    + (n.type === "carrefour" ? '<span class="pill acc">Carrefour</span>' : "")
+    + "</div></div></div>";
+
+  const options = n.type === "carrefour"
+    ? '<div class="choix">' + n.options.map((o) =>
+      '<button data-act="noeud-choix" data-id="' + n.id + '" data-opt="' + esc(o.v) + '">'
+      + '<span class="ci">' + o.ico + "</span>"
+      + '<span class="cb"><span class="ct">' + esc(o.l) + '</span><span class="cd">' + esc(o.d) + "</span></span>"
+      + "</button>").join("") + "</div>"
+    : "";
+
+  const html = '<div class="scrim"><div class="modal" role="dialog" aria-modal="true">'
+    + '<div class="modal-h"><h2>' + esc(n.t) + '</h2><button class="icon-btn" data-close="1" aria-label="Fermer">&#10005;</button></div>'
+    + '<div class="modal-b">' + corps + options + "</div>"
+    + '<div class="modal-f">'
+    + (n.go ? '<button class="btn" data-act="noeud-go" data-id="' + n.id + '">Ouvrir ' + esc((TABS.find((t) => t.id === n.go) || {}).nom || "") + "</button>" : "")
+    + (n.type === "carrefour" || fait ? "" : '<button class="btn primary" data-act="noeud-ok" data-id="' + n.id + '">C\'est fait</button>')
+    + "</div></div></div>";
+  $("#modalRoot").innerHTML = html;
+  const root = $("#modalRoot");
+  root.querySelectorAll("button[data-close]").forEach((b) => b.addEventListener("click", closeModal));
+  root.querySelector(".scrim").addEventListener("click", (ev) => { if (ev.target.classList.contains("scrim")) closeModal(); });
+}
+
+async function validerNoeud(id, patch) {
+  const j = { ...jeu() };
+  const l = (j.noeuds || []).slice();
+  if (!l.includes(id)) l.push(id);
+  j.noeuds = l;
+  await Store.saveSettings({ jeu: j, ...(patch || {}) });
+  celebrer();
+}
+
 /* ============================================================================
    Formulaires — 4 champs visibles maximum, le reste replié
    ========================================================================== */
@@ -3036,6 +3310,17 @@ function contexteOnglet() {
   } else if (t === "missions") {
     base.missions = Store.all("missions").map((m) => ({ client: m.client, tjm: m.tjm, joursVendus: m.joursVendus, joursConsommes: joursConsommes(m.id), statut: m.statut }));
     base.factures = Store.all("invoices").map((i) => ({ numero: i.numero, montantHT: i.montantHT, echeance: i.dateEcheance, encaissement: i.dateEncaissement || null }));
+  } else if (t === "aventure") {
+    const e = etatAventure(S);
+    base.aventure = {
+      jalonsFranchis: e.nbFaits, total: e.total,
+      prochain: e.courant >= 0 ? { titre: AVENTURE[e.courant].t, description: AVENTURE[e.courant].d, xp: AVENTURE[e.courant].xp } : null,
+      restants: AVENTURE.filter((n, i) => !e.faits[i]).map((n) => n.t),
+      choixFaits: {
+        statut: S.statut, aide: S.scenarioAide,
+        tva: S.assujettiTVA ? "assujetti" : "franchise", canal: S.canalPrincipal || null
+      }
+    };
   } else if (t === "vitrine") {
     base.projets = Store.all("projects").slice().sort(parOrdre)
       .map((p) => ({ titre: p.titre, resume: p.resume, techs: p.techs, annee: p.annee, statut: p.statut }));
@@ -3053,6 +3338,11 @@ function contexteOnglet() {
 }
 
 const CHIPS = {
+  aventure: [
+    { l: "Quel est mon prochain jalon ?", p: "libre", q: "Au vu de mon avancement dans l'aventure, quel est le prochain jalon et comment le franchir concrètement ? Réponse très courte, trois puces maximum." },
+    { l: "Aide-moi à trancher", p: "libre", q: "Je suis face à un carrefour de décision. Rappelle-moi les critères qui doivent guider ce choix dans ma situation, sans décider à ma place." },
+    { l: "Que dois-je faire cette semaine ?", p: "semaine" }
+  ],
   aujourdhui: [
     { l: "Que dois-je faire cette semaine ?", p: "semaine" },
     { l: "Par quoi je commence ?", p: "libre", q: "Au vu de mon avancement, par quelle démarche concrète dois-je commencer aujourd'hui, et pourquoi celle-là avant les autres ? Réponse courte." },
@@ -3260,6 +3550,20 @@ document.addEventListener("click", (e) => {
     case "fc-new": fixedCostModal(); break;
     case "fc-del": Store.remove("fixedCosts", id); break;
     case "vitrine-sec": Store.saveSettings({ vitrineSection: id }); break;
+    case "noeud": noeudModal(id); break;
+    case "noeud-go": {
+      const n = AVENTURE.find((x) => x.id === id);
+      closeModal();
+      if (n && n.go) { state.tab = n.go; render(); }
+      break;
+    }
+    case "noeud-ok": validerNoeud(id); closeModal(); break;
+    case "noeud-choix": {
+      const n = AVENTURE.find((x) => x.id === id);
+      const o = n && (n.options || []).find((x) => x.v === act.dataset.opt);
+      if (o) { validerNoeud(id, o.patch); closeModal(); toastJeu("Choix enregistré : " + o.l, "win"); }
+      break;
+    }
     case "proj-new": projectModal(null); break;
     case "proj-edit": projectModal(id); break;
     case "cv-new": cvBlockModal(null); break;
