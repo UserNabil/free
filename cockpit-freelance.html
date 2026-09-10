@@ -1466,25 +1466,28 @@ VIEWS.prospection = function (S) {
     .sort((a, b) => (b.f.retard === null ? -1 : b.f.retard) - (a.f.retard === null ? -1 : a.f.retard));
   const hasExemples = leads.some((l) => l.exemple);
 
-  const bandeau = '<section class="today">'
-    + '<div class="panel-h" style="border-bottom:0">'
-    + '<h2>À faire aujourd\'hui</h2>'
-    + '<span class="pill ' + (aFaire.length ? "warn" : "ok") + '">' + aFaire.length + "</span>"
+  const bandeau = '<div class="panel">'
+    + '<div class="panel-h">'
+    + "<h2>À faire aujourd'hui</h2>"
+    + '<span class="pill' + (aFaire.length ? " warn" : " ok") + '">' + aFaire.length + "</span>"
     + '<div style="flex:1"></div>'
     + '<button class="btn sm primary" data-act="lead-new">+ Piste</button>'
     + "</div>"
     + (aFaire.length
-      ? aFaire.slice(0, 6).map(({ l, f }) =>
-        '<button class="today-row" data-act="lead-edit" data-id="' + l.id + '">'
+      ? '<div class="tasks">' + aFaire.slice(0, 6).map(({ l, f }) =>
+        '<button class="task" data-act="lead-edit" data-id="' + l.id + '">'
+        + '<span class="task-ico ' + (f.late ? "bad" : f.due ? "warn" : "") + '">' + (f.late ? "❗" : f.due ? "📞" : "💤") + "</span>"
+        + '<span class="task-b"><span class="task-t">' + esc(l.nom) + "</span>"
+        + '<span class="task-d">' + esc((STAGES.find((s) => s.id === l.stage) || {}).nom || "")
+        + " · " + (f.late ? "en retard de " + f.retard + " jours" : f.due ? "relance prévue aujourd'hui" : "sans mouvement") + "</span></span>"
         + '<span class="pill ' + (f.late ? "bad" : f.due ? "warn" : "") + '">'
-        + (f.late ? "+" + f.retard + " j" : f.due ? "aujourd\'hui" : "dormante") + "</span>"
-        + '<span class="nm">' + esc(l.nom) + "</span>"
-        + '<span class="xs dim">' + esc((STAGES.find((s) => s.id === l.stage) || {}).nom || "") + "</span>"
+        + (f.late ? "+" + f.retard + " j" : f.due ? "aujourd'hui" : "dormante") + "</span>"
         + "</button>").join("")
-      : '<div class="empty" style="border-top:1px solid var(--line)">Aucune relance due. Les pistes sans mouvement depuis '
+        + (aFaire.length > 6 ? '<div class="xs dim" style="padding:9px 14px;border-top:2px solid var(--line)">+ ' + (aFaire.length - 6) + " autres</div>" : "")
+        + "</div>"
+      : '<div class="empty">Aucune relance due. Les pistes sans mouvement depuis '
         + nz(S.seuilDormance, 7) + " jours apparaîtront ici comme dormantes.</div>")
-    + (aFaire.length > 6 ? '<div class="xs dim" style="padding:6px 12px;border-top:1px solid var(--line)">+ ' + (aFaire.length - 6) + " autres</div>" : "")
-    + "</section>";
+    + "</div>";
 
   const kpis = '<div class="kpis">'
     + kpi(String(m.envoyeesCeMois), "Candidatures ce mois", "")
