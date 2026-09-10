@@ -1882,11 +1882,18 @@ VIEWS.prospection = function (S) {
         + '<td class="tnum">' + li.length + "</td>"
         + '<td class="tnum">' + g + "</td>"
         + '<td class="tnum">' + (li.length ? pct(g / li.length, 0) : "—") + "</td>"
-        + '<td class="tnum"><button class="btn sm ghost" data-act="canal-edit" data-id="' + c.id + '">Modifier</button></td>'
+        + '<td class="tnum" style="white-space:nowrap">'
+        + (c.lien ? '<a class="btn sm blue" href="' + esc(c.lien) + '" target="_blank" rel="noopener">Chercher</a> ' : "")
+        + '<button class="btn sm ghost" data-act="canal-edit" data-id="' + c.id + '">Modifier</button></td>'
         + "</tr>";
     }).join("")).join("")
     + "</tbody></table></div>"
-    + '<div class="panel-b"><p class="note">Ces canaux sont des entrées à mesurer, pas des recommandations. Avant de solliciter les clients de votre employeur actuel, vérifiez les clauses de non-concurrence et de non-sollicitation de votre contrat — l\'item est en phase 1 des Démarches.</p></div>'
+    + '<div class="panel-b"><p class="note acc"><b>Comment s\'en servir comme veille.</b> Faites votre recherche filtrée sur chaque plateforme '
+    + "(freelance, votre techno, Île-de-France), collez l'adresse des résultats dans « Modifier », et le bouton <b>Chercher</b> vous y ramènera "
+    + "d'un clic. Une annonce intéressante : copiez son texte, ouvrez <b>Claude</b> et lancez « Analyser une annonce collée » — vous obtenez le "
+    + "verdict de correspondance, la piste prête à créer et le message de candidature. "
+    + "La page ne peut pas aller chercher les annonces elle-même : un Artifact publié n'a aucun accès réseau sortant.</p>"
+    + '<p class="note">Ces canaux sont des entrées à mesurer, pas des recommandations. Avant de solliciter les clients de votre employeur actuel, vérifiez les clauses de non-concurrence et de non-sollicitation de votre contrat — l\'item est en phase 1 des Démarches.</p></div>'
     + "</details>";
 
   return '<div class="stack">'
@@ -3891,7 +3898,10 @@ function canalModal(id) {
     required: ["nom"],
     fields: [
       { name: "nom", label: "Nom du canal", type: "text" },
-      { name: "categorie", label: "Catégorie", type: "select", options: ["Plateformes", "Intermédiaires", "Réseau direct", "Communautés", "Autres"].map((v) => ({ v, l: v })) }
+      { name: "categorie", label: "Catégorie", type: "select", options: ["Plateformes", "Intermédiaires", "Réseau direct", "Communautés", "Autres"].map((v) => ({ v, l: v })) },
+      { name: "lien", label: "Ma recherche enregistrée", type: "text",
+        hint: "collez l'URL de votre recherche filtrée sur la plateforme",
+        info: "Faites votre recherche sur le site avec vos filtres (freelance, techno, Île-de-France), puis copiez l'adresse de la page de résultats. Le bouton « Chercher » vous y ramènera directement, filtres compris." }
     ],
     onSubmit: (v) => Store.put("channels", { ...(c || {}), ...v }),
     onDelete: c ? () => Store.remove("channels", c.id) : null
@@ -4416,6 +4426,7 @@ const CHIPS = {
     { l: "ARCE ou maintien de l'ARE ?", p: "libre", q: "Explique-moi simplement la différence entre l'ARCE et le maintien de l'ARE, et quels éléments de ma situation doivent guider ce choix. Précise que le choix est définitif et que seul France Travail fait foi." }
   ],
   prospection: [
+    { l: "Analyser une annonce collée", p: "annonce" },
     { l: "Que dois-je faire cette semaine ?", p: "semaine" },
     { l: "Ajouter des pistes depuis un texte", p: "leads" },
     { l: "Message d'approche pour une piste", p: "approche" }
@@ -4463,6 +4474,7 @@ function renderDrawer() {
       + '<button class="btn sm" id="propCancel">Écarter</button></div>'
       + '<span class="xs dim">Ajoutées en « À contacter », modifiables ensuite comme n\'importe quelle piste.</span></div>';
   }
+  if (state.annonce) html += blocAnnonce(state.annonce);
   body.innerHTML = html;
   body.scrollTop = body.scrollHeight;
   $("#drawerStop").hidden = !state.busy;
@@ -4486,6 +4498,70 @@ function renderDrawer() {
     });
     $("#propCancel").addEventListener("click", () => { state.proposals = null; renderDrawer(); });
   }
+
+  const annLead = $("#annLead");
+  if (annLead) {
+    const a = state.annonce;
+    annLead.addEventListener("click", async () => {
+      const S2 = Store.settings;
+      await Store.put("leads", {
+        nom: a.client || a.poste || "Piste sans nom", canal: a.canal || "", poste: a.poste || "",
+        tjmVise: nz(a.tjmMax) || nz(a.tjmMin) || nz(S2.tjm), tjmPropose: 0, stage: "a_contacter",
+        dernierContact: todayISO(), prochaineRelance: addDays(todayISO(), nz(S2.delaiRelance, 7)),
+        creeLe: todayISO(), stageDates: { a_contacter: todayISO() }, message: a.message || "",
+        note: [a.lieu, a.duree, (a.stack || []).join(", ")].filter(Boolean).join(" · ")
+      });
+      await gagnerXP(XP_GAIN.piste, "piste créée depuis une annonce");
+      state.annonce = null;
+      toast("Piste créée, message attaché");
+      renderSoon();
+    });
+    $("#annCopy").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(a.message || ""); toast("Message copié"); }
+      catch (_) { toast("Copie impossible — sélectionnez le texte à la main"); }
+    });
+    $("#annClose").addEventListener("click", () => { state.annonce = null; renderDrawer(); });
+  }
+}
+
+const NIVEAUX = {
+  forte: { l: "Correspondance forte", c: "ok", i: "✅" },
+  moyenne: { l: "Correspondance moyenne", c: "warn", i: "⚖️" },
+  faible: { l: "Correspondance faible", c: "bad", i: "⚠️" }
+};
+
+/** Résultat de l'analyse d'une annonce : verdict d'abord, message ensuite. */
+function blocAnnonce(a) {
+  const n = NIVEAUX[String(a.correspondance && a.correspondance.niveau).toLowerCase()] || NIVEAUX.moyenne;
+  const tjm = nz(a.tjmMax) || nz(a.tjmMin);
+  const cible = nz(Store.settings.tjm);
+  const liste = (t, arr) => (Array.isArray(arr) && arr.length)
+    ? '<div class="xs" style="margin-top:5px"><b>' + t + "</b><ul style=\"margin:3px 0 0;padding-left:17px\">"
+      + arr.slice(0, 4).map((x) => "<li>" + esc(String(x)) + "</li>").join("") + "</ul></div>" : "";
+  return '<div class="prop" style="border-color:var(--' + (n.c === "ok" ? "green" : n.c === "warn" ? "gold" : "red")
+    + ');background:var(--' + (n.c === "ok" ? "green" : n.c === "warn" ? "gold" : "red") + '-soft)">'
+    + '<div class="row wrap" style="gap:6px">'
+    + '<span class="pill ' + n.c + '">' + n.i + " " + n.l + "</span>"
+    + (tjm ? '<span class="pill' + (cible && tjm < cible ? " bad" : "") + '">'
+      + (nz(a.tjmMin) && nz(a.tjmMax) && a.tjmMin !== a.tjmMax ? eur(a.tjmMin) + " – " + eur(a.tjmMax) : eur(tjm))
+      + (cible && tjm < cible ? " · sous votre cible" : "") + "</span>" : "")
+    + (a.lieu ? '<span class="pill">' + esc(a.lieu) + "</span>" : "")
+    + (a.duree ? '<span class="pill">' + esc(a.duree) + "</span>" : "")
+    + "</div>"
+    + '<div class="small" style="font-weight:700">' + esc(a.poste || "Poste non précisé") + "</div>"
+    + (a.client ? '<div class="xs dim">' + esc(a.client) + (a.canal && a.canal !== a.client ? " · via " + esc(a.canal) : "") + "</div>" : "")
+    + (Array.isArray(a.stack) && a.stack.length
+      ? '<div class="tags" style="margin-top:4px">' + a.stack.slice(0, 10).map((t) => '<span class="tag">' + esc(String(t)) + "</span>").join("") + "</div>" : "")
+    + liste("Pour vous", a.correspondance && a.correspondance.pour)
+    + liste("Contre vous", a.correspondance && a.correspondance.contre)
+    + liste("Le besoin", a.besoins)
+    + '<div class="msg ai" style="margin-top:7px;max-height:220px;overflow-y:auto">' + esc(a.message) + "</div>"
+    + '<div class="row wrap" style="gap:6px">'
+    + '<button class="btn primary sm" id="annLead">Créer la piste</button>'
+    + '<button class="btn sm" id="annCopy">Copier le message</button>'
+    + '<button class="btn sm ghost" id="annClose">Écarter</button></div>'
+    + '<span class="xs dim">Relisez le message : il est écrit à partir de votre CV, mais c\'est vous qui l\'envoyez.</span>'
+    + "</div>";
 }
 
 function erreurClaude(code) {
@@ -4516,6 +4592,27 @@ async function askClaude(mode, texte) {
       + "`nom` = client final ou intermédiaire. `canal` doit être choisi parmi : "
       + Store.all("channels").map((c) => c.nom).join(", ") + " — ou laissé vide.\n"
       + "`tjmVise` = nombre en euros, 0 si absent. N'invente pas d'entreprise : n'extrais que ce qui figure dans le texte.\n\nTexte :\n" + texte;
+  } else if (mode === "annonce") {
+    wantJSON = true;
+    prompt = "Voici le texte brut d'une annonce de mission freelance, copié depuis une plateforme.\n\n"
+      + "Réponds UNIQUEMENT par un objet JSON de cette forme, sans rien avant ni après :\n"
+      + '{"client":"","poste":"","canal":"","lieu":"","duree":"","tjmMin":0,"tjmMax":0,'
+      + '"experience":"","stack":["..."],"besoins":["..."],'
+      + '"correspondance":{"niveau":"forte","pour":["..."],"contre":["..."]},"message":""}\n\n'
+      + "PROFIL DU CANDIDAT — n'invente rien au-delà de ces éléments :\n"
+      + JSON.stringify(resumeProfil(S)) + "\n"
+      + "TJM cible : " + nz(S.tjm) + " €\n\n"
+      + "RÈGLES\n"
+      + "- `client` : le donneur d'ordre s'il est nommé, sinon l'intermédiaire qui publie. `canal` : le nom de l'intermédiaire.\n"
+      + "- `besoins` : trois à cinq points clés du besoin, dans les mots de l'annonce.\n"
+      + "- `correspondance.niveau` vaut « forte », « moyenne » ou « faible ». Sois franc : compare la stack demandée à "
+      + "celle du candidat et le TJM affiché à son TJM cible. Un écart de technologies majeur ou un plafond sous sa "
+      + "cible donnent « faible ». Ne cherche pas à faire plaisir.\n"
+      + "- `pour` et `contre` : deux à quatre points chacun, factuels, sans enrobage.\n"
+      + "- `message` : la candidature prête à coller, 900 à 1 200 caractères, citant une expérience précise du CV. "
+      + "Si la correspondance est faible, le message doit rester honnête — ne prétends jamais maîtriser une technologie "
+      + "absente de son CV ; assume l'écart et mets en avant ce qui transfère réellement. "
+      + "Mets un [crochet] à compléter plutôt que d'inventer un fait.";
   } else if (mode === "semaine") {
     prompt = "Tu es l'assistant d'un développeur qui prépare son passage en freelance en France.\n"
       + "À partir de ces données, dis-lui ce qu'il doit faire cette semaine : relances dues, échéances proches, factures en retard.\n"
@@ -4538,12 +4635,23 @@ async function askClaude(mode, texte) {
 
   state.busy = true;
   state.abort = new AbortController();
-  state.chat.push({ role: "user", content: mode === "leads" ? "Ajouter ces pistes :\n" + texte : texte });
+  if (mode === "annonce") state.annonce = null;
+  state.chat.push({
+    role: "user",
+    content: mode === "leads" ? "Ajouter ces pistes :\n" + texte
+      : mode === "annonce" ? "Analyser cette annonce :\n" + texte.slice(0, 400) + (texte.length > 400 ? "…" : "")
+        : texte
+  });
   if (!wantJSON) state.chat.push({ role: "assistant", content: "", streaming: true });
   renderDrawer();
 
   try {
-    if (wantJSON) {
+    if (mode === "annonce") {
+      const a = await s.json(prompt, { signal: state.abort.signal });
+      if (!a || !a.message) throw { code: "invalid_json" };
+      state.annonce = a;
+      state.chat.push({ role: "assistant", content: "Annonce analysée — vérifiez le verdict avant d'envoyer quoi que ce soit." });
+    } else if (wantJSON) {
       const data = await s.json(prompt, { signal: state.abort.signal, modelTier: "quick" });
       const arr = Array.isArray(data) ? data : [];
       const clean = arr.filter((x) => x && x.nom).slice(0, 25).map((x) => ({
@@ -4912,11 +5020,21 @@ $("#drawerChips").addEventListener("click", (e) => {
   if (!b) return;
   const c = (CHIPS[state.tab] || [])[Number(b.dataset.chip)];
   if (!c) return;
-  if (c.p === "leads") {
+  if (c.p === "leads" || c.p === "annonce") {
     const v = $("#drawerInput").value.trim();
-    if (!v) { $("#drawerHint").textContent = "Collez d'abord les annonces dans le champ ci-dessous."; $("#drawerInput").focus(); return; }
+    if (!v) {
+      $("#drawerHint").textContent = c.p === "annonce"
+        ? "Collez d'abord le TEXTE de l'annonce ci-dessous — un lien seul ne suffit pas, la page ne peut pas l'ouvrir."
+        : "Collez d'abord les annonces dans le champ ci-dessous.";
+      $("#drawerInput").focus();
+      return;
+    }
+    if (c.p === "annonce" && /^https?:\/\/\S+$/.test(v)) {
+      $("#drawerHint").textContent = "Un lien seul ne suffit pas : la page ne peut pas l'ouvrir. Collez le texte de l'annonce.";
+      return;
+    }
     $("#drawerInput").value = "";
-    askClaude("leads", v);
+    askClaude(c.p, v);
   } else if (c.p === "libre") askClaude("libre", c.q);
   else askClaude(c.p, c.q || c.l);
 });
