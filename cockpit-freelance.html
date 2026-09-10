@@ -1,208 +1,324 @@
 <title>Cockpit Freelance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
 <style>
 :root{
-  --ground:#F3F5F8; --surface:#FFFFFF; --surface-2:#EDF0F5; --surface-3:#E4E9F0;
-  --ink:#131922; --ink-2:#4A5665; --ink-3:#78838F;
-  --line:#DBE1E9; --line-strong:#C0CAD6;
-  --accent:#12469B; --accent-ink:#FFFFFF; --accent-soft:#E3ECFB; --accent-line:#B5CBEC;
-  --ok:#1A6B44; --ok-soft:#E0F0E7; --warn:#875600; --warn-soft:#FAEBD5; --bad:#A6251E; --bad-soft:#FAE4E2;
-  --shadow:0 1px 2px rgba(19,25,34,.07),0 6px 16px rgba(19,25,34,.05);
-  --radius:7px;
-  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --ground:#F7F9F4; --surface:#FFFFFF; --surface-2:#F1F4EC; --surface-3:#E7ECE0;
+  --ink:#3C3C3C; --ink-2:#777777; --ink-3:#AFAFAF;
+  --line:#E5E5E5; --line-strong:#D6D6D6;
+
+  --green:#58CC02; --green-d:#46A302; --green-soft:#E4FBD0;
+  --blue:#1CB0F6;  --blue-d:#1899D6;  --blue-soft:#DDF4FF;
+  --gold:#FFB020;  --gold-d:#D98D00;  --gold-soft:#FFF1D4;
+  --red:#FF4B4B;   --red-d:#D93B3B;   --red-soft:#FFE3E3;
+  --purple:#B45DE8;--purple-d:#8F42BF;--purple-soft:#F5E6FF;
+
+  --accent:var(--green); --accent-d:var(--green-d); --accent-ink:#FFFFFF;
+  --accent-soft:var(--green-soft); --accent-line:#A8E86B;
+  --ok:#3B9E1F; --ok-soft:var(--green-soft);
+  --warn:#A66A00; --warn-soft:var(--gold-soft);
+  --bad:#D93B3B; --bad-soft:var(--red-soft);
+
+  --shadow:0 2px 0 var(--line);
+  --radius:16px;
+  --display:"Baloo 2",ui-rounded,"Segoe UI",system-ui,sans-serif;
+  --sans:"Nunito",ui-rounded,"Segoe UI",system-ui,sans-serif;
+  --mono:"Nunito",ui-rounded,system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --ground:#0D1218; --surface:#151B24; --surface-2:#1C232D; --surface-3:#232C38;
-    --ink:#E7ECF2; --ink-2:#A8B3C0; --ink-3:#7A8593;
-    --line:#232C38; --line-strong:#35414F;
-    --accent:#83ADF0; --accent-ink:#0D1218; --accent-soft:#182640; --accent-line:#2E4570;
-    --ok:#5FC28D; --ok-soft:#122B1D; --warn:#DFAA4F; --warn-soft:#2E2311; --bad:#EE837B; --bad-soft:#331A18;
-    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.3);
+    --ground:#131F24; --surface:#1B2A31; --surface-2:#22343C; --surface-3:#2B4049;
+    --ink:#F1F7FB; --ink-2:#B4C7D0; --ink-3:#7E97A3;
+    --line:#37464F; --line-strong:#4A6270;
+    --green:#61D404; --green-d:#3E8F02; --green-soft:#1F3A16;
+    --blue:#49C0F8;  --blue-d:#2A8FC4;  --blue-soft:#12303E;
+    --gold:#FFC02E;  --gold-d:#C08800;  --gold-soft:#3A2C0A;
+    --red:#FF6B6B;   --red-d:#C74747;   --red-soft:#3D1E1E;
+    --purple:#CB8DF5;--purple-d:#8C55BA;--purple-soft:#2A1B39;
+    --accent-line:#3E8F02;
+    --ok:#61D404; --warn:#FFC02E; --bad:#FF6B6B;
+    --shadow:0 2px 0 var(--line);
   }
 }
 :root[data-theme="dark"]{
-  --ground:#0D1218; --surface:#151B24; --surface-2:#1C232D; --surface-3:#232C38;
-  --ink:#E7ECF2; --ink-2:#A8B3C0; --ink-3:#7A8593;
-  --line:#232C38; --line-strong:#35414F;
-  --accent:#83ADF0; --accent-ink:#0D1218; --accent-soft:#182640; --accent-line:#2E4570;
-  --ok:#5FC28D; --ok-soft:#122B1D; --warn:#DFAA4F; --warn-soft:#2E2311; --bad:#EE837B; --bad-soft:#331A18;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.3);
+  --ground:#131F24; --surface:#1B2A31; --surface-2:#22343C; --surface-3:#2B4049;
+  --ink:#F1F7FB; --ink-2:#B4C7D0; --ink-3:#7E97A3;
+  --line:#37464F; --line-strong:#4A6270;
+  --green:#61D404; --green-d:#3E8F02; --green-soft:#1F3A16;
+  --blue:#49C0F8;  --blue-d:#2A8FC4;  --blue-soft:#12303E;
+  --gold:#FFC02E;  --gold-d:#C08800;  --gold-soft:#3A2C0A;
+  --red:#FF6B6B;   --red-d:#C74747;   --red-soft:#3D1E1E;
+  --purple:#CB8DF5;--purple-d:#8C55BA;--purple-soft:#2A1B39;
+  --accent-line:#3E8F02;
+  --ok:#61D404; --warn:#FFC02E; --bad:#FF6B6B;
+  --shadow:0 2px 0 var(--line);
 }
 *{box-sizing:border-box}
-body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
-h1,h2,h3{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.01em}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:14.5px;font-weight:600;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;text-wrap:balance;font-family:var(--display);font-weight:700;letter-spacing:0}
 p{margin:0}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:8px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
+/* ---------- shell ---------- */
 .app{display:flex;flex-direction:column;min-height:100vh}
-header.top{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--line)}
-.top-row{display:flex;align-items:center;gap:10px;padding:9px 16px}
-.brand{display:flex;align-items:baseline;gap:9px;min-width:0}
-.brand b{font-size:15px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
-.brand .sub{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+header.top{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:2px solid var(--line)}
+.top-row{display:flex;align-items:center;gap:10px;padding:8px 16px}
+.brand{display:flex;align-items:center;gap:7px;min-width:0}
+.brand .logo{font-size:20px;line-height:1}
+.brand b{font-family:var(--display);font-size:17px;font-weight:800;letter-spacing:-.01em;white-space:nowrap}
 .top-spacer{flex:1}
-.statut-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent);border-radius:99px;font-family:var(--mono);font-size:11px;font-weight:500;white-space:nowrap;cursor:pointer}
-.statut-chip.undecided{border-color:var(--line-strong);background:var(--surface-2);color:var(--ink-2)}
-.tabs{display:flex;gap:2px;padding:0 10px;overflow-x:auto;scrollbar-width:thin}
-.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:9px 12px;color:var(--ink-2);font-weight:500;font-size:13.5px;cursor:pointer;white-space:nowrap}
-.tabs button:hover{color:var(--ink)}
-.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
-main{flex:1;padding:16px;max-width:1440px;width:100%;margin:0 auto}
-.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);cursor:pointer;color:var(--ink-2)}
-.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:var(--radius);border:1px solid var(--line-strong);background:var(--surface);cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap}
-.btn:hover{background:var(--surface-2)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn.primary:hover{filter:brightness(1.08)}
-.btn.sm{padding:3px 8px;font-size:12px}
-.btn.ghost{border-color:transparent;background:none;color:var(--ink-2)}
-.btn.ghost:hover{background:var(--surface-2);color:var(--ink)}
-.btn.danger{color:var(--bad);border-color:var(--line)}
-.btn[disabled]{opacity:.5;cursor:default}
 
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
-.panel-h{display:flex;align-items:center;gap:10px;padding:10px 13px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.panel-h h2{font-size:13.5px}
-.panel-b{padding:13px}
-.eyebrow{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);font-weight:500}
-.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.muted{color:var(--ink-2)}
-.dim{color:var(--ink-3)}
-.small{font-size:12.5px}
-.xs{font-size:11.5px}
-.row{display:flex;align-items:center;gap:8px}
-.wrap{flex-wrap:wrap}
-.stack{display:flex;flex-direction:column;gap:14px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.pill{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:99px;font-family:var(--mono);font-size:10.5px;font-weight:500;border:1px solid var(--line-strong);background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
-.pill.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
-.pill.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
-.pill.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
-.pill.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
-.empty{padding:22px 14px;text-align:center;color:var(--ink-3);font-size:13px}
+/* HUD de jeu */
+.hud{display:flex;align-items:center;gap:9px}
+.hud-lvl{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:2px solid var(--line);border-radius:99px;padding:3px 12px 3px 4px;cursor:pointer}
+.hud-lvl:hover{background:var(--surface-3)}
+.lvl-badge{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--gold);color:#4A3200;font-family:var(--display);font-weight:800;font-size:14px;line-height:1;border:2px solid var(--gold-d);flex:none}
+.hud-xp{display:flex;flex-direction:column;gap:2px;min-width:104px}
+.hud-xp .t{font-family:var(--display);font-size:10.5px;font-weight:700;color:var(--ink-2);letter-spacing:.04em;line-height:1}
+.hud-streak{display:inline-flex;align-items:center;gap:4px;background:var(--gold-soft);border:2px solid var(--gold);border-radius:99px;padding:3px 11px;font-family:var(--display);font-weight:800;font-size:14px;color:var(--gold-d)}
+.hud-streak.off{background:var(--surface-2);border-color:var(--line);color:var(--ink-3)}
+
+.xpbar{height:12px;border-radius:99px;background:var(--surface-3);overflow:hidden;position:relative}
+.xpbar>i{display:block;height:100%;background:var(--green);border-radius:99px;position:relative;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.xpbar>i::after{content:"";position:absolute;top:2px;left:5px;right:5px;height:3px;border-radius:99px;background:rgba(255,255,255,.45)}
+.xpbar.gold>i{background:var(--gold)}
+.xpbar.blue>i{background:var(--blue)}
+.xpbar.red>i{background:var(--red)}
+
+.statut-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border:2px solid var(--accent-line);background:var(--accent-soft);color:var(--ok);border-radius:99px;font-family:var(--display);font-size:12.5px;font-weight:700;white-space:nowrap;cursor:pointer}
+.statut-chip.undecided{border-color:var(--line-strong);background:var(--surface-2);color:var(--ink-2)}
+
+.tabs{display:flex;gap:6px;padding:0 12px 9px;overflow-x:auto;scrollbar-width:thin}
+.tabs button{background:var(--surface-2);border:2px solid transparent;border-radius:99px;padding:6px 15px;color:var(--ink-2);font-family:var(--display);font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.tabs button:hover{background:var(--surface-3);color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ok);background:var(--accent-soft);border-color:var(--accent-line)}
+main{flex:1;padding:18px 16px 40px;max-width:1180px;width:100%;margin:0 auto}
+
+/* ---------- boutons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:14px;
+  border:2px solid var(--line-strong);background:var(--surface);cursor:pointer;
+  font-family:var(--display);font-size:13.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap;
+  box-shadow:0 3px 0 var(--line-strong);transition:transform .06s,box-shadow .06s}
+.btn:hover{background:var(--surface-2)}
+.btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--line-strong)}
+.btn.primary{background:var(--green);border-color:var(--green-d);box-shadow:0 4px 0 var(--green-d);color:#FFFFFF}
+.btn.primary:hover{filter:brightness(1.06);background:var(--green)}
+.btn.primary:active{transform:translateY(4px);box-shadow:none}
+.btn.blue{background:var(--blue);border-color:var(--blue-d);box-shadow:0 4px 0 var(--blue-d);color:#FFFFFF}
+.btn.blue:hover{filter:brightness(1.06);background:var(--blue)}
+.btn.gold{background:var(--gold);border-color:var(--gold-d);box-shadow:0 4px 0 var(--gold-d);color:#463000}
+.btn.sm{padding:4px 11px;font-size:12px;border-radius:11px;box-shadow:0 2px 0 var(--line-strong)}
+.btn.sm:active{transform:translateY(2px);box-shadow:none}
+.btn.sm.primary{box-shadow:0 3px 0 var(--green-d)}
+.btn.ghost{border-color:transparent;background:none;box-shadow:none;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--surface-2);color:var(--ink)}
+.btn.ghost:active{transform:none}
+.btn.danger{color:var(--bad);border-color:var(--line-strong)}
+.btn[disabled]{opacity:.45;cursor:default;transform:none}
+.btn.block{width:100%}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:2px solid var(--line);background:var(--surface);border-radius:12px;cursor:pointer;color:var(--ink-2);box-shadow:0 2px 0 var(--line)}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.icon-btn:active{transform:translateY(2px);box-shadow:none}
+
+/* ---------- primitives ---------- */
+.panel{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel-h{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+.panel-h h2{font-size:15px}
+.panel-b{padding:15px}
+.eyebrow{font-family:var(--display);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:700}
+.num,.tnum{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-2)} .dim{color:var(--ink-3)}
+.small{font-size:13px} .xs{font-size:12px}
+.row{display:flex;align-items:center;gap:9px} .wrap{flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:99px;font-family:var(--display);font-size:11.5px;font-weight:700;border:2px solid var(--line-strong);background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.pill.ok{background:var(--green-soft);color:var(--ok);border-color:var(--accent-line)}
+.pill.warn{background:var(--gold-soft);color:var(--warn);border-color:var(--gold)}
+.pill.bad{background:var(--red-soft);color:var(--bad);border-color:var(--red)}
+.pill.acc{background:var(--blue-soft);color:var(--blue-d);border-color:var(--blue)}
+.empty{padding:26px 14px;text-align:center;color:var(--ink-3);font-size:13.5px}
 table{width:100%;border-collapse:collapse}
-th{text-align:left;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:500;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{text-align:left;font-family:var(--display);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700;padding:9px 11px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:middle}
 tbody tr:last-child td{border-bottom:0}
 .scroll-x{overflow-x:auto}
-.tnum{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
-input[type=text],input[type=number],input[type=date],input[type=month],select,textarea{width:100%;padding:6px 8px;border:1px solid var(--line-strong);background:var(--surface);border-radius:5px;font-size:13px}
-input[type=number],input[type=date],input[type=month]{font-family:var(--mono);font-variant-numeric:tabular-nums}
-textarea{resize:vertical;min-height:62px;font-family:inherit}
-label.f{display:flex;flex-direction:column;gap:3px}
-label.f>span{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
-.hint{font-size:11.5px;color:var(--ink-3);line-height:1.35}
-.note{border-left:2px solid var(--line-strong);padding:7px 0 7px 10px;font-size:12px;color:var(--ink-2);line-height:1.45}
-.note.warn{border-color:var(--warn)}
-.note.acc{border-color:var(--accent)}
-a{color:var(--accent)}
+.tnum{text-align:right;white-space:nowrap}
+input[type=text],input[type=number],input[type=date],input[type=month],select,textarea{width:100%;padding:9px 11px;border:2px solid var(--line-strong);background:var(--surface);border-radius:12px;font-size:14px;font-weight:600}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
+input[type=number],input[type=date],input[type=month]{font-variant-numeric:tabular-nums}
+textarea{resize:vertical;min-height:66px;font-family:inherit}
+label.f{display:flex;flex-direction:column;gap:4px}
+label.f>span{font-family:var(--display);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700}
+.hint{font-size:12px;color:var(--ink-3);line-height:1.35;font-weight:600}
+.note{border-left:4px solid var(--line-strong);border-radius:0 8px 8px 0;background:var(--surface-2);padding:9px 12px;font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.note.warn{border-color:var(--gold);background:var(--gold-soft);color:var(--warn)}
+.note.acc{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-d)}
+a{color:var(--blue-d);font-weight:700}
 details>summary{cursor:pointer;list-style:none}
 details>summary::-webkit-details-marker{display:none}
-.chev{display:inline-block;transition:transform .15s}
+.chev{display:inline-block;transition:transform .15s;color:var(--ink-3)}
 details[open]>summary .chev{transform:rotate(90deg)}
-.bar{height:6px;border-radius:99px;background:var(--surface-3);overflow:hidden}
-.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px}
-.bar>i.ok{background:var(--ok)} .bar>i.warn{background:var(--warn)} .bar>i.bad{background:var(--bad)}
-
-.kpis{display:flex;gap:0;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
-.kpi{flex:1 1 150px;padding:9px 13px;border-right:1px solid var(--line);min-width:0}
-.kpi:last-child{border-right:0}
-.kpi .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:18px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
-.kpi .k{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);margin-top:1px}
-.kpi .d{font-size:11px;color:var(--ink-3)}
-
-.kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(228px,1fr);gap:9px;overflow-x:auto;padding-bottom:6px;align-items:start}
-.col{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;min-height:110px}
-.col.drop{outline:2px dashed var(--accent);outline-offset:-2px}
-.col-h{display:flex;align-items:center;gap:6px;padding:7px 9px;border-bottom:1px solid var(--line)}
-.col-h .t{font-size:12px;font-weight:600;flex:1;min-width:0}
-.col-b{padding:7px;display:flex;flex-direction:column;gap:6px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 9px;cursor:grab;display:flex;flex-direction:column;gap:5px}
-.card:hover{border-color:var(--line-strong)}
-.card.late{border-left:3px solid var(--bad)}
-.card.due{border-left:3px solid var(--warn)}
-.card.dormant{border-left:3px solid var(--ink-3)}
-.card .n{font-weight:600;font-size:13px;line-height:1.25;overflow-wrap:anywhere}
-.card .m{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.card-nav{display:flex;gap:3px;margin-left:auto}
-.card-nav button{width:20px;height:20px;border:1px solid var(--line);background:var(--surface-2);border-radius:4px;cursor:pointer;font-size:11px;line-height:1;color:var(--ink-2);padding:0}
-.card-nav button:hover{background:var(--surface-3);color:var(--ink)}
-.card-nav button[disabled]{opacity:.3;cursor:default}
-
-.today{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
-.today-row{display:flex;align-items:center;gap:9px;padding:7px 12px;border-top:1px solid var(--line);cursor:pointer;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;width:100%}
-.today-row:hover{background:var(--surface-2)}
-.today-row .nm{font-weight:500;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-.sim{display:grid;grid-template-columns:296px 1fr;gap:14px;align-items:start}
-.fields{display:flex;flex-direction:column;gap:10px}
-.cmp td.lab{font-size:12.5px;color:var(--ink-2);white-space:nowrap}
-.cmp tr.hi td{background:var(--surface-2);font-weight:600}
-.cmp td.q{font-size:11.5px;color:var(--ink-2);white-space:normal;min-width:132px;line-height:1.3}
+.bar{height:12px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .4s}
+.bar>i.ok{background:var(--green)} .bar>i.warn{background:var(--gold)} .bar>i.bad{background:var(--red)}
 .delta.pos{color:var(--ok)} .delta.neg{color:var(--bad)}
 
-.phase{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
-.phase>summary{display:flex;align-items:center;gap:9px;padding:10px 13px;background:var(--surface)}
+/* ---------- KPI ---------- */
+.kpis{display:flex;flex-wrap:wrap;border:2px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;box-shadow:var(--shadow)}
+.kpi{flex:1 1 150px;padding:12px 15px;border-right:2px solid var(--line);min-width:0}
+.kpi:last-child{border-right:0}
+.kpi .v{font-family:var(--display);font-variant-numeric:tabular-nums;font-size:23px;font-weight:800;line-height:1.1}
+.kpi .k{font-family:var(--display);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700;margin-top:2px}
+.kpi .d{font-size:11.5px;color:var(--ink-3)}
+
+/* ---------- accueil : hero, quêtes, badges ---------- */
+.hero{display:flex;align-items:center;gap:16px;padding:18px;border:2px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:var(--shadow);flex-wrap:wrap}
+.hero-ring{position:relative;width:78px;height:78px;flex:none;display:grid;place-items:center}
+.hero-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.hero-ring .lv{font-family:var(--display);font-weight:800;font-size:26px;line-height:1;color:var(--ok)}
+.hero-ring .lb{font-family:var(--display);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:700}
+.hero-main{flex:1;min-width:210px;display:flex;flex-direction:column;gap:7px}
+.hero-main h1{font-size:22px;font-weight:800;line-height:1.15}
+.hero-sub{font-size:13.5px;color:var(--ink-2);line-height:1.4}
+.hero-stats{display:flex;gap:8px;flex-wrap:wrap}
+
+.quest{display:flex;align-items:center;gap:12px;padding:12px 14px;border:2px solid var(--line);border-radius:16px;background:var(--surface);transition:border-color .2s,background .2s}
+.quest.done{border-color:var(--accent-line);background:var(--green-soft)}
+.quest-ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;flex:none;background:var(--surface-2);border:2px solid var(--line)}
+.quest.done .quest-ico{background:var(--green);border-color:var(--green-d);color:#fff}
+.quest-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.quest-t{font-family:var(--display);font-weight:700;font-size:14px;line-height:1.2}
+.quest.done .quest-t{color:var(--ok)}
+.quest-xp{font-family:var(--display);font-weight:800;font-size:13px;color:var(--gold-d);background:var(--gold-soft);border:2px solid var(--gold);border-radius:99px;padding:2px 10px;flex:none}
+.quest.done .quest-xp{background:var(--green);border-color:var(--green-d);color:#fff}
+
+.badges{display:flex;gap:10px;flex-wrap:wrap}
+.badge{width:74px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.badge .b-ico{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:24px;border:3px solid var(--line);background:var(--surface-2);filter:grayscale(1);opacity:.45}
+.badge.on .b-ico{border-color:var(--gold);background:var(--gold-soft);filter:none;opacity:1}
+.badge .b-t{font-family:var(--display);font-size:10.5px;font-weight:700;line-height:1.15;color:var(--ink-3)}
+.badge.on .b-t{color:var(--ink)}
+
+.tasks{display:flex;flex-direction:column}
+.task{display:flex;align-items:center;gap:11px;padding:11px 14px;border-top:2px solid var(--line);cursor:pointer;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;width:100%;font:inherit;color:inherit}
+.task:first-child{border-top:0}
+.task:hover{background:var(--surface-2)}
+.task-ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:16px;flex:none;border:2px solid var(--line);background:var(--surface-2)}
+.task-ico.bad{background:var(--red-soft);border-color:var(--red)}
+.task-ico.warn{background:var(--gold-soft);border-color:var(--gold)}
+.task-ico.acc{background:var(--blue-soft);border-color:var(--blue)}
+.task-b{flex:1;min-width:0;display:flex;flex-direction:column}
+.task-t{font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-d{font-size:11.5px;color:var(--ink-3)}
+
+/* ---------- kanban ---------- */
+.kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(238px,1fr);gap:11px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.col{background:var(--surface-2);border:2px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;min-height:110px}
+.col.drop{border-color:var(--green);border-style:dashed}
+.col-h{display:flex;align-items:center;gap:7px;padding:9px 11px;border-bottom:2px solid var(--line)}
+.col-h .t{font-family:var(--display);font-size:12.5px;font-weight:700;flex:1;min-width:0}
+.col-b{padding:8px;display:flex;flex-direction:column;gap:8px}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 11px;cursor:grab;display:flex;flex-direction:column;gap:6px;box-shadow:0 2px 0 var(--line)}
+.card:hover{border-color:var(--line-strong)}
+.card.late{border-color:var(--red);box-shadow:0 2px 0 var(--red)}
+.card.due{border-color:var(--gold);box-shadow:0 2px 0 var(--gold)}
+.card.dormant{border-color:var(--line-strong);opacity:.8}
+.card .n{font-family:var(--display);font-weight:700;font-size:14px;line-height:1.2;overflow-wrap:anywhere}
+.card .m{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.card-nav{display:flex;gap:4px;margin-left:auto}
+.card-nav button{width:24px;height:24px;border:2px solid var(--line);background:var(--surface-2);border-radius:8px;cursor:pointer;font-size:12px;line-height:1;color:var(--ink-2);padding:0;font-weight:800}
+.card-nav button:hover{background:var(--green-soft);border-color:var(--accent-line);color:var(--ok)}
+.card-nav button[disabled]{opacity:.3;cursor:default}
+
+/* ---------- simulateur ---------- */
+.sim{display:grid;grid-template-columns:305px 1fr;gap:16px;align-items:start}
+.fields{display:flex;flex-direction:column;gap:12px}
+.cmp td.lab{font-size:13px;color:var(--ink-2);white-space:nowrap;font-weight:700}
+.cmp tr.hi td{background:var(--green-soft);font-weight:800;color:var(--ink)}
+.cmp td.q{font-size:12px;color:var(--ink-2);white-space:normal;min-width:136px;line-height:1.35;font-weight:600}
+
+/* ---------- démarches ---------- */
+.phase{border:2px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;box-shadow:var(--shadow)}
+.phase>summary{display:flex;align-items:center;gap:10px;padding:13px 15px;background:var(--surface)}
 .phase>summary:hover{background:var(--surface-2)}
-.phase .pt{font-weight:600;font-size:13.5px;flex:1;min-width:0}
-.ck{display:flex;align-items:flex-start;gap:9px;padding:8px 13px;border-top:1px solid var(--line)}
-.ck input[type=checkbox]{margin-top:2px;width:15px;height:15px;accent-color:var(--accent);flex:none}
-.ck .b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.ck .t{font-size:13px;line-height:1.35}
-.ck.done .t{color:var(--ink-3);text-decoration:line-through}
+.phase .pt{font-family:var(--display);font-weight:700;font-size:15px;flex:1;min-width:0}
+.phase-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px;background:var(--surface-2);border:2px solid var(--line);color:var(--ink-2);flex:none}
+.phase-n.on{background:var(--green);border-color:var(--green-d);color:#fff}
+.ck{display:flex;align-items:flex-start;gap:11px;padding:11px 15px;border-top:2px solid var(--line)}
+.ck-check{width:30px;height:30px;border-radius:50%;border:3px solid var(--line-strong);background:var(--surface);cursor:pointer;display:grid;place-items:center;font-size:15px;flex:none;padding:0;color:transparent;margin-top:1px}
+.ck-check:hover{border-color:var(--green)}
+.ck.fait .ck-check{background:var(--green);border-color:var(--green-d);color:#fff}
+.ck.attente .ck-check{border-color:var(--gold);border-style:dashed;background:var(--gold-soft);color:var(--gold-d)}
+.ck .b{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.ck .t{font-size:13.5px;line-height:1.35;font-weight:700}
+.ck.fait .t{color:var(--ink-3);text-decoration:line-through}
 .ck .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--shadow);z-index:60;display:flex;flex-direction:column;transform:translateX(101%);transition:transform .18s ease}
+/* ---------- drawer ---------- */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(430px,100%);background:var(--surface);border-left:2px solid var(--line);z-index:60;display:flex;flex-direction:column;transform:translateX(101%);transition:transform .2s ease}
 .drawer.open{transform:none}
-.drawer-h{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--line)}
-.drawer-b{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:11px}
-.drawer-f{border-top:1px solid var(--line);padding:11px 13px;display:flex;flex-direction:column;gap:8px}
-.msg{border-radius:7px;padding:9px 11px;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
-.msg.me{background:var(--accent-soft);color:var(--ink);align-self:flex-end;max-width:92%}
-.msg.ai{background:var(--surface-2);border:1px solid var(--line)}
-.chips{display:flex;gap:5px;flex-wrap:wrap}
-.chip{padding:3px 9px;border:1px solid var(--line-strong);background:var(--surface);border-radius:99px;font-size:12px;cursor:pointer;text-align:left}
-.chip:hover{background:var(--surface-2)}
-.prop{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:6px;padding:9px;display:flex;flex-direction:column;gap:7px}
+.drawer-h{display:flex;align-items:center;gap:9px;padding:12px 14px;border-bottom:2px solid var(--line)}
+.drawer-b{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.drawer-f{border-top:2px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+.msg{border-radius:14px;padding:10px 13px;font-size:13.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me{background:var(--blue);color:#fff;align-self:flex-end;max-width:92%;border-radius:14px 14px 4px 14px}
+.msg.ai{background:var(--surface-2);border:2px solid var(--line);border-radius:14px 14px 14px 4px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 12px;border:2px solid var(--line-strong);background:var(--surface);border-radius:99px;font-size:12.5px;font-weight:700;cursor:pointer;text-align:left;font-family:var(--display)}
+.chip:hover{background:var(--green-soft);border-color:var(--accent-line);color:var(--ok)}
+.prop{border:2px solid var(--blue);background:var(--blue-soft);border-radius:14px;padding:11px;display:flex;flex-direction:column;gap:8px}
 
-.scrim{position:fixed;inset:0;background:rgba(10,14,20,.45);z-index:70;display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto}
-.modal{background:var(--surface);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);width:min(560px,100%);margin:auto 0}
-.modal.wide{width:min(760px,100%)}
-.modal-h{display:flex;align-items:center;gap:9px;padding:12px 15px;border-bottom:1px solid var(--line)}
-.modal-h h2{font-size:14.5px;flex:1}
-.modal-b{padding:15px;display:flex;flex-direction:column;gap:11px}
-.modal-f{padding:12px 15px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
-.fold{border-top:1px solid var(--line);padding-top:10px}
-.fold>summary{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
-.fold-b{display:flex;flex-direction:column;gap:11px;padding-top:11px}
-.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:8px 15px;border-radius:99px;font-size:13px;z-index:90;box-shadow:var(--shadow)}
+/* ---------- modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(20,30,20,.5);z-index:70;display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto}
+.modal{background:var(--surface);border:2px solid var(--line);border-radius:20px;width:min(560px,100%);margin:auto 0;box-shadow:0 8px 0 rgba(0,0,0,.12)}
+.modal.wide{width:min(780px,100%)}
+.modal-h{display:flex;align-items:center;gap:9px;padding:14px 17px;border-bottom:2px solid var(--line)}
+.modal-h h2{font-size:17px;flex:1}
+.modal-b{padding:17px;display:flex;flex-direction:column;gap:13px}
+.modal-f{padding:14px 17px;border-top:2px solid var(--line);display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}
+.fold{border-top:2px solid var(--line);padding-top:12px}
+.fold>summary{font-family:var(--display);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700}
+.fold-b{display:flex;flex-direction:column;gap:13px;padding-top:13px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:11px 20px;border-radius:99px;font-family:var(--display);font-weight:700;font-size:14px;z-index:90;box-shadow:0 4px 0 rgba(0,0,0,.2);display:flex;align-items:center;gap:8px}
+.toast.xp{background:var(--gold);color:#4A3200;box-shadow:0 4px 0 var(--gold-d)}
+.toast.win{background:var(--green);color:#fff;box-shadow:0 4px 0 var(--green-d)}
 
-@media (max-width:880px){
-  .sim{grid-template-columns:1fr}
-  .grid-2{grid-template-columns:1fr}
-}
-@media (max-width:640px){
-  main{padding:11px}
-  .top-row{padding:8px 11px}
+/* ---------- confettis ---------- */
+#fxRoot{position:fixed;inset:0;pointer-events:none;z-index:95;overflow:hidden}
+.confetti{position:absolute;width:9px;height:14px;border-radius:2px;animation:fall 1.3s cubic-bezier(.3,.7,.5,1) forwards}
+@keyframes fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(70vh) rotate(540deg);opacity:0}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .3s ease-out}
+
+@media (max-width:900px){ .sim{grid-template-columns:1fr} .grid-2{grid-template-columns:1fr} }
+@media (max-width:720px){
+  main{padding:13px 11px 34px}
+  .top-row{padding:7px 11px;gap:7px}
+  .statut-chip{display:none}
+  .hud-xp{min-width:64px} .hud-xp .t{display:none}
+  .brand b{display:none}
   .kanban{grid-auto-columns:minmax(80vw,80vw)}
-  .kpi{flex:1 1 50%;border-bottom:1px solid var(--line)}
-  .brand .sub{display:none}
+  .kpi{flex:1 1 50%;border-bottom:2px solid var(--line)}
+  .hero-ring{width:64px;height:64px}
+  .hero-main h1{font-size:19px}
 }
 </style>
 
 <div class="app">
   <header class="top">
     <div class="top-row">
-      <div class="brand"><b>Cockpit Freelance</b><span class="sub">Passage en freelance</span></div>
+      <div class="brand"><span class="logo">&#129517;</span><b>Cockpit Freelance</b></div>
+      <div class="hud">
+        <button class="hud-lvl" id="hudLvl" title="Votre progression"></button>
+        <span class="hud-streak" id="hudStreak" title="Jours d'affilée"></span>
+      </div>
       <div class="top-spacer"></div>
       <button class="statut-chip" id="statutChip" title="Statut actif — cliquer pour changer">…</button>
-      <button class="btn primary" id="askBtn">Demander à Claude</button>
+      <button class="btn primary" id="askBtn">Claude</button>
       <button class="icon-btn" id="settingsBtn" title="Réglages" aria-label="Réglages">&#9881;</button>
       <button class="icon-btn" id="themeBtn" title="Thème clair / sombre" aria-label="Thème">&#9681;</button>
     </div>
@@ -231,6 +347,7 @@ details[open]>summary .chev{transform:rotate(90deg)}
 
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
+<div id="fxRoot" aria-hidden="true"></div>
 
 <script>
 "use strict";
@@ -275,6 +392,42 @@ const PARAMS_2026 = {
     fraisGestionMin: 0.05, fraisGestionMax: 0.10,
     restitutionMin: 0.47,          // fiabilite: moyenne — taux de restitution net observé
     restitutionMax: 0.52
+  },
+  /* --- Aides à la reprise / création d'entreprise après une perte involontaire d'emploi ---
+     ATTENTION : ces valeurs sont les plus fragiles de tout le fichier. Le montant réel de
+     l'ARE dépend de VOTRE relevé de situation France Travail : saisissez-le dans les
+     réglages plutôt que de vous fier à l'estimation. */
+  aides: {
+    are: {
+      _libelle: "ARE — allocation de retour à l'emploi",
+      tauxSJR: 0.57,            // fiabilite: moyenne — ARE = max(57 % du SJR ; 40,4 % du SJR + partie fixe)
+      tauxAlt: 0.404,           // fiabilite: moyenne
+      partieFixe: 13.11,        // fiabilite: FAIBLE — € / jour, revalorisé chaque juillet
+      plancher: 31.97,          // fiabilite: FAIBLE — € / jour, revalorisé chaque juillet
+      plafondPartSJR: 0.75,     // fiabilite: moyenne
+      dureeMaxJours: 548,       // fiabilite: FAIBLE — durée maximale avant 53 ans
+      coefficientDuree: 0.75,   // fiabilite: FAIBLE — minoration contracyclique quand le chômage est bas
+      dureeMinJours: 182,       // fiabilite: FAIBLE
+      delaiAttenteJours: 7,     // fiabilite: haute — délai d'attente à l'ouverture des droits
+      imposable: true           // fiabilite: haute — l'ARE est un revenu de remplacement imposable
+    },
+    arce: {
+      _libelle: "ARCE — aide à la reprise ou à la création d'entreprise",
+      part: 0.60,               // fiabilite: moyenne — part du reliquat des droits versée en capital
+      nbVersements: 2,          // fiabilite: haute — à l'immatriculation puis 6 mois plus tard
+      moisSecondVersement: 6,   // fiabilite: haute
+      imposable: false          // fiabilite: FAIBLE — traitement fiscal à confirmer par un expert-comptable
+    },
+    maintienARE: {
+      _libelle: "Maintien de l'ARE — cumul allocation / revenus d'activité",
+      tauxDeduction: 0.70       // fiabilite: moyenne — part des revenus d'activité déduite des allocations
+    },
+    acre: {
+      _libelle: "ACRE — exonération partielle de cotisations la 1re année",
+      dureeMois: 12,            // fiabilite: haute
+      delaiDemandeJours: 60     // fiabilite: haute — à demander dans les 60 jours suivant l'immatriculation
+    },
+    cfeExonerationCreation: true // fiabilite: haute — CFE exonérée l'année de création
   },
   ir: {
     // fiabilite: FAIBLE — barème indexé chaque année en loi de finances.
@@ -336,6 +489,7 @@ const STAGES = [
 const STAGE_IDX = Object.fromEntries(STAGES.map((s, i) => [s.id, i]));
 
 const TABS = [
+  { id: "aujourdhui",  nom: "Aujourd'hui" },
   { id: "prospection", nom: "Prospection" },
   { id: "simulateur",  nom: "Simulateur TJM" },
   { id: "demarches",   nom: "Démarches" },
@@ -354,34 +508,44 @@ const CANAUX_DEPART = [
   ["Slack / Discord tech FR", "Communautés"], ["Meetups", "Communautés"], ["Forums", "Communautés"]
 ];
 
+/* [phase, titre, organisme, lien, delaiAttente]
+   delaiAttente = nombre de jours pendant lesquels la balle est dans le camp d'en face
+   une fois votre part faite (0 = rien à attendre, tout dépend de vous). */
 const CHECKLIST_DEPART = [
-  [1, "Relire mon contrat de travail : clause de non-concurrence, de non-sollicitation, d'exclusivité", "", ""],
-  [1, "Vérifier mes droits ARE (simulation)", "France Travail", "https://www.francetravail.fr"],
-  [1, "Constituer une trésorerie de sécurité", "", ""],
-  [1, "Tester le marché avec 5 candidatures réelles pour valider mon TJM", "", ""],
-  [1, "Décider du statut juridique", "", ""],
-  [2, "Préparer l'argumentaire de rupture conventionnelle", "", ""],
-  [2, "Entretien(s) obligatoire(s) avec l'employeur", "Service-public.fr", "https://www.service-public.fr"],
-  [2, "Signature de la convention de rupture", "", ""],
-  [2, "Délai de rétractation : 15 jours calendaires", "", ""],
-  [2, "Homologation DREETS : 15 jours ouvrables", "", ""],
-  [2, "Inscription France Travail", "France Travail", "https://www.francetravail.fr"],
-  [2, "Récupérer le solde de tout compte et l'attestation employeur", "", ""],
-  [3, "Immatriculation via le guichet unique", "INPI — Guichet unique", "https://formalites.entreprises.gouv.fr"],
-  [3, "Obtention du SIRET", "INSEE", ""],
-  [3, "Ouvrir un compte bancaire dédié", "", ""],
-  [3, "Souscrire une RC Pro (quasi systématiquement exigée par les clients et les plateformes)", "", ""],
-  [3, "Souscrire prévoyance et mutuelle", "", ""],
-  [3, "Choisir l'outil de facturation", "", ""],
-  [3, "Décider de l'option TVA", "impots.gouv.fr", "https://www.impots.gouv.fr"],
-  [3, "Demander l'ACRE si éligible — sous 60 jours", "URSSAF", "https://www.urssaf.fr"],
-  [3, "Prendre un expert-comptable si société", "", ""],
-  [4, "Repositionner le profil LinkedIn : titre, bannière, section « à propos » orientée offre", "", ""],
-  [4, "Créer les profils sur les plateformes", "", ""],
-  [4, "Portfolio ou site vitrine", "", ""],
-  [4, "CV freelance et « one-pager » d'offre", "", ""],
-  [4, "Modèles de contrat de prestation et de devis", "", ""],
-  [4, "Grille tarifaire écrite : TJM, majoration urgence, conditions de règlement", "", ""]
+  [1, "Relire mon contrat de travail : clause de non-concurrence, de non-sollicitation, d'exclusivité", "", "", 0],
+  [1, "Simuler mes droits ARE : montant journalier et nombre de jours indemnisables", "France Travail", "https://www.francetravail.fr", 7],
+  [1, "Relever ma durée d'affiliation et mon salaire journalier de référence", "France Travail", "https://www.francetravail.fr", 0],
+  [1, "Reporter le montant réel de l'ARE dans les réglages du cockpit", "", "", 0],
+  [1, "Constituer une trésorerie de sécurité", "", "", 0],
+  [1, "Tester le marché avec 5 candidatures réelles pour valider mon TJM", "", "", 0],
+  [1, "Décider du statut juridique", "", "", 0],
+  [2, "Préparer l'argumentaire de rupture conventionnelle", "", "", 0],
+  [2, "Demander l'entretien à mon employeur", "", "", 14],
+  [2, "Entretien(s) obligatoire(s) avec l'employeur", "Service-public.fr", "https://www.service-public.fr", 0],
+  [2, "Signature de la convention de rupture", "", "", 0],
+  [2, "Délai de rétractation : 15 jours calendaires", "", "", 15],
+  [2, "Homologation DREETS : 15 jours ouvrables", "", "", 21],
+  [2, "Inscription France Travail", "France Travail", "https://www.francetravail.fr", 7],
+  [2, "Récupérer le solde de tout compte et l'attestation employeur", "", "", 14],
+  [3, "Immatriculation via le guichet unique", "INPI — Guichet unique", "https://formalites.entreprises.gouv.fr", 15],
+  [3, "Obtention du SIRET", "INSEE", "", 15],
+  [3, "Demander l'ACRE — dans les 60 jours suivant l'immatriculation", "URSSAF", "https://www.urssaf.fr", 30],
+  [3, "Trancher entre ARCE (capital) et maintien de l'ARE (mensuel) — le choix est définitif", "France Travail", "https://www.francetravail.fr", 0],
+  [3, "Demander l'ARCE après l'immatriculation, si c'est l'option retenue", "France Travail", "https://www.francetravail.fr", 30],
+  [3, "Déclarer chaque mois mon activité à France Travail si je reste indemnisé", "France Travail", "https://www.francetravail.fr", 0],
+  [3, "Ouvrir un compte bancaire dédié", "", "", 7],
+  [3, "Souscrire une RC Pro (quasi systématiquement exigée par les clients et les plateformes)", "", "", 7],
+  [3, "Souscrire prévoyance et mutuelle", "", "", 7],
+  [3, "Choisir l'outil de facturation", "", "", 0],
+  [3, "Décider de l'option TVA", "impots.gouv.fr", "https://www.impots.gouv.fr", 0],
+  [3, "Prendre un expert-comptable si société", "", "", 0],
+  [3, "Faire valider ma simulation de statut par un expert-comptable", "", "", 14],
+  [4, "Repositionner le profil LinkedIn : titre, bannière, section « à propos » orientée offre", "", "", 0],
+  [4, "Créer les profils sur les plateformes", "", "", 7],
+  [4, "Portfolio ou site vitrine", "", "", 0],
+  [4, "CV freelance et « one-pager » d'offre", "", "", 0],
+  [4, "Modèles de contrat de prestation et de devis", "", "", 0],
+  [4, "Grille tarifaire écrite : TJM, majoration urgence, conditions de règlement", "", "", 0]
 ];
 
 const PHASES = [
@@ -410,7 +574,19 @@ const DEFAULT_SETTINGS = {
   periodiciteUrssaf: "trimestrielle",
   assujettiTVA: false,
   chargesFixesNote: "",
-  params: PARAMS_2026
+  // --- projection pluriannuelle et aides ---
+  horizonAnnees: 4,
+  joursAnnee1: 120,
+  scenarioAide: "arce",        // arce | maintien | aucune
+  salaireBrutAnnuel: 55000,    // sert uniquement à ESTIMER l'ARE si le relevé n'est pas saisi
+  areJournaliere: 0,           // 0 = estimer ; sinon montant exact du relevé France Travail
+  areJoursDroits: 0,           // 0 = estimer
+  params: PARAMS_2026,
+  // --- progression (jeu) ---
+  jeu: {
+    xp: 0, serie: 0, serieMax: 0, dernierJour: "", badges: [],
+    quetesDate: "", quetesFaites: [], journal: {}
+  }
 };
 
 /* ============================================================================
@@ -497,8 +673,9 @@ const Store = {
     }
     const now = new Date().toISOString();
     const chans = CANAUX_DEPART.map(([nom, categorie], i) => ({ id: uid(), nom, categorie, ordre: i, updatedAt: now }));
-    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien], i) => ({
-      id: uid(), phase, titre, organisme, lien, fait: false, echeance: "", note: "", ordre: i, updatedAt: now
+    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien, delaiAttente], i) => ({
+      id: uid(), phase, titre, organisme, lien, delaiAttente: delaiAttente || 0,
+      etat: "a_faire", attenduLe: "", faitLe: "", echeance: "", note: "", ordre: i, updatedAt: now
     }));
     const exemples = [
       { id: uid(), nom: "Exemple — ESN Alpha (client final : assurance)", canal: "ESN / sociétés de conseil", poste: "Dev .NET / Angular — régie IDF",
@@ -586,8 +763,9 @@ const Store = {
   async seedSansBail() {
     const now = new Date().toISOString();
     const chans = CANAUX_DEPART.map(([nom, categorie], i) => ({ id: uid(), nom, categorie, ordre: i, updatedAt: now }));
-    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien], i) => ({
-      id: uid(), phase, titre, organisme, lien, fait: false, echeance: "", note: "", ordre: i, updatedAt: now
+    const checks = CHECKLIST_DEPART.map(([phase, titre, organisme, lien, delaiAttente], i) => ({
+      id: uid(), phase, titre, organisme, lien, delaiAttente: delaiAttente || 0,
+      etat: "a_faire", attenduLe: "", faitLe: "", echeance: "", note: "", ordre: i, updatedAt: now
     }));
     for (const c of chans) await this.put("channels", c);
     for (const c of checks) await this.put("checklist", c);
@@ -616,6 +794,13 @@ const Store = {
 function mergeSettings(s) {
   const out = { ...DEFAULT_SETTINGS, ...(s || {}) };
   out.params = deepMerge(structuredCloneSafe(PARAMS_2026), (s && s.params) || {});
+  // `jeu` est toujours recopié : jamais de référence partagée avec DEFAULT_SETTINGS.
+  const j = { ...DEFAULT_SETTINGS.jeu, ...((s && s.jeu) || {}) };
+  j.badges = Array.isArray(j.badges) ? j.badges.slice() : [];
+  j.quetesFaites = Array.isArray(j.quetesFaites) ? j.quetesFaites.slice() : [];
+  j.quetesManuelles = Array.isArray(j.quetesManuelles) ? j.quetesManuelles.slice() : [];
+  j.journal = { ...(j.journal || {}) };
+  out.jeu = j;
   return out;
 }
 function structuredCloneSafe(o) { return JSON.parse(JSON.stringify(o)); }
@@ -689,10 +874,12 @@ function simulate(S) {
 
   function societe(kind) {
     const cfg = kind === "eurl" ? P.eurl : P.sasu;
+    // ACRE : exonération appliquée aux cotisations du dirigeant la 1re année (approximation).
+    const tauxCot = cfg.cotisationsSurNet * (S.acrePremiereAnnee ? 1 - P.micro.acreExoneration : 1);
     const dispoRem = dispo * (1 - partDiv);
     const dispoDiv = dispo * partDiv;
-    let remNette = dispoRem / (1 + cfg.cotisationsSurNet);
-    let social = remNette * cfg.cotisationsSurNet;
+    let remNette = dispoRem / (1 + tauxCot);
+    let social = remNette * tauxCot;
     if (kind === "eurl" && social < P.eurl.cotisationsMin) {
       social = P.eurl.cotisationsMin;
       remNette = Math.max(0, dispoRem - social);
@@ -715,7 +902,9 @@ function simulate(S) {
       hypotheses: [
         "Disponible après frais professionnels : " + eur(dispo) + ".",
         partDiv > 0 ? pct(1 - partDiv, 0) + " en rémunération, " + pct(partDiv, 0) + " en dividendes." : "Tout le disponible est versé en rémunération, aucun dividende.",
-        "Cotisations ≈ " + pct(cfg.cotisationsSurNet, 0) + " de la rémunération nette" + (kind === "eurl" ? " (plancher " + eur(P.eurl.cotisationsMin) + "/an)" : "") + ".",
+        "Cotisations ≈ " + pct(tauxCot, 0) + " de la rémunération nette"
+        + (S.acrePremiereAnnee ? " — ACRE appliquée (−" + pct(P.micro.acreExoneration, 0) + "), approximation pour une société" : "")
+        + (kind === "eurl" ? " (plancher " + eur(P.eurl.cotisationsMin) + "/an)" : "") + ".",
         partDiv > 0 ? "IS " + pct(P.is.taux1, 0) + " jusqu'à " + eur(P.is.seuil) + " puis " + pct(P.is.taux2, 0) + ", puis PFU " + pct(P.pfu, 1) + " sur les dividendes." : null,
         (kind === "eurl" && partDiv > 0) ? "Cotisations TNS " + pct(P.eurl.cotisationsDividendes, 0) + " sur la part de dividendes dépassant " + pct(P.eurl.seuilDividendes, 0) + " du capital (" + eur(nz(S.capitalSocial)) + ") — approximation." : null,
         "IR au barème sur la rémunération après abattement " + pct(P.ir.abattementSalaire, 0) + "."
@@ -798,10 +987,248 @@ function genEcheances(S) {
 }
 
 /* ============================================================================
+   Aides à la création et projection pluriannuelle
+   ========================================================================== */
+
+/** Droits ARE : valeurs réelles du relevé France Travail si saisies, sinon estimation. */
+function droitsARE(S) {
+  const A = S.params.aides.are;
+  if (nz(S.areJournaliere) > 0 && nz(S.areJoursDroits) > 0) {
+    return { journaliere: nz(S.areJournaliere), jours: nz(S.areJoursDroits), estime: false };
+  }
+  const brut = nz(S.salaireBrutAnnuel);
+  if (brut <= 0) return { journaliere: 0, jours: 0, estime: true };
+  const sjr = brut / 365;
+  let j = Math.max(A.tauxSJR * sjr, A.tauxAlt * sjr + A.partieFixe);
+  j = Math.max(A.plancher, Math.min(j, A.plafondPartSJR * sjr));
+  const jours = Math.max(A.dureeMinJours, Math.round(A.dureeMaxJours * A.coefficientDuree));
+  return { journaliere: j, jours, estime: true };
+}
+
+/** Réutilise le moteur vérifié `simulate()` pour un CA et une année donnés.
+ *  `revenuDeclare` = ce que France Travail retient pour réduire l'allocation :
+ *  le revenu d'activité déclaré, pas le net qui reste en poche. */
+function simulerStatut(S, statutId, jours, acre) {
+  const sim = simulate({ ...S, joursFactures: jours, acrePremiereAnnee: !!acre });
+  const s = sim.statuts[statutId] || sim.statuts.micro;
+  const revenuDeclare = statutId === "micro"
+    ? sim.CA * (1 - S.params.micro.abattementFiscal)
+    : Math.max(0, s.net);
+  return { CA: sim.CA, social: s.social, is: s.is, ir: s.ir, net: s.net, revenuDeclare };
+}
+
+const SCENARIOS = [
+  { id: "arce", nom: "ARCE (capital)", court: "ARCE" },
+  { id: "maintien", nom: "Maintien de l'ARE (mensuel)", court: "Maintien ARE" },
+  { id: "aucune", nom: "Aucune aide", court: "Sans aide" }
+];
+
+function projection(S, statutId, scenario) {
+  const P = S.params, A = P.aides;
+  const are = droitsARE(S);
+  const N = clamp(nz(S.horizonAnnees, 4), 1, 6);
+  const annees = [];
+  let joursRestants = are.jours;
+  const arceTotal = are.jours * are.journaliere * A.arce.part;
+
+  for (let y = 1; y <= N; y++) {
+    const jours = y === 1 ? nz(S.joursAnnee1, 120) : nz(S.joursFactures, 200);
+    const base = simulerStatut(S, statutId, jours, y === 1);
+    let aide = 0, aideImposable = 0;
+    if (scenario === "arce" && y === 1) {
+      aide = arceTotal; joursRestants = 0;
+      aideImposable = A.arce.imposable ? aide : 0;
+    } else if (scenario === "maintien") {
+      const versableAn = Math.max(0, are.journaliere * 365 - A.maintienARE.tauxDeduction * Math.max(0, base.revenuDeclare));
+      aide = Math.min(versableAn, joursRestants * are.journaliere);
+      joursRestants = Math.max(0, joursRestants - (are.journaliere > 0 ? aide / are.journaliere : 0));
+      aideImposable = A.are.imposable ? aide : 0;
+    }
+    const irAide = aideImposable > 0 ? irMarginal(aideImposable * (1 - P.ir.abattementSalaire), S) : 0;
+    annees.push({
+      annee: y, jours, CA: base.CA, social: base.social, is: base.is,
+      ir: base.ir + irAide, aide, acre: y === 1,
+      net: base.net + aide - irAide, joursRestants: Math.round(joursRestants)
+    });
+  }
+  return { annees, are, arceTotal, total: annees.reduce((a, x) => a + x.net, 0) };
+}
+
+function comparerScenarios(S, statutId) {
+  return SCENARIOS.map((sc) => ({ ...sc, proj: projection(S, statutId, sc.id) }))
+    .map((x) => ({ ...x, total: x.proj.total }));
+}
+
+/* ============================================================================
+   Progression : XP, niveaux, rangs, quêtes, badges
+   ========================================================================== */
+const XP_GAIN = {
+  piste: 5, avance: 10, candidature: 25, echange: 40, proposition: 60, gagne: 200,
+  demarcheParPhase: [0, 20, 30, 40, 25], attente: 8, facture: 50
+};
+
+function jeu() { return (Store.settings && Store.settings.jeu) || DEFAULT_SETTINGS.jeu; }
+const seuilNiveau = (n) => 50 * n * (n + 1);
+function niveauPour(xp) { let n = 1; while (nz(xp) >= seuilNiveau(n) && n < 99) n++; return n; }
+function progressionNiveau(xp) {
+  const n = niveauPour(xp), bas = n === 1 ? 0 : seuilNiveau(n - 1), haut = seuilNiveau(n);
+  return { niveau: n, bas, haut, pct: clamp((nz(xp) - bas) / (haut - bas), 0, 1), reste: Math.max(0, haut - nz(xp)) };
+}
+
+function etatCheck(c) { return c.etat || (c.fait ? "fait" : "a_faire"); }
+function checkFait(fragment) {
+  const f = fragment.toLowerCase();
+  return Store.all("checklist").some((c) => etatCheck(c) === "fait" && (c.titre || "").toLowerCase().includes(f));
+}
+function phaseStats(n) {
+  const li = Store.all("checklist").filter((c) => nz(c.phase) === n);
+  return { total: li.length, faits: li.filter((c) => etatCheck(c) === "fait").length, attente: li.filter((c) => etatCheck(c) === "en_attente").length };
+}
+
+const RANGS = [
+  { n: 1, nom: "Salarié en veille", desc: "Vous explorez l'idée." },
+  { n: 2, nom: "En préparation", desc: "Phase 1 entamée.", cond: () => phaseStats(1).faits > 0 },
+  { n: 3, nom: "Décidé", desc: "Statut choisi et phase 1 bouclée.", cond: (S) => S.statut !== "undecided" && phaseStats(1).total > 0 && phaseStats(1).faits === phaseStats(1).total },
+  { n: 4, nom: "En négociation", desc: "Rupture conventionnelle engagée.", cond: () => phaseStats(2).faits > 0 },
+  { n: 5, nom: "Immatriculé", desc: "SIRET en poche.", cond: () => checkFait("Obtention du SIRET") },
+  { n: 6, nom: "Freelance lancé", desc: "Première mission signée.", cond: () => Store.all("missions").length > 0 },
+  { n: 7, nom: "Freelance confirmé", desc: "Premier encaissement reçu.", cond: () => Store.all("invoices").some((i) => i.dateEncaissement) }
+];
+function rangActuel(S) {
+  let r = RANGS[0];
+  for (const x of RANGS) { if (!x.cond || x.cond(S)) r = x; }
+  return { ...r, suivant: RANGS[RANGS.indexOf(r) + 1] || null };
+}
+
+const BADGES = [
+  { id: "premier_pas", ico: "🐣", t: "Premier pas", test: () => Store.all("leads").length > 0 },
+  { id: "contrat", ico: "📄", t: "Contrat relu", test: () => checkFait("Relire mon contrat") },
+  { id: "are", ico: "🧮", t: "Droits ARE connus", test: (S) => nz(S.areJournaliere) > 0 },
+  { id: "statut", ico: "⚖️", t: "Statut choisi", test: (S) => S.statut !== "undecided" },
+  { id: "rupture", ico: "🤝", t: "Rupture signée", test: () => checkFait("Signature de la convention") },
+  { id: "siret", ico: "🏛️", t: "SIRET obtenu", test: () => checkFait("Obtention du SIRET") },
+  { id: "prospecteur", ico: "🎯", t: "20 candidatures", test: () => Store.all("leads").filter((l) => (l.stageDates || {}).envoyee).length >= 20 },
+  { id: "mission", ico: "💼", t: "1re mission", test: () => Store.all("missions").length > 0 },
+  { id: "encaisse", ico: "💰", t: "1er encaissement", test: () => Store.all("invoices").some((i) => i.dateEncaissement) },
+  { id: "serie7", ico: "🔥", t: "7 jours d'affilée", test: () => nz(jeu().serieMax) >= 7 },
+  { id: "serie30", ico: "🏅", t: "30 jours d'affilée", test: () => nz(jeu().serieMax) >= 30 },
+  { id: "niveau5", ico: "⭐", t: "Niveau 5", test: () => niveauPour(jeu().xp) >= 5 }
+];
+
+/* --- quêtes du jour : tirées de la situation réelle, stables sur la journée --- */
+function graineJour(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+function melangeStable(arr, graine) {
+  const a = arr.slice(); let g = graine || 1;
+  for (let i = a.length - 1; i > 0; i--) { g = (g * 1103515245 + 12345) >>> 0; const j = g % (i + 1);[a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function quetesDuJour(S) {
+  const t = todayISO();
+  const leads = Store.all("leads"), checks = Store.all("checklist");
+  const manuelles = jeu().quetesManuelles || [];
+  const pool = [];
+  const dues = leads.filter((l) => { const f = leadFlags(l, S); return !f.closed && f.due; }).length;
+  if (dues > 0) pool.push({ id: "relance", ico: "📞", t: "Relancer " + Math.min(3, dues) + " piste" + (dues > 1 ? "s" : "") + " en retard", cible: Math.min(3, dues), xp: 30, mesure: () => leads.filter((l) => l.dernierContact === t).length });
+  pool.push({ id: "candidature", ico: "📤", t: "Envoyer 1 candidature", cible: 1, xp: 50, mesure: () => leads.filter((l) => (l.stageDates || {}).envoyee === t).length });
+  if (checks.some((c) => etatCheck(c) !== "fait")) pool.push({ id: "demarche", ico: "✅", t: "Cocher 1 démarche", cible: 1, xp: 40, mesure: () => checks.filter((c) => c.faitLe === t).length });
+  pool.push({ id: "pistes", ico: "🔍", t: "Ajouter 2 nouvelles pistes", cible: 2, xp: 25, mesure: () => leads.filter((l) => l.creeLe === t).length });
+  const echues = Store.all("invoices").filter((i) => !i.dateEncaissement && i.dateEcheance && daysDiff(t, i.dateEcheance) > 0).length;
+  if (echues > 0) pool.push({ id: "facture", ico: "💶", t: "Relancer une facture échue", cible: 1, xp: 35, manuel: true });
+  if (Store.all("missions").length) pool.push({ id: "jours", ico: "📅", t: "Mettre à jour mes jours travaillés", cible: 1, xp: 20, manuel: true });
+  if (nz(S.areJournaliere) === 0) pool.push({ id: "are", ico: "🧮", t: "Saisir mes droits ARE réels dans les réglages", cible: 1, xp: 60, manuel: true });
+
+  const choisies = pool.length <= 3 ? pool : melangeStable(pool, graineJour(t)).slice(0, 3);
+  return choisies.map((q) => {
+    const v = q.manuel ? (manuelles.includes(t + ":" + q.id) ? q.cible : 0) : Math.min(q.mesure(), q.cible);
+    return { ...q, valeur: v, fini: v >= q.cible };
+  });
+}
+
+/* --- attribution d'XP : mise en file pour ne jamais perdre un gain simultané --- */
+let fileXP = Promise.resolve();
+function gagnerXP(montant, libelle) {
+  fileXP = fileXP.then(() => gagnerXPInterne(montant, libelle)).catch(() => { });
+  return fileXP;
+}
+async function gagnerXPInterne(montant, libelle) {
+  if (!montant) return;
+  {
+    const j = { ...jeu() };
+    const avant = niveauPour(j.xp);
+    j.xp = nz(j.xp) + montant;
+    const t = todayISO();
+    if (j.dernierJour !== t) {
+      j.serie = (j.dernierJour && daysDiff(t, j.dernierJour) === 1) ? nz(j.serie) + 1 : 1;
+      j.dernierJour = t;
+      j.serieMax = Math.max(nz(j.serieMax), j.serie);
+    }
+    const journal = { ...(j.journal || {}) };
+    journal[t] = nz(journal[t]) + montant;
+    j.journal = Object.fromEntries(Object.keys(journal).sort().slice(-30).map((k) => [k, journal[k]]));
+    await Store.saveSettings({ jeu: j });
+    const apres = niveauPour(j.xp);
+    if (apres > avant) { celebrer(); toastJeu("Niveau " + apres + " atteint !", "win"); }
+    else toastJeu("+" + montant + " XP" + (libelle ? " · " + libelle : ""), "xp");
+  }
+}
+
+/** Vérifie quêtes terminées et badges débloqués. Idempotent. */
+let verifEnCours = false;
+async function verifierProgression() {
+  if (verifEnCours || !Store.ready || Store.settings === null) return;
+  verifEnCours = true;
+  try {
+    const S = Store.settings, t = todayISO();
+    const j = { ...jeu() };
+    const faites = (j.quetesFaites || []).slice();
+    let gain = 0; const libelles = [];
+    for (const q of quetesDuJour(S)) {
+      const cle = t + ":" + q.id;
+      if (q.fini && !faites.includes(cle)) { faites.push(cle); gain += q.xp; libelles.push(q.t); }
+    }
+    const badges = (j.badges || []).slice(); const nouveaux = [];
+    for (const b of BADGES) {
+      if (!badges.includes(b.id)) { let ok = false; try { ok = !!b.test(S); } catch (_) { ok = false; }
+        if (ok) { badges.push(b.id); nouveaux.push(b); } }
+    }
+    if (!gain && !nouveaux.length) return;
+    j.quetesFaites = faites.slice(-60);
+    j.badges = badges;
+    await Store.saveSettings({ jeu: j });
+    if (gain) await gagnerXP(gain, libelles.length === 1 ? "quête terminée" : libelles.length + " quêtes");
+    if (nouveaux.length) { celebrer(); toastJeu(nouveaux[0].ico + " Badge : " + nouveaux[0].t, "win"); }
+  } finally { verifEnCours = false; }
+}
+
+function toastJeu(msg, kind) {
+  const r = $("#toastRoot");
+  r.innerHTML = '<div class="toast ' + (kind || "") + ' pop">' + esc(msg) + "</div>";
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { r.innerHTML = ""; }, 2800);
+}
+function celebrer() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const root = $("#fxRoot"); if (!root) return;
+  const couleurs = ["var(--green)", "var(--gold)", "var(--blue)", "var(--purple)", "var(--red)"];
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < 26; i++) {
+    const d = document.createElement("div");
+    d.className = "confetti";
+    d.style.left = (10 + Math.random() * 80) + "%";
+    d.style.top = (10 + Math.random() * 18) + "%";
+    d.style.background = couleurs[i % couleurs.length];
+    d.style.animationDelay = (Math.random() * 0.25) + "s";
+    frag.appendChild(d);
+  }
+  root.appendChild(frag);
+  setTimeout(() => { root.innerHTML = ""; }, 1900);
+}
+
+/* ============================================================================
    État de l'interface
    ========================================================================== */
 const state = {
-  tab: "prospection",
+  tab: "aujourdhui",
   theme: null,
   drawerOpen: false,
   chat: [],           // {role, content}
@@ -830,12 +1257,177 @@ function render() {
   chip.className = "statut-chip" + (S.statut === "undecided" ? " undecided" : "");
   $("#tabs").innerHTML = TABS.map((t) =>
     '<button role="tab" data-tab="' + t.id + '" aria-selected="' + (state.tab === t.id) + '">' + esc(t.nom) + "</button>").join("");
+  renderHUD(S);
   $("#view").innerHTML = (VIEWS[state.tab] || (() => ""))(S);
   $("#drawerCtx").textContent = (TABS.find((t) => t.id === state.tab) || {}).nom || "";
   renderDrawer();
+  verifierProgression();
+}
+
+function renderHUD(S) {
+  const p = progressionNiveau(jeu().xp);
+  $("#hudLvl").innerHTML = '<span class="lvl-badge">' + p.niveau + "</span>"
+    + '<span class="hud-xp"><span class="t">' + num(nz(jeu().xp)) + " XP · " + num(p.reste) + ' avant niv. ' + (p.niveau + 1) + '</span>'
+    + '<span class="xpbar"><i style="width:' + Math.round(p.pct * 100) + '%"></i></span></span>';
+  const serie = nz(jeu().serie);
+  const actif = jeu().dernierJour === todayISO();
+  const el = $("#hudStreak");
+  el.className = "hud-streak" + (serie > 0 && actif ? "" : " off");
+  el.innerHTML = "🔥 <b>" + serie + "</b>";
+  el.title = serie > 0 ? serie + " jour(s) d'affilée — record : " + nz(jeu().serieMax) : "Aucune série en cours";
 }
 
 const VIEWS = {};
+
+/* ---------------------------------------------------------------- 0. AUJOURD'HUI */
+function anneauNiveau(pct, niveau) {
+  const r = 32, c = 2 * Math.PI * r;
+  return '<div class="hero-ring"><svg viewBox="0 0 78 78" width="78" height="78" aria-hidden="true">'
+    + '<circle cx="39" cy="39" r="' + r + '" fill="none" stroke="var(--surface-3)" stroke-width="7"></circle>'
+    + '<circle cx="39" cy="39" r="' + r + '" fill="none" stroke="var(--green)" stroke-width="7" stroke-linecap="round"'
+    + ' stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + (c * (1 - pct)).toFixed(1) + '"></circle></svg>'
+    + '<div style="text-align:center;line-height:1"><div class="lv">' + niveau + '</div><div class="lb">niveau</div></div></div>';
+}
+
+function prochaineDemarche() {
+  return Store.all("checklist").slice().sort((a, b) => nz(a.ordre) - nz(b.ordre))
+    .find((c) => etatCheck(c) === "a_faire") || null;
+}
+
+VIEWS.aujourdhui = function (S) {
+  const t = todayISO();
+  const p = progressionNiveau(jeu().xp);
+  const rang = rangActuel(S);
+  const quetes = quetesDuJour(S);
+  const leads = Store.all("leads");
+  const checks = Store.all("checklist");
+  const totalChecks = checks.length, faitsChecks = checks.filter((c) => etatCheck(c) === "fait").length;
+
+  /* --- hero --- */
+  const suivante = prochaineDemarche();
+  const hero = '<div class="hero">'
+    + anneauNiveau(p.pct, p.niveau)
+    + '<div class="hero-main">'
+    + "<h1>" + esc(rang.nom) + "</h1>"
+    + '<p class="hero-sub">' + esc(rang.desc) + " "
+    + (totalChecks ? faitsChecks + " démarche" + (faitsChecks > 1 ? "s" : "") + " sur " + totalChecks + " accomplie" + (faitsChecks > 1 ? "s" : "") + "." : "")
+    + (rang.suivant ? " Prochain rang : <b>" + esc(rang.suivant.nom) + "</b> — " + esc(rang.suivant.desc.toLowerCase()) : " Vous êtes au dernier rang.")
+    + "</p>"
+    + '<div class="hero-stats">'
+    + '<span class="pill acc">' + num(nz(jeu().xp)) + " XP</span>"
+    + '<span class="pill' + (nz(jeu().serie) > 0 ? " warn" : "") + '">🔥 ' + nz(jeu().serie) + " j d'affilée</span>"
+    + '<span class="pill">Record ' + nz(jeu().serieMax) + " j</span>"
+    + '<span class="pill' + (S.statut === "undecided" ? " bad" : " ok") + '">' + esc((STATUTS.find((x) => x.id === S.statut) || STATUTS[0]).nom) + "</span>"
+    + "</div></div>"
+    + (suivante ? '<div style="flex:1 1 210px;display:flex;flex-direction:column;gap:7px;align-items:flex-start">'
+      + '<div class="eyebrow">Reprendre ici</div>'
+      + '<div class="small" style="font-weight:700;line-height:1.3">' + esc(suivante.titre) + "</div>"
+      + '<button class="btn primary" data-act="go-check" data-id="' + suivante.id + '">Ouvrir</button></div>' : "")
+    + "</div>";
+
+  /* --- quêtes --- */
+  const finies = quetes.filter((q) => q.fini).length;
+  const blocQuetes = '<div class="panel"><div class="panel-h">'
+    + "<h2>Quêtes du jour</h2>"
+    + '<span class="pill' + (finies === quetes.length && quetes.length ? " ok" : "") + '">' + finies + " / " + quetes.length + "</span>"
+    + '<span class="xs dim" style="flex:1">renouvelées chaque matin selon votre situation réelle</span></div>'
+    + '<div class="panel-b" style="display:flex;flex-direction:column;gap:10px">'
+    + quetes.map((q) => '<div class="quest' + (q.fini ? " done" : "") + '">'
+      + '<span class="quest-ico">' + (q.fini ? "✓" : q.ico) + "</span>"
+      + '<span class="quest-b"><span class="quest-t">' + esc(q.t) + "</span>"
+      + (q.cible > 1 ? '<span class="bar"><i style="width:' + Math.round(q.valeur / q.cible * 100) + '%"></i></span>'
+        + '<span class="xs dim num">' + q.valeur + " / " + q.cible + "</span>" : "")
+      + "</span>"
+      + (q.manuel && !q.fini ? '<button class="btn sm" data-act="quete-ok" data-id="' + q.id + '">Fait</button>' : "")
+      + '<span class="quest-xp">' + (q.fini ? "+" : "") + q.xp + " XP</span>"
+      + "</div>").join("")
+    + "</div></div>";
+
+  /* --- ce qui vous attend aujourd'hui --- */
+  const relances = leads.map((l) => ({ l, f: leadFlags(l, S) })).filter((x) => !x.f.closed && x.f.due)
+    .sort((a, b) => b.f.retard - a.f.retard);
+  const echProches = genEcheances(S).filter((e) => { const d = daysDiff(e.date, t); return d >= 0 && d <= 14; }).slice(0, 4);
+  const facturesEchues = Store.all("invoices").filter((i) => !i.dateEncaissement && i.dateEcheance && daysDiff(t, i.dateEcheance) > 0)
+    .sort((a, b) => a.dateEcheance.localeCompare(b.dateEcheance));
+
+  const lignes = [];
+  facturesEchues.forEach((i) => lignes.push({ ico: "💶", cls: "bad", t: "Facture " + (i.numero || "") + " impayée — " + eur(nz(i.montantHT)),
+    d: "échue depuis " + daysDiff(t, i.dateEcheance) + " jours", act: 'data-act="go-tab" data-tab="missions"' }));
+  relances.forEach(({ l, f }) => lignes.push({ ico: "📞", cls: f.late ? "bad" : "warn",
+    t: "Relancer " + l.nom, d: f.late ? "en retard de " + f.retard + " jours" : "relance prévue aujourd'hui",
+    act: 'data-act="go-lead" data-id="' + l.id + '"' }));
+  echProches.forEach((e) => lignes.push({ ico: "📋", cls: "acc", t: e.libelle,
+    d: "dans " + daysDiff(e.date, t) + " jours · " + fmtDateLong(e.date), act: 'data-act="go-tab" data-tab="echeances"' }));
+
+  const blocJour = '<div class="panel"><div class="panel-h"><h2>Ce qui vous attend</h2>'
+    + '<span class="pill' + (lignes.length ? " warn" : " ok") + '">' + lignes.length + "</span></div>"
+    + (lignes.length ? '<div class="tasks">' + lignes.slice(0, 7).map((r) =>
+      "<button class=\"task\" " + r.act + '><span class="task-ico ' + r.cls + '">' + r.ico + "</span>"
+      + '<span class="task-b"><span class="task-t">' + esc(r.t) + '</span><span class="task-d">' + esc(r.d) + "</span></span></button>").join("")
+      + (lignes.length > 7 ? '<div class="xs dim" style="padding:9px 14px;border-top:2px solid var(--line)">+ ' + (lignes.length - 7) + " autres</div>" : "")
+      + "</div>"
+      : '<div class="empty">Rien d\'urgent aujourd\'hui. Avancez une démarche ou ajoutez des pistes.</div>')
+    + "</div>";
+
+  /* --- en attente d'un retour --- */
+  const attentes = checks.filter((c) => etatCheck(c) === "en_attente")
+    .sort((a, b) => (a.attenduLe || "9999").localeCompare(b.attenduLe || "9999"));
+  const blocAttente = '<div class="panel"><div class="panel-h"><h2>En attente d\'un retour</h2>'
+    + '<span class="pill' + (attentes.some((c) => c.attenduLe && daysDiff(t, c.attenduLe) > 0) ? " bad" : "") + '">' + attentes.length + "</span>"
+    + '<span class="xs dim" style="flex:1">la balle n\'est plus dans votre camp</span></div>'
+    + (attentes.length ? '<div class="tasks">' + attentes.map((c) => {
+      const reste = c.attenduLe ? daysDiff(c.attenduLe, t) : null;
+      const retard = reste !== null && reste < 0;
+      return '<button class="task" data-act="go-check" data-id="' + c.id + '">'
+        + '<span class="task-ico ' + (retard ? "bad" : "warn") + '">' + (retard ? "❗" : "⏳") + "</span>"
+        + '<span class="task-b"><span class="task-t">' + esc(c.titre) + "</span>"
+        + '<span class="task-d">' + (reste === null ? "sans date de retour"
+          : retard ? "retour attendu depuis " + (-reste) + " jours" : reste === 0 ? "retour attendu aujourd'hui" : "encore " + reste + " jours")
+        + "</span></span>"
+        + '<span class="pill ' + (retard ? "bad" : "warn") + '">' + (reste === null ? "—" : retard ? "+" + (-reste) + " j" : "J−" + reste) + "</span></button>";
+    }).join("") + "</div>"
+      : '<div class="empty">Rien en attente. Sur une démarche qui dépend d\'un tiers, cliquez sur ⏳ pour lancer le compte à rebours.</div>')
+    + "</div>";
+
+  /* --- où j'en suis --- */
+  const annee = new Date().getFullYear();
+  const encaisse = caEncaisse(annee);
+  const taux = tauxProvision(S);
+  const dispo = taux === null ? null : encaisse * (1 - taux);
+  const enAttenteCash = Store.all("invoices").filter((i) => !i.dateEncaissement).reduce((a, i) => a + nz(i.montantHT), 0);
+
+  const blocSituation = '<div class="panel"><div class="panel-h"><h2>Où j\'en suis</h2></div>'
+    + '<div class="panel-b" style="display:flex;flex-direction:column;gap:13px">'
+    + PHASES.map((ph) => {
+      const st = phaseStats(ph.n);
+      const pc = st.total ? st.faits / st.total : 0;
+      return '<div style="display:flex;flex-direction:column;gap:5px">'
+        + '<div class="row"><span class="small" style="flex:1;font-weight:700">Phase ' + ph.n + " — " + esc(ph.titre) + "</span>"
+        + (st.attente ? '<span class="pill warn">⏳ ' + st.attente + "</span>" : "")
+        + '<span class="num xs dim">' + st.faits + " / " + st.total + "</span></div>"
+        + '<div class="bar"><i class="' + (pc === 1 ? "ok" : "") + '" style="width:' + Math.round(pc * 100) + '%"></i></div></div>';
+    }).join("")
+    + "</div>"
+    + '<div class="kpis" style="border:0;border-top:2px solid var(--line);border-radius:0">'
+    + kpi(eur(encaisse), "Encaissé " + annee, "")
+    + kpi(dispo === null ? "—" : eur(dispo), "Réellement disponible", taux === null ? "statut non arrêté" : "après provision")
+    + kpi(eur(enAttenteCash), "En attente d'encaissement", "")
+    + kpi(String(leads.filter((l) => l.stage !== "gagne" && l.stage !== "perdu").length), "Pistes actives", "")
+    + "</div></div>";
+
+  /* --- badges --- */
+  const obtenus = jeu().badges || [];
+  const blocBadges = '<div class="panel"><div class="panel-h"><h2>Trophées</h2>'
+    + '<span class="pill">' + obtenus.length + " / " + BADGES.length + "</span></div>"
+    + '<div class="panel-b"><div class="badges">'
+    + BADGES.map((b) => '<div class="badge' + (obtenus.includes(b.id) ? " on" : "") + '" title="' + esc(b.t) + '">'
+      + '<span class="b-ico">' + b.ico + '</span><span class="b-t">' + esc(b.t) + "</span></div>").join("")
+    + "</div></div></div>";
+
+  return '<div class="stack">' + hero + blocQuetes
+    + '<div class="grid-2">' + blocJour + blocAttente + "</div>"
+    + blocSituation + blocBadges + "</div>";
+};
 
 /* ---------------------------------------------------------------- 1. PROSPECTION */
 function leadFlags(l, S) {
@@ -989,6 +1581,13 @@ VIEWS.simulateur = function (S) {
     + '<label class="row small"><input type="checkbox" data-sfield="versementLiberatoire"' + (S.versementLiberatoire ? " checked" : "") + '> Versement libératoire</label>'
     + "</label>"
     + "</div></details>"
+    + '<details class="fold"><summary>Aides et projection pluriannuelle</summary><div class="fold-b">'
+    + field("salaireBrutAnnuel", "Salaire brut annuel actuel", "number", S.salaireBrutAnnuel, "sert uniquement à estimer l'ARE tant que le relevé n'est pas saisi")
+    + field("areJournaliere", "ARE journalière réelle", "number", S.areJournaliere, "montant exact du relevé France Travail — 0 pour laisser l'estimation", 0.01)
+    + field("areJoursDroits", "Jours de droits ARE restants", "number", S.areJoursDroits, "0 pour laisser l'estimation")
+    + field("joursAnnee1", "Jours facturés la 1re année", "number", S.joursAnnee1, "la montée en charge est rarement immédiate")
+    + field("horizonAnnees", "Horizon de projection (années)", "number", S.horizonAnnees, "1 à 6")
+    + "</div></details>"
     + "</div></div>";
 
   const ligne = (lab, get, cls) => "<tr" + (cls ? ' class="' + cls + '"' : "") + '><td class="lab">' + lab + "</td>"
@@ -1046,8 +1645,133 @@ VIEWS.simulateur = function (S) {
     + '<p class="note">' + esc(P.marche.source) + '. Données déclaratives d\'un baromètre, pas une garantie de marché. <a href="' + esc(P.marche.url) + '" target="_blank" rel="noopener">Source</a></p>'
     + "</div></div>";
 
-  return '<div class="sim">' + gauche + '<div class="stack">' + tableau + hyp + marche + "</div></div>";
+  return '<div class="sim">' + gauche + '<div class="stack">'
+    + tableau + blocProjection(S) + blocAides(S) + hyp + marche + "</div></div>";
 };
+
+/* --- projection pluriannuelle : que rapporte réellement l'année 1, puis les suivantes --- */
+function blocProjection(S) {
+  const statut = S.statut === "undecided" ? "micro" : S.statut;
+  const are = droitsARE(S);
+  const scenario = S.scenarioAide || "arce";
+  const comp = comparerScenarios(S, statut);
+  const proj = (comp.find((c) => c.id === scenario) || comp[0]).proj;
+  const meilleur = comp.slice().sort((a, b) => b.total - a.total)[0];
+  const maxNet = Math.max(1, ...proj.annees.map((a) => Math.max(0, a.net)));
+  const N = proj.annees.length;
+
+  if (are.journaliere <= 0) {
+    return '<div class="panel"><div class="panel-h"><h2>Projection sur plusieurs années</h2></div>'
+      + '<div class="panel-b"><p class="note warn">Pour projeter vos revenus avec les aides, renseignez votre <b>salaire brut annuel</b> '
+      + "(estimation) ou, bien mieux, votre <b>ARE journalière</b> et vos <b>jours de droits</b> relevés sur France Travail. "
+      + 'Les deux champs sont dans « Aides et projection pluriannuelle », à gauche.</p></div></div>';
+  }
+
+  const selecteur = SCENARIOS.map((sc) =>
+    '<button class="btn sm' + (sc.id === scenario ? " primary" : "") + '" data-act="scenario" data-id="' + sc.id + '">' + esc(sc.court) + "</button>").join("");
+
+  const lignes = proj.annees.map((a) => {
+    const w = Math.round(Math.max(0, a.net) / maxNet * 100);
+    return "<tr>"
+      + '<td style="white-space:nowrap"><b>Année ' + a.annee + "</b>"
+      + (a.acre ? ' <span class="pill ok">ACRE</span>' : "") + "</td>"
+      + '<td class="tnum">' + num(a.jours) + " j</td>"
+      + '<td class="tnum">' + eur(a.CA) + "</td>"
+      + '<td class="tnum">− ' + eur(a.social + a.is) + "</td>"
+      + '<td class="tnum">− ' + eur(a.ir) + "</td>"
+      + '<td class="tnum">' + (a.aide > 0 ? '<span class="delta pos">+ ' + eur(a.aide) + "</span>" : "—") + "</td>"
+      + '<td style="min-width:150px"><div class="row" style="gap:8px">'
+      + '<div class="bar" style="flex:1"><i style="width:' + w + '%"></i></div>'
+      + '<b class="num" style="min-width:74px;text-align:right">' + eur(a.net) + "</b></div></td>"
+      + "</tr>";
+  }).join("");
+
+  const comparatif = '<div class="scroll-x"><table><thead><tr><th>Scénario sur ' + N + " ans</th>"
+    + proj.annees.map((a) => '<th class="tnum">An ' + a.annee + "</th>").join("")
+    + '<th class="tnum">Total net</th><th></th></tr></thead><tbody>'
+    + comp.map((c) => "<tr" + (c.id === scenario ? ' class="hi"' : "") + ">"
+      + "<td>" + esc(c.nom) + "</td>"
+      + c.proj.annees.map((a) => '<td class="tnum">' + eur(a.net) + "</td>").join("")
+      + '<td class="tnum"><b>' + eur(c.total) + "</b></td>"
+      + '<td class="tnum">' + (c.id === meilleur.id ? '<span class="pill ok">le plus élevé</span>'
+        : '<span class="xs dim num">− ' + eur(meilleur.total - c.total) + "</span>") + "</td></tr>").join("")
+    + "</tbody></table></div>";
+
+  return '<div class="panel"><div class="panel-h"><h2>Projection sur plusieurs années</h2>'
+    + '<span class="xs dim" style="flex:1">statut retenu : ' + esc((STATUTS.find((x) => x.id === statut) || {}).nom || statut)
+    + (S.statut === "undecided" ? " (par défaut, aucun statut n'est arrêté)" : "") + "</span>"
+    + '<span class="row" style="gap:5px">' + selecteur + "</span></div>"
+    + '<div class="kpis" style="border:0;border-bottom:2px solid var(--line);border-radius:0">'
+    + kpi(eur(are.journaliere) + " / j", "ARE journalière", are.estime ? "estimée — à confirmer" : "relevé France Travail")
+    + kpi(num(are.jours) + " j", "Droits restants", "soit " + eur(are.jours * are.journaliere) + " au total")
+    + kpi(eur(proj.arceTotal), "ARCE si demandée", pct(S.params.aides.arce.part, 0) + " du reliquat, en 2 versements")
+    + kpi(eur(proj.total), "Net cumulé sur " + N + " ans", esc((SCENARIOS.find((x) => x.id === scenario) || {}).court))
+    + "</div>"
+    + '<div class="scroll-x"><table><thead><tr><th>Période</th><th class="tnum">Jours</th><th class="tnum">CA HT</th>'
+    + '<th class="tnum">Cotisations + IS</th><th class="tnum">Impôt</th><th class="tnum">Aide perçue</th><th>Net disponible</th></tr></thead><tbody>'
+    + lignes + "</tbody></table></div>"
+    + '<div class="panel-b" style="border-top:2px solid var(--line);display:flex;flex-direction:column;gap:10px">'
+    + '<div class="eyebrow">Comparaison des trois scénarios</div>' + comparatif
+    + '<p class="note warn"><b>Le choix entre ARCE et maintien de l\'ARE est définitif.</b> L\'ARCE verse '
+    + pct(S.params.aides.arce.part, 0) + " du reliquat de vos droits en capital (2 versements, le second "
+    + S.params.aides.arce.moisSecondVersement + " mois après le premier) et solde vos droits ; le maintien verse une allocation mensuelle "
+    + "réduite de " + pct(S.params.aides.maintienARE.tauxDeduction, 0) + " de vos revenus d'activité, mais conserve vos droits plus longtemps. "
+    + "L'ARCE est la plus intéressante quand l'activité démarre vite, le maintien quand elle démarre lentement.</p>"
+    + '<p class="note">Hypothèses : année 1 à ' + num(nz(S.joursAnnee1)) + " jours facturés puis " + num(nz(S.joursFactures))
+    + " jours par an ; ACRE appliquée la 1re année uniquement ; l'ARE est imposable, le traitement fiscal de l'ARCE "
+    + (S.params.aides.arce.imposable ? "est traité comme imposable" : "est traité comme non imposable")
+    + " — <b>ce point est à confirmer par un expert-comptable</b>. Le maintien déduit "
+    + pct(S.params.aides.maintienARE.tauxDeduction, 0) + " du revenu d'activité <i>déclaré</i> (en micro-entreprise, le CA après abattement), "
+    + "sur une base annuelle alors que France Travail liquide mois par mois : sur une activité irrégulière, le résultat réel sera plus favorable que cette moyenne.</p>"
+    + (are.estime ? '<p class="note bad" style="border-color:var(--red);background:var(--red-soft);color:var(--bad)">L\'ARE affichée est une <b>estimation</b> calculée à partir de votre salaire brut. '
+      + "Le montant réel dépend de votre relevé de situation France Travail, du différé d'indemnisation lié à votre indemnité de rupture et du délai d'attente. "
+      + "Faites la simulation officielle avant de vous appuyer sur ces chiffres.</p>" : "")
+    + "</div></div>";
+}
+
+/* --- dispositifs mobilisables, en lecture seule --- */
+function blocAides(S) {
+  const A = S.params.aides;
+  const fiches = [
+    { ico: "🛟", t: A.are._libelle, ok: true,
+      d: "Après une rupture conventionnelle, la perte d'emploi est involontaire : elle ouvre droit à l'ARE si les conditions d'affiliation sont remplies. Le montant et la durée dépendent de votre salaire de référence et de votre durée d'affiliation.",
+      cond: "Inscription à France Travail. Un différé d'indemnisation s'applique si vous percevez une indemnité de rupture supérieure au minimum légal.",
+      org: "France Travail", lien: "https://www.francetravail.fr" },
+    { ico: "💸", t: A.arce._libelle, ok: true,
+      d: "Verse " + pct(A.arce.part, 0) + " du reliquat de vos droits ARE en capital, en " + A.arce.nbVersements
+        + " versements (le second " + A.arce.moisSecondVersement + " mois après le premier). Solde définitivement vos droits.",
+      cond: "Nécessite d'être bénéficiaire de l'ARE et d'avoir obtenu l'ACRE. Le choix ARCE / maintien est irréversible.",
+      org: "France Travail", lien: "https://www.francetravail.fr" },
+    { ico: "📆", t: A.maintienARE._libelle, ok: true,
+      d: "Alternative à l'ARCE : vous continuez à percevoir une allocation mensuelle, diminuée de "
+        + pct(A.maintienARE.tauxDeduction, 0) + " de vos revenus d'activité. Les droits non consommés restent acquis et repoussent la fin d'indemnisation.",
+      cond: "Déclaration mensuelle de votre activité à France Travail, y compris les mois sans revenu.",
+      org: "France Travail", lien: "https://www.francetravail.fr" },
+    { ico: "🎁", t: A.acre._libelle, ok: true,
+      d: "Exonération partielle de cotisations sociales pendant " + A.acre.dureeMois + " mois. Le simulateur l'applique à la 1re année quand la case ACRE est cochée.",
+      cond: "À demander dans les " + A.acre.delaiDemandeJours + " jours suivant l'immatriculation — passé ce délai, elle est perdue.",
+      org: "URSSAF", lien: "https://www.urssaf.fr" },
+    { ico: "🏢", t: "Exonération de CFE l'année de création", ok: A.cfeExonerationCreation,
+      d: "La cotisation foncière des entreprises n'est pas due l'année de la création. Elle apparaît dans vos échéances à partir de décembre de l'année suivante.",
+      cond: "Automatique, mais la déclaration initiale de CFE reste à déposer.",
+      org: "impots.gouv.fr", lien: "https://www.impots.gouv.fr" }
+  ];
+  return '<details class="panel"><summary class="panel-h"><span class="chev">&#9656;</span>'
+    + "<h2>Aides mobilisables</h2>"
+    + '<span class="xs dim" style="flex:1">après plusieurs années de salariat, en cas de perte involontaire d\'emploi</span></summary>'
+    + '<div class="panel-b" style="display:flex;flex-direction:column;gap:13px">'
+    + fiches.map((f) => '<div style="display:flex;gap:11px">'
+      + '<span class="quest-ico" style="width:36px;height:36px;font-size:17px">' + f.ico + "</span>"
+      + '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">'
+      + '<div class="row wrap" style="gap:7px"><b style="font-family:var(--display);font-size:14px">' + esc(f.t) + "</b>"
+      + '<a class="xs" href="' + esc(f.lien) + '" target="_blank" rel="noopener">' + esc(f.org) + "</a></div>"
+      + '<p class="small muted" style="line-height:1.45">' + esc(f.d) + "</p>"
+      + '<p class="xs dim">' + esc(f.cond) + "</p></div></div>").join("")
+    + '<p class="note warn">Cette liste couvre les dispositifs nationaux les plus courants dans votre situation. Elle n\'est pas exhaustive : '
+    + "des aides régionales, des prêts d'honneur associatifs et des exonérations sectorielles peuvent exister en Île-de-France. "
+    + "Aucune éligibilité n'est garantie ici — seuls France Travail et l'URSSAF font foi.</p>"
+    + "</div></details>";
+}
 
 function field(name, label, type, value, hint, step) {
   return '<label class="f"><span>' + esc(label) + "</span>"
@@ -1058,35 +1782,62 @@ function field(name, label, type, value, hint, step) {
 
 /* ---------------------------------------------------------------- 3. DÉMARCHES */
 VIEWS.demarches = function (S) {
+  const t = todayISO();
   const items = Store.all("checklist").slice().sort((a, b) => nz(a.ordre) - nz(b.ordre));
-  const total = items.length, faits = items.filter((i) => i.fait).length;
+  const total = items.length;
+  const faits = items.filter((i) => etatCheck(i) === "fait").length;
+  const nbAttente = items.filter((i) => etatCheck(i) === "en_attente").length;
+  const enRetard = items.filter((i) => etatCheck(i) === "en_attente" && i.attenduLe && daysDiff(t, i.attenduLe) > 0).length;
+
   return '<div class="stack">'
-    + '<div class="panel"><div class="panel-b row wrap" style="gap:12px">'
-    + '<div style="flex:1;min-width:180px"><div class="eyebrow">Avancement</div>'
-    + '<div class="row" style="margin-top:5px"><div class="bar" style="flex:1"><i class="ok" style="width:' + (total ? Math.round(faits / total * 100) : 0) + '%"></i></div>'
-    + '<span class="num small">' + faits + " / " + total + "</span></div></div>"
+    + '<div class="panel"><div class="panel-b row wrap" style="gap:14px">'
+    + '<div style="flex:1;min-width:200px"><div class="eyebrow">Avancement</div>'
+    + '<div class="row" style="margin-top:6px"><div class="bar" style="flex:1"><i class="ok" style="width:' + (total ? Math.round(faits / total * 100) : 0) + '%"></i></div>'
+    + '<span class="num small" style="font-weight:800">' + faits + " / " + total + "</span></div></div>"
+    + (nbAttente ? '<span class="pill warn">&#9203; ' + nbAttente + " en attente</span>" : "")
+    + (enRetard ? '<span class="pill bad">' + enRetard + " en retard</span>" : "")
     + '<button class="btn sm" data-act="check-new">+ Ligne</button>'
     + "</div></div>"
+    + '<p class="note acc">Chaque ligne a trois états : <b>à faire</b>, <b>&#9203; en attente</b> quand vous avez fait votre part et que la réponse dépend d\'un tiers, et <b>&#10003; fait</b>. Une ligne mise en attente démarre un compte à rebours, affiché sur l\'accueil et signalé en rouge s\'il dépasse.</p>'
     + PHASES.map((ph) => {
       const li = items.filter((i) => nz(i.phase) === ph.n);
-      const f = li.filter((i) => i.fait).length;
+      const f = li.filter((i) => etatCheck(i) === "fait").length;
+      const complet = li.length > 0 && f === li.length;
       const open = localStorage_get("ph" + ph.n) !== "0";
       return '<details class="phase" data-phase="' + ph.n + '"' + (open ? " open" : "") + ">"
         + '<summary><span class="chev">&#9656;</span>'
-        + '<span class="eyebrow">Phase ' + ph.n + "</span>"
+        + '<span class="phase-n' + (complet ? " on" : "") + '">' + (complet ? "&#10003;" : ph.n) + "</span>"
         + '<span class="pt">' + esc(ph.titre) + "</span>"
-        + '<span class="pill' + (li.length && f === li.length ? " ok" : "") + '">' + f + " / " + li.length + "</span></summary>"
-        + (ph.note ? '<div style="padding:10px 13px;border-top:1px solid var(--line)"><p class="note warn">' + esc(ph.note) + "</p></div>" : "")
-        + li.map((i) => '<div class="ck' + (i.fait ? " done" : "") + '">'
-          + '<input type="checkbox" data-act="check-toggle" data-id="' + i.id + '"' + (i.fait ? " checked" : "") + ' aria-label="Fait">'
-          + '<div class="b"><div class="t">' + esc(i.titre) + "</div>"
-          + '<div class="meta">'
-          + (i.lien ? '<a class="xs" href="' + esc(i.lien) + '" target="_blank" rel="noopener">' + esc(i.organisme || "Lien officiel") + "</a>"
-            : i.organisme ? '<span class="xs dim">' + esc(i.organisme) + "</span>" : "")
-          + (i.echeance ? '<span class="pill num' + (daysDiff(todayISO(), i.echeance) > 0 && !i.fait ? " bad" : "") + '">' + fmtDate(i.echeance) + "</span>" : "")
-          + (i.note ? '<span class="xs dim">' + esc(i.note) + "</span>" : "")
-          + '<button class="btn sm ghost" data-act="check-edit" data-id="' + i.id + '">Modifier</button>'
-          + "</div></div></div>").join("")
+        + '<span class="pill' + (complet ? " ok" : "") + '">' + f + " / " + li.length + "</span></summary>"
+        + (ph.note ? '<div style="padding:12px 15px;border-top:2px solid var(--line)"><p class="note warn">' + esc(ph.note) + "</p></div>" : "")
+        + li.map((i) => {
+          const e = etatCheck(i);
+          const reste = i.attenduLe ? daysDiff(i.attenduLe, t) : null;
+          const retard = e === "en_attente" && reste !== null && reste < 0;
+          const cls = e === "fait" ? " fait" : e === "en_attente" ? " attente" : "";
+          return '<div class="ck' + cls + '">'
+            + '<button class="ck-check" data-act="check-toggle" data-id="' + i.id + '" aria-label="'
+            + (e === "fait" ? "Rouvrir cette démarche" : "Marquer comme faite") + '">'
+            + (e === "fait" ? "&#10003;" : e === "en_attente" ? "&#9203;" : "&nbsp;") + "</button>"
+            + '<div class="b"><div class="t">' + esc(i.titre) + "</div>"
+            + '<div class="meta">'
+            + (e === "en_attente"
+              ? '<span class="pill ' + (retard ? "bad" : "warn") + '">'
+                + (reste === null ? "en attente" : retard ? "retour en retard de " + (-reste) + " j"
+                  : reste === 0 ? "retour attendu aujourd&#39;hui" : "retour attendu J−" + reste) + "</span>"
+              : "")
+            + (i.lien ? '<a class="xs" href="' + esc(i.lien) + '" target="_blank" rel="noopener">' + esc(i.organisme || "Site officiel") + "</a>"
+              : i.organisme ? '<span class="xs dim">' + esc(i.organisme) + "</span>" : "")
+            + (i.echeance ? '<span class="pill num' + (daysDiff(t, i.echeance) > 0 && e !== "fait" ? " bad" : "") + '">échéance ' + fmtDate(i.echeance) + "</span>" : "")
+            + (i.note ? '<span class="xs dim">' + esc(i.note) + "</span>" : "")
+            + (e !== "fait"
+              ? '<button class="btn sm ghost" data-act="check-attente" data-id="' + i.id + '" title="'
+                + (nz(i.delaiAttente) > 0 ? "Délai habituel : " + nz(i.delaiAttente) + " jours" : "Lancer un compte à rebours") + '">'
+                + (e === "en_attente" ? "Annuler l&#39;attente" : "&#9203; En attente") + "</button>"
+              : "")
+            + '<button class="btn sm ghost" data-act="check-edit" data-id="' + i.id + '">Modifier</button>'
+            + "</div></div></div>";
+        }).join("")
         + (li.length ? "" : '<div class="empty">Aucune ligne dans cette phase.</div>')
         + "</details>";
     }).join("")
@@ -1408,12 +2159,12 @@ function leadModal(id) {
       { name: "note", label: "Note", type: "textarea", fold: true }
     ],
     onSubmit: (v) => {
-      const base = l || { stageDates: {} };
+      const base = l || { stageDates: {}, creeLe: todayISO() };
       const rec = { ...base, ...v };
       rec.stageDates = { ...(base.stageDates || {}) };
       if (!rec.stageDates[rec.stage]) rec.stageDates[rec.stage] = todayISO();
       delete rec.exemple;
-      Store.put("leads", rec);
+      Store.put("leads", rec).then(() => { if (!l) gagnerXP(XP_GAIN.piste, "nouvelle piste"); });
     },
     onDelete: l ? () => Store.remove("leads", l.id) : null
   });
@@ -1429,10 +2180,54 @@ function setLeadStage(l, stage) {
   const sd = { ...(l.stageDates || {}) };
   if (!sd[stage]) sd[stage] = todayISO();
   const S = Store.settings;
+  const avant = STAGE_IDX[l.stage], apres = STAGE_IDX[stage];
   const rec = { ...l, stage, stageDates: sd, dernierContact: todayISO() };
   if (stage !== "gagne" && stage !== "perdu") rec.prochaineRelance = addDays(todayISO(), nz(S.delaiRelance, 7));
   delete rec.exemple;
-  Store.put("leads", rec);
+  Store.put("leads", rec).then(() => {
+    if (apres <= avant) return;
+    const gain = stage === "envoyee" ? XP_GAIN.candidature
+      : stage === "echange" ? XP_GAIN.echange
+        : stage === "proposition" ? XP_GAIN.proposition
+          : stage === "gagne" ? XP_GAIN.gagne : XP_GAIN.avance;
+    gagnerXP(gain, stage === "gagne" ? "mission gagnée !" : "piste avancée");
+    if (stage === "gagne") celebrer();
+  });
+}
+
+/* --- démarches : à faire → en attente → fait --- */
+async function toggleCheck(id) {
+  const c = Store.get("checklist", id); if (!c) return;
+  if (etatCheck(c) === "fait") {
+    await Store.put("checklist", { ...c, etat: "a_faire", fait: false, faitLe: "" });
+    return;
+  }
+  const avant = phaseStats(nz(c.phase, 1));
+  await Store.put("checklist", { ...c, etat: "fait", fait: true, faitLe: todayISO(), attenduLe: "" });
+  await gagnerXP(XP_GAIN.demarcheParPhase[nz(c.phase, 1)] || 20, "démarche accomplie");
+  const apres = phaseStats(nz(c.phase, 1));
+  if (apres.total > 0 && apres.faits === apres.total && avant.faits < avant.total) {
+    celebrer();
+    toastJeu("Phase " + nz(c.phase, 1) + " terminée !", "win");
+  }
+}
+async function toggleAttente(id) {
+  const c = Store.get("checklist", id); if (!c) return;
+  if (etatCheck(c) === "en_attente") {
+    await Store.put("checklist", { ...c, etat: "a_faire", attenduLe: "" });
+    return;
+  }
+  const delai = nz(c.delaiAttente, 0) > 0 ? nz(c.delaiAttente) : 7;
+  await Store.put("checklist", { ...c, etat: "en_attente", fait: false, attenduLe: addDays(todayISO(), delai) });
+  await gagnerXP(XP_GAIN.attente, "en attente d'un retour");
+}
+async function marquerQuete(qid) {
+  const j = { ...jeu() };
+  const cle = todayISO() + ":" + qid;
+  const m = (j.quetesManuelles || []).slice();
+  if (!m.includes(cle)) m.push(cle);
+  j.quetesManuelles = m.slice(-40);
+  await Store.saveSettings({ jeu: j });
 }
 
 function canalModal(id) {
@@ -1454,17 +2249,29 @@ function checkModal(id) {
   const c = id ? Store.get("checklist", id) : null;
   formModal({
     title: c ? "Modifier la ligne" : "Nouvelle ligne",
-    values: c || { phase: 1, ordre: 999 },
+    values: c ? { ...c, etat: etatCheck(c) } : { phase: 1, ordre: 999, etat: "a_faire", delaiAttente: 0 },
     required: ["titre"],
     fields: [
       { name: "titre", label: "Intitulé", type: "text" },
       { name: "phase", label: "Phase", type: "select", options: PHASES.map((p) => ({ v: p.n, l: "Phase " + p.n + " — " + p.titre })) },
-      { name: "echeance", label: "Échéance", type: "date" },
+      { name: "etat", label: "État", type: "select", options: [{ v: "a_faire", l: "À faire" }, { v: "en_attente", l: "En attente d'un retour" }, { v: "fait", l: "Fait" }] },
+      { name: "attenduLe", label: "Retour attendu le", type: "date", hint: "utilisé quand la ligne est en attente" },
+      { name: "delaiAttente", label: "Délai d'attente habituel (jours)", type: "number", fold: true, hint: "sert à pré-remplir la date de retour" },
+      { name: "echeance", label: "Échéance ferme", type: "date", fold: true },
       { name: "note", label: "Note", type: "textarea", fold: true },
       { name: "organisme", label: "Organisme", type: "text", fold: true },
       { name: "lien", label: "Lien", type: "text", fold: true, hint: "laissez vide si vous n'êtes pas certain de l'URL" }
     ],
-    onSubmit: (v) => Store.put("checklist", { ...(c || { fait: false }), ...v, phase: Number(v.phase) }),
+    onSubmit: (v) => {
+      const rec = { ...(c || { fait: false, ordre: 999 }), ...v, phase: Number(v.phase) };
+      rec.fait = rec.etat === "fait";
+      rec.faitLe = rec.etat === "fait" ? (c && c.faitLe ? c.faitLe : todayISO()) : "";
+      if (rec.etat === "en_attente" && !rec.attenduLe) {
+        rec.attenduLe = addDays(todayISO(), nz(rec.delaiAttente, 0) > 0 ? nz(rec.delaiAttente) : 7);
+      }
+      if (rec.etat !== "en_attente") rec.attenduLe = "";
+      Store.put("checklist", rec);
+    },
     onDelete: c ? () => Store.remove("checklist", c.id) : null
   });
 }
@@ -1560,7 +2367,13 @@ const PARAM_FIELDS = [
   ["is.taux2", "IS — taux normal", 0.01],
   ["pfu", "PFU (flat tax)", 0.001],
   ["portage.restitutionMin", "Portage — restitution min.", 0.01],
-  ["portage.restitutionMax", "Portage — restitution max.", 0.01]
+  ["portage.restitutionMax", "Portage — restitution max.", 0.01],
+  ["aides.are.partieFixe", "ARE — partie fixe (€/jour)", 0.01],
+  ["aides.are.plancher", "ARE — plancher (€/jour)", 0.01],
+  ["aides.are.dureeMaxJours", "ARE — durée maximale (jours)", 1],
+  ["aides.are.coefficientDuree", "ARE — coefficient de durée", 0.01],
+  ["aides.arce.part", "ARCE — part du reliquat", 0.01],
+  ["aides.maintienARE.tauxDeduction", "Maintien ARE — taux de déduction", 0.01]
 ];
 const getPath = (o, p) => p.split(".").reduce((a, k) => (a == null ? a : a[k]), o);
 const setPath = (o, p, v) => { const ks = p.split("."); const last = ks.pop(); const t = ks.reduce((a, k) => (a[k] = a[k] || {}), o); t[last] = v; };
@@ -1580,6 +2393,11 @@ function settingsModal() {
     + fieldHTML({ name: "fraisGestionPortage", label: "Frais de gestion portage", type: "number", step: "0.005" }, S.fraisGestionPortage)
     + fieldHTML({ name: "delaiRelance", label: "Délai de relance par défaut (jours)", type: "number" }, S.delaiRelance)
     + fieldHTML({ name: "seuilDormance", label: "Piste dormante après (jours)", type: "number" }, S.seuilDormance)
+    + fieldHTML({ name: "areJournaliere", label: "ARE journalière réelle (€)", type: "number", step: "0.01", hint: "relevé France Travail — 0 pour laisser l'estimation" }, S.areJournaliere)
+    + fieldHTML({ name: "areJoursDroits", label: "Jours de droits ARE restants", type: "number", hint: "relevé France Travail — 0 pour estimer" }, S.areJoursDroits)
+    + fieldHTML({ name: "salaireBrutAnnuel", label: "Salaire brut annuel actuel", type: "number", hint: "base de l'estimation ARE" }, S.salaireBrutAnnuel)
+    + fieldHTML({ name: "joursAnnee1", label: "Jours facturés la 1re année", type: "number" }, S.joursAnnee1)
+    + fieldHTML({ name: "horizonAnnees", label: "Horizon de projection (années)", type: "number" }, S.horizonAnnees)
     + fieldHTML({ name: "periodiciteUrssaf", label: "Déclaration URSSAF", type: "select", options: [{ v: "mensuelle", l: "Mensuelle" }, { v: "trimestrielle", l: "Trimestrielle" }] }, S.periodiciteUrssaf)
     + fieldHTML({ name: "assujettiTVA", label: "TVA", type: "checkbox", checkLabel: "Assujetti à la TVA" }, S.assujettiTVA)
     + "</div>"
@@ -1596,6 +2414,7 @@ function settingsModal() {
     + '<button class="btn" id="btnExport">Exporter en JSON</button>'
     + '<button class="btn" id="btnImport">Importer un JSON</button>'
     + '<button class="btn" id="btnRestore">Restaurer le contenu de départ</button>'
+    + '<button class="btn danger" id="btnResetJeu">Remettre la progression à zéro</button>'
     + "</div>"
     + '<span class="hint">L\'import remplace les collections présentes dans le fichier. La restauration recharge les canaux et la checklist d\'origine et supprime les vôtres.</span>'
     + '<input type="file" id="fileImport" accept="application/json,.json" hidden>'
@@ -1611,8 +2430,9 @@ function settingsModal() {
   $("#sSave").addEventListener("click", () => {
     const patch = {};
     ["statut", "periodiciteUrssaf"].forEach((k) => { patch[k] = $('[name="' + k + '"]', root).value; });
-    ["tjm", "joursFactures", "salaireNetMensuel", "fraisProAnnuels", "fraisGestionPortage", "delaiRelance", "seuilDormance"]
-      .forEach((k) => { patch[k] = Number($('[name="' + k + '"]', root).value) || 0; });
+    ["tjm", "joursFactures", "salaireNetMensuel", "fraisProAnnuels", "fraisGestionPortage", "delaiRelance", "seuilDormance",
+      "areJournaliere", "areJoursDroits", "salaireBrutAnnuel", "joursAnnee1", "horizonAnnees"]
+      .forEach((k) => { const el = $('[name="' + k + '"]', root); if (el) patch[k] = Number(el.value) || 0; });
     patch.assujettiTVA = $('[name="assujettiTVA"]', root).checked;
     const params = structuredCloneSafe(Store.settings.params);
     PARAM_FIELDS.forEach(([p]) => {
@@ -1653,6 +2473,11 @@ function settingsModal() {
   $("#btnRestore").addEventListener("click", async () => {
     await Store.resetContenuDepart(); closeModal();
   });
+  $("#btnResetJeu").addEventListener("click", async () => {
+    await Store.saveSettings({ jeu: { ...DEFAULT_SETTINGS.jeu, badges: [], quetesFaites: [], quetesManuelles: [], journal: {} } });
+    closeModal();
+    toast("Progression remise à zéro — vos données de travail sont intactes");
+  });
 }
 
 /* ============================================================================
@@ -1662,7 +2487,22 @@ function contexteOnglet() {
   const S = Store.settings;
   const t = state.tab;
   const base = { onglet: (TABS.find((x) => x.id === t) || {}).nom, statutActif: S.statut, tjmCible: S.tjm, joursFactures: S.joursFactures };
-  if (t === "prospection") {
+  if (t === "aujourdhui") {
+    const rang = rangActuel(S);
+    base.progression = {
+      niveau: niveauPour(jeu().xp), xp: nz(jeu().xp), serie: nz(jeu().serie),
+      rang: rang.nom, prochainRang: rang.suivant ? rang.suivant.nom : null
+    };
+    base.phases = PHASES.map((p) => ({ phase: p.n, titre: p.titre, ...phaseStats(p.n) }));
+    base.prochainesDemarches = Store.all("checklist").slice().sort((a, b) => nz(a.ordre) - nz(b.ordre))
+      .filter((c) => etatCheck(c) === "a_faire").slice(0, 5).map((c) => c.titre);
+    base.enAttente = Store.all("checklist").filter((c) => etatCheck(c) === "en_attente")
+      .map((c) => ({ titre: c.titre, retourAttenduLe: c.attenduLe }));
+    base.relancesDues = Store.all("leads").filter((l) => { const f = leadFlags(l, S); return !f.closed && f.due; })
+      .map((l) => ({ nom: l.nom, retardJours: l.prochaineRelance ? daysDiff(todayISO(), l.prochaineRelance) : 0 }));
+    base.facturesEchues = Store.all("invoices").filter((i) => !i.dateEncaissement && i.dateEcheance && daysDiff(todayISO(), i.dateEcheance) > 0)
+      .map((i) => ({ numero: i.numero, montantHT: i.montantHT, echeance: i.dateEcheance }));
+  } else if (t === "prospection") {
     const leads = Store.all("leads");
     base.pistes = leads.map((l) => ({
       nom: l.nom, colonne: (STAGES.find((s) => s.id === l.stage) || {}).nom, source: l.canal, poste: l.poste,
@@ -1690,6 +2530,11 @@ function contexteOnglet() {
 }
 
 const CHIPS = {
+  aujourdhui: [
+    { l: "Que dois-je faire cette semaine ?", p: "semaine" },
+    { l: "Par quoi je commence ?", p: "libre", q: "Au vu de mon avancement, par quelle démarche concrète dois-je commencer aujourd'hui, et pourquoi celle-là avant les autres ? Réponse courte." },
+    { l: "ARCE ou maintien de l'ARE ?", p: "libre", q: "Explique-moi simplement la différence entre l'ARCE et le maintien de l'ARE, et quels éléments de ma situation doivent guider ce choix. Précise que le choix est définitif et que seul France Travail fait foi." }
+  ],
   prospection: [
     { l: "Que dois-je faire cette semaine ?", p: "semaine" },
     { l: "Ajouter des pistes depuis un texte", p: "leads" },
@@ -1741,9 +2586,10 @@ function renderDrawer() {
         await Store.put("leads", {
           nom: p.nom, canal: p.canal || "", poste: p.poste || "", tjmVise: nz(p.tjmVise, nz(S.tjm)), tjmPropose: 0,
           stage: "a_contacter", dernierContact: todayISO(), prochaineRelance: addDays(todayISO(), nz(S.delaiRelance, 7)),
-          note: p.note || "", stageDates: { a_contacter: todayISO() }
+          note: p.note || "", creeLe: todayISO(), stageDates: { a_contacter: todayISO() }
         });
       }
+      await gagnerXP(XP_GAIN.piste * state.proposals.length, "pistes ajoutées");
       toast(state.proposals.length + " piste(s) ajoutée(s)");
       state.proposals = null; renderSoon();
     });
@@ -1862,11 +2708,25 @@ document.addEventListener("click", (e) => {
     case "canal-edit": canalModal(id); break;
     case "check-new": checkModal(null); break;
     case "check-edit": checkModal(id); break;
+    case "check-toggle": toggleCheck(id); break;
+    case "check-attente": toggleAttente(id); break;
+    case "quete-ok": marquerQuete(id); break;
+    case "scenario": Store.saveSettings({ scenarioAide: id }); break;
+    case "go-lead": leadModal(id); break;
+    case "go-tab": state.tab = act.dataset.tab; render(); break;
+    case "go-check": state.tab = "demarches"; render(); checkModal(id); break;
     case "mission-new": missionModal(null); break;
     case "mission-edit": missionModal(id); break;
     case "inv-new": invoiceModal(null); break;
     case "inv-edit": invoiceModal(id); break;
-    case "inv-paid": { const i = Store.get("invoices", id); if (i) Store.put("invoices", { ...i, dateEncaissement: todayISO() }); break; }
+    case "inv-paid": {
+      const i = Store.get("invoices", id);
+      if (i && !i.dateEncaissement) {
+        Store.put("invoices", { ...i, dateEncaissement: todayISO() })
+          .then(() => { gagnerXP(XP_GAIN.facture, "facture encaissée"); celebrer(); });
+      }
+      break;
+    }
     case "ech-new": echeanceModal(); break;
     case "ech-del": Store.remove("deadlines", act.dataset.doc); break;
     case "fc-new": fixedCostModal(); break;
@@ -1885,10 +2745,7 @@ document.addEventListener("change", (e) => {
     return;
   }
   const act = t.dataset.act;
-  if (act === "check-toggle") {
-    const c = Store.get("checklist", t.dataset.id);
-    if (c) Store.put("checklist", { ...c, fait: t.checked });
-  } else if (act === "wd") {
+  if (act === "wd") {
     const { mission, mois } = t.dataset;
     const existing = Store.all("workdays").find((w) => w.missionId === mission && w.mois === mois);
     const v = t.value === "" ? 0 : Number(t.value);
